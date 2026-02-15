@@ -1,0 +1,6 @@
+# Clippy configuration for the calm-rust project
+# See: https://doc.rust-lang.org/clippy/configuration.html
+
+# MSRV for Android NDK compatibility
+msrv = "1.70.0"
+

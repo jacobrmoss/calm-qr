@@ -1,0 +1,40 @@
+# ── IDE / Editor ─────────────────────────────────────────────────
+*.iml
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS files ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Gradle ───────────────────────────────────────────────────────
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ── Android ──────────────────────────────────────────────────────
+/captures
+.externalNativeBuild/
+.cxx/
+
+# Local config (contains signing secrets & SDK path)
+local.properties
+app/local.properties
+
+# Pre-built JNI .so files (rebuilt from Rust source)
+app/src/main/jniLibs/
+
+# ── Rust ─────────────────────────────────────────────────────────
+rust/target/
+
+# ── Signing ──────────────────────────────────────────────────────
+*.jks
+*.keystore
+
+# ── Misc ─────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
