@@ -84,7 +84,7 @@ The underlying data has been consistent in my testing, however, the library and 
 ### Under-tested in real life
 I've just started using it myself, so I can't say that it works well in all scenarios. Use with care and caution and have back up images just in case.
 ### Flashing for the codes
-I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screen's flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
+I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screens flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
 
 ---
 
