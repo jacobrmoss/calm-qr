@@ -40,3 +40,4 @@ rust/target/
 *.log
 *.tmp
 *.bak
+docs/
