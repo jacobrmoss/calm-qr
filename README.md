@@ -7,7 +7,7 @@
 
 # Calm QR
 
-**Calm QR** is a minimal, calm barcode & QR code scanner built for the **Mudita Kompakt**.
+**Calm QR** is a minimal, calm barcode & QR code scanner and storage built for the **Mudita Kompakt**.
 
 The interface and philosophy aspires to follow that of [Mudita Mindful Design](https://mudita.com/community/blog/introducing-mudita-mindful-design/).
 
