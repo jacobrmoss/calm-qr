@@ -5,16 +5,16 @@
 
 <br clear="all" />
 
-# QR
+# Calm QR
 
-**QR** is a minimal, calm barcode & QR code scanner for the **Mudita Kompakt** and similar degoogled E-ink Android devices. Decoding is handled entirely in Rust via [rxing](https://github.com/rxing-core/rxing) — no Google Play Services required.
+**Calm QR** is a minimal, calm barcode & QR code scanner for the **Mudita Kompakt** and similar degoogled E-ink Android devices. Decoding is handled entirely in Rust via [rxing](https://github.com/rxing-core/rxing) — no Google Play Services required.
 
 The interface and philosophy aspires to follow that of [Mudita Mindful Design](https://mudita.com/community/blog/introducing-mudita-mindful-design/)
 
 ---
 
 ## Background
-I've been living with my **Mudita Kompakt** for a little while now, and one of the pain points I keep encountering is simply needing QR codes -- both to scan and to keep for tickets, returns, etc.
+I've been living with my **Mudita Kompakt** for a little while now, and one of the pain points I keep encountering is simply needing QR codes -- to scan and to keep for tickets, returns, etc.
 
 I found some open source QR scanning apps (it's a fairly rudimentary thing) but they just all felt clunky on the Kompakt. I've scraped this little thing together to hopefully solve that pain point for myself and others as well.
 
@@ -74,6 +74,17 @@ Rust cross-compilation targets are required:
 ```bash
 rustup target add aarch64-linux-android armv7-linux-androideabi
 ```
+
+## Known Issues
+It's not perfect, and I've thrown it together quickly. Here are some of the things I'm thinking about it.
+### Barcode scanning is not as reliable
+I decided to add in barcode scanning to replace that dreaded "I just need to scann the __ sent to your email" which doesn't really work so well when you don't want to carry around your email. Often those are QR codes, sometimes barcodes. I've found the barcode scanning isn't as reliable, and my attempts to improve it haven't done too much. Be sure when scanning in a barcode that it looks like the barcode you scanned. If it is overly simplified there's a good chance it was done incorrectly.
+### QR code images change
+The underlying data has been fairly consistent in my testing, however the library and methods I used generate new QR codes. This should be fine since the format allows for this variance, but it's something to keep in mind.
+### Under-tested in real life
+I've just started using it myself, so I can't say that it works well in all scenarios. Use with care and caution and have back ups images just in case.
+### Flashing for the Codes
+I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screen's flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
 
 ---
 
