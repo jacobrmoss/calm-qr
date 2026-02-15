@@ -14,7 +14,7 @@ The interface and philosophy aspires to follow that of [Mudita Mindful Design](h
 ---
 
 ## Background
-I've been living with my **Mudita Kompakt** for a little while now, and one of the pain points I keep encountering is simply needing QR codes -- to scan and to keep for tickets, returns, etc.
+I've been living with my **Mudita Kompakt** for a little while now, and one of the pain points I keep encountering is simply needing to have QR codes -- to scan and to keep for tickets, returns, etc.
 
 I found some open source QR scanning apps (it's a fairly rudimentary thing) but they just all felt clunky on the Kompakt. I've scraped this little thing together to hopefully solve that pain point for myself and others as well.
 
