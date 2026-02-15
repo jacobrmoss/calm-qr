@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -38,6 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.caravanfire.calmqr.data.SavedCode
+import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.rust.RustBridge
 import com.mudita.mmd.components.buttons.ButtonMMD
@@ -84,8 +88,9 @@ fun ScanDetailScreen(
     var editableName by remember { mutableStateOf("Untitled") }
     var hasBeenTouched by remember { mutableStateOf(false) }
 
+    val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR")
+
     val qrData = remember(content, format) {
-        val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR")
         if (is1D) RustBridge.generateBarcode(content, format, 512, 200)
         else RustBridge.generateBarcode(content, format, 512, 512)
     }
@@ -110,6 +115,7 @@ fun ScanDetailScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .offset(x = Dimens.titleOffset)
                                 .onFocusChanged { focusState ->
                                     if (focusState.isFocused && !hasBeenTouched) {
                                         hasBeenTouched = true
@@ -140,7 +146,7 @@ fun ScanDetailScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-                // QR code centered, fills available space
+                // QR/barcode centered
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -151,13 +157,19 @@ fun ScanDetailScreen(
                         Image(
                             bitmap = bitmap.asImageBitmap(),
                             contentDescription = "QR Code",
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(
+                                    if (is1D) 0.7f
+                                    else 0.5f
+                                ),
                             contentScale = ContentScale.Fit,
                             filterQuality = FilterQuality.None
                         )
                     }
                 }
 
+            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             ButtonMMD(
                 onClick = {
                     scope.launch {
@@ -174,11 +186,11 @@ fun ScanDetailScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextMMD(text = "Save", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                TextMMD(text = "Save", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
             }
 
             if (isUrl) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 ButtonMMD(
                     onClick = {
                         context.startActivity(
@@ -187,17 +199,18 @@ fun ScanDetailScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Open in Browser", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                    TextMMD(text = "Open in Browser", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             OutlinedButtonMMD(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextMMD(text = "Cancel", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
             }
+            Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
         }
     }
 }

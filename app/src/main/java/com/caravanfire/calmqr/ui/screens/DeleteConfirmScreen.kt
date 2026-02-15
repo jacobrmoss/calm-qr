@@ -6,20 +6,38 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.caravanfire.calmqr.data.SavedCodeDao
+import com.caravanfire.calmqr.ui.Dimens
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.buttons.OutlinedButtonMMD
 import com.mudita.mmd.components.text.TextMMD
+import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteConfirmScreen(
     codeId: Long,
@@ -28,43 +46,80 @@ fun DeleteConfirmScreen(
     onCancel: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    var codeName by remember { mutableStateOf("") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TextMMD(
-            text = "Are you sure?",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Center)
-        )
+    LaunchedEffect(codeId) {
+        codeName = savedCodeDao.getCodeById(codeId)?.name ?: ""
+    }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        ) {
-            ButtonMMD(
-                onClick = {
-                    scope.launch {
-                        savedCodeDao.getCodeById(codeId)?.let {
-                            savedCodeDao.deleteCode(it)
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBarMMD(
+                    showDivider = false,
+                    title = {
+                        TextMMD(
+                            text = codeName,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.offset(x = Dimens.titleOffset)
+                        )
+                    },
+                    navigationIcon = {
+                        Box(modifier = Modifier.padding(4.dp)) {
+                            IconButton(onClick = onCancel) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
-                        onDeleted()
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TextMMD(text = "Yes, Delete", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                )
+                HorizontalDivider(thickness = 3.dp)
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedButtonMMD(
-                onClick = onCancel,
-                modifier = Modifier.fillMaxWidth()
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            TextMMD(
+                text = "Are you sure?",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
             ) {
-                TextMMD(text = "Cancel", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                ButtonMMD(
+                    onClick = {
+                        scope.launch {
+                            savedCodeDao.getCodeById(codeId)?.let {
+                                savedCodeDao.deleteCode(it)
+                            }
+                            onDeleted()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextMMD(text = "Yes, Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                }
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                OutlinedButtonMMD(
+                    onClick = onCancel,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                }
+                Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
             }
         }
     }

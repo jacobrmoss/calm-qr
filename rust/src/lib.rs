@@ -1,8 +1,8 @@
 use jni::objects::{JByteArray, JClass, JObject, JString, JValue};
-use jni::sys::{jint, jlong};
+use jni::sys::{jboolean, jint, jlong};
 use jni::JNIEnv;
 use rxing::helpers::detect_in_luma_with_hints;
-use rxing::{BarcodeFormat, DecodingHintDictionary, MultiFormatWriter, Writer};
+use rxing::{BarcodeFormat, DecodeHintType, DecodeHintValue, DecodingHintDictionary, MultiFormatWriter, Writer};
 
 /// JNI entry point: `com.caravanfire.calmqr.rust.RustBridge.greet`
 ///
@@ -40,6 +40,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_add(
 /// JNI entry point: `com.caravanfire.calmqr.rust.RustBridge.decodeBarcode`
 ///
 /// Takes raw luminance bytes and image dimensions, attempts to decode a barcode/QR code.
+/// When `try_harder` is true, enables TRY_HARDER hint for more thorough detection.
 /// Returns a `DecodeResult` object or null if no barcode is found.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode<'local>(
@@ -48,6 +49,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
     luma_bytes: JByteArray<'local>,
     width: jint,
     height: jint,
+    try_harder: jboolean,
 ) -> JObject<'local> {
     // Convert JByteArray to Vec<u8>
     let len = match env.get_array_length(&luma_bytes) {
@@ -64,6 +66,12 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
     let luma: Vec<u8> = buf.into_iter().map(|b| b as u8).collect();
 
     let mut hints = DecodingHintDictionary::new();
+    if try_harder != 0 {
+        hints.insert(
+            DecodeHintType::TRY_HARDER,
+            DecodeHintValue::TryHarder(true),
+        );
+    }
 
     let result = detect_in_luma_with_hints(
         luma,
@@ -183,18 +191,44 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_generateBarco
         Err(_) => return JByteArray::from(JObject::null()),
     };
 
-    let bm_width = bit_matrix.getWidth();
-    let bm_height = bit_matrix.getHeight();
+    let bm_width = bit_matrix.getWidth() as usize;
+    let bm_height = bit_matrix.getHeight() as usize;
 
-    // Build result: [width: 4B BE][height: 4B BE][ARGB pixels]
-    let pixel_count = bm_width * bm_height;
-    let total_len = 8 + pixel_count * 4;
-    let mut result = Vec::with_capacity(total_len as usize);
-    result.extend_from_slice(&(bm_width as i32).to_be_bytes());
-    result.extend_from_slice(&(bm_height as i32).to_be_bytes());
-
+    // Trim the quiet zone (leading/trailing white rows and columns)
+    let mut min_x = bm_width;
+    let mut max_x = 0usize;
+    let mut min_y = bm_height;
+    let mut max_y = 0usize;
     for y in 0..bm_height {
         for x in 0..bm_width {
+            if bit_matrix.get(x as u32, y as u32) {
+                if x < min_x { min_x = x; }
+                if x > max_x { max_x = x; }
+                if y < min_y { min_y = y; }
+                if y > max_y { max_y = y; }
+            }
+        }
+    }
+    // Fallback if no black pixels found (shouldn't happen)
+    if min_x > max_x || min_y > max_y {
+        min_x = 0;
+        max_x = bm_width.saturating_sub(1);
+        min_y = 0;
+        max_y = bm_height.saturating_sub(1);
+    }
+
+    let crop_w = max_x - min_x + 1;
+    let crop_h = max_y - min_y + 1;
+
+    // Build result: [width: 4B BE][height: 4B BE][ARGB pixels]
+    let pixel_count = crop_w * crop_h;
+    let total_len = 8 + pixel_count * 4;
+    let mut result = Vec::with_capacity(total_len);
+    result.extend_from_slice(&(crop_w as i32).to_be_bytes());
+    result.extend_from_slice(&(crop_h as i32).to_be_bytes());
+
+    for y in min_y..=max_y {
+        for x in min_x..=max_x {
             if bit_matrix.get(x as u32, y as u32) {
                 // Black pixel (ARGB)
                 result.extend_from_slice(&[0xFFu8, 0x00, 0x00, 0x00]);

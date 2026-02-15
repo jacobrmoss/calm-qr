@@ -8,7 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.ui.screens.CodeDetailScreen
-import com.caravanfire.calmqr.ui.screens.DeleteConfirmScreen
 import com.caravanfire.calmqr.ui.screens.EinkTransitionScreen
 import com.caravanfire.calmqr.ui.screens.HomeScreen
 import com.caravanfire.calmqr.ui.screens.ScanDetailScreen
@@ -97,33 +96,20 @@ fun AppNavigation(
             )
         ) { backStackEntry ->
             val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
+
             CodeDetailScreen(
                 codeId = codeId,
                 savedCodeDao = savedCodeDao,
                 onBack = {
                     navController.popBackStack()
                 },
-                onDeleteClick = {
-                    navController.navigate(Screen.DeleteConfirm.createRoute(codeId))
-                }
-            )
-        }
-
-        composable(
-            route = Screen.DeleteConfirm.route,
-            arguments = listOf(
-                navArgument("codeId") { type = NavType.LongType }
-            )
-        ) { backStackEntry ->
-            val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
-            DeleteConfirmScreen(
-                codeId = codeId,
-                savedCodeDao = savedCodeDao,
                 onDeleted = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
-                onCancel = {
-                    navController.popBackStack()
+                onRequestEinkRefresh = {
+                    navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
+                        popUpTo(Screen.CodeDetail.route) { inclusive = true }
+                    }
                 }
             )
         }

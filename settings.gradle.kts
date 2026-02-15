@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "calm-template"
+rootProject.name = "calm-qr"
 include(":app")

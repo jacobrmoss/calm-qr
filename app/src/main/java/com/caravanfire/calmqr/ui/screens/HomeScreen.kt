@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -120,7 +121,7 @@ fun HomeScreen(
                         showDivider = false,
                         title = {
                             SearchBarMMD(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().offset(x = (-12).dp),
                                 inputField = {
                                     SearchBarDefaultsMMD.InputField(
                                         query = searchQuery,
@@ -163,7 +164,7 @@ fun HomeScreen(
                 HomeMode.DELETE -> {
                     TopAppBarMMD(
                         showDivider = false,
-                        title = { TextMMD(text = "Select codes") },
+                        title = { TextMMD(text = "Select codes", modifier = Modifier.offset(x = (-12).dp)) },
                         navigationIcon = {
                             Box(modifier = Modifier.padding(4.dp)) {
                                 IconButton(onClick = {

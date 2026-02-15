@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.caravanfire.calmqr.data.SavedCode
+import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.rust.RustBridge
 import com.mudita.mmd.components.buttons.ButtonMMD
@@ -75,12 +79,36 @@ fun CodeDetailScreen(
     codeId: Long,
     savedCodeDao: SavedCodeDao,
     onBack: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleted: () -> Unit,
+    onRequestEinkRefresh: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var code by remember { mutableStateOf<SavedCode?>(null) }
     var editableName by remember { mutableStateOf("") }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    // E-ink refresh when returning from another app, but not during delete confirmation
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    var wasBackgrounded by remember { mutableStateOf(false) }
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            when (event) {
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> wasBackgrounded = true
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
+                    if (wasBackgrounded) {
+                        wasBackgrounded = false
+                        showDeleteConfirm = false
+                        onRequestEinkRefresh()
+                    }
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     LaunchedEffect(codeId) {
         val loaded = savedCodeDao.getCodeById(codeId)
         code = loaded
@@ -105,16 +133,20 @@ fun CodeDetailScreen(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().offset(x = Dimens.titleOffset)
                     )
                 },
                 navigationIcon = {
                     Box(modifier = Modifier.padding(4.dp)) {
                         IconButton(onClick = {
-                            scope.launch {
-                                savedCodeDao.updateName(codeId, editableName)
+                            if (showDeleteConfirm) {
+                                showDeleteConfirm = false
+                            } else {
+                                scope.launch {
+                                    savedCodeDao.updateName(codeId, editableName)
+                                }
+                                onBack()
                             }
-                            onBack()
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -129,6 +161,55 @@ fun CodeDetailScreen(
             }
         }
     ) { innerPadding ->
+        if (showDeleteConfirm) {
+            // Delete confirmation content — top bar stays mounted
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                TextMMD(
+                    text = "Are you sure?",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 80.dp)
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    ButtonMMD(
+                        onClick = {
+                            scope.launch {
+                                savedCodeDao.getCodeById(codeId)?.let {
+                                    savedCodeDao.deleteCode(it)
+                                }
+                                onDeleted()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextMMD(text = "Yes, Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                    OutlinedButtonMMD(
+                        onClick = {
+                            showDeleteConfirm = false
+                            onRequestEinkRefresh()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    }
+                    Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
+                }
+            }
+        } else {
         code?.let { savedCode ->
             val isUrl = savedCode.content.startsWith("http://") ||
                     savedCode.content.startsWith("https://")
@@ -147,7 +228,7 @@ fun CodeDetailScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // QR code centered, fills available space
+                // QR/barcode centered
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -158,15 +239,21 @@ fun CodeDetailScreen(
                         Image(
                             bitmap = bitmap.asImageBitmap(),
                             contentDescription = "QR Code",
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(
+                                    if (is1D) Dimens.barcodeMaxWidthFraction
+                                    else Dimens.qrMaxWidthFraction
+                                ),
                             contentScale = ContentScale.Fit,
                             filterQuality = FilterQuality.None
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 if (isUrl) {
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                     ButtonMMD(
                         onClick = {
                             context.startActivity(
@@ -175,18 +262,20 @@ fun CodeDetailScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        TextMMD(text = "Open in Browser", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                        TextMMD(text = "Open in Browser", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 OutlinedButtonMMD(
-                    onClick = onDeleteClick,
+                    onClick = { showDeleteConfirm = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Delete", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
+                    TextMMD(text = "Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
+                Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
             }
+        }
         }
     }
 

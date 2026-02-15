@@ -2,23 +2,30 @@ package com.caravanfire.calmqr.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Size as AndroidSize
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,7 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -57,6 +71,7 @@ fun ScannerScreen(
                     PackageManager.PERMISSION_GRANTED
         )
     }
+    var focusMode by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -75,7 +90,7 @@ fun ScannerScreen(
             Column {
             TopAppBarMMD(
                 showDivider = false,
-                title = { TextMMD(text = "Scanner") },
+                title = { TextMMD(text = "Scanner", modifier = Modifier.offset(x = (-12).dp)) },
                 navigationIcon = {
                     Box(modifier = Modifier.padding(4.dp)) {
                         IconButton(onClick = onBack) {
@@ -85,6 +100,16 @@ fun ScannerScreen(
                                 modifier = Modifier.size(32.dp)
                             )
                         }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { focusMode = !focusMode }) {
+                        Icon(
+                            imageVector = if (focusMode) Icons.Filled.CenterFocusStrong
+                                          else Icons.Filled.CenterFocusWeak,
+                            contentDescription = if (focusMode) "Disable focus mode" else "Enable focus mode",
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
             )
@@ -98,13 +123,16 @@ fun ScannerScreen(
                 .padding(innerPadding)
         ) {
             if (hasCameraPermission) {
-                CameraPreview(onCodeScanned = onCodeScanned)
+                CameraPreview(onCodeScanned = onCodeScanned, focusMode = focusMode)
             } else {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextMMD(text = "Camera permission is required to scan codes.")
+                    TextMMD(
+                        text = "Camera permission is required to scan codes.",
+                        textAlign = TextAlign.Center
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     ButtonMMD(onClick = {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -121,7 +149,8 @@ private data class ScannedCode(val content: String, val format: String)
 
 @Composable
 private fun CameraPreview(
-    onCodeScanned: (content: String, format: String) -> Unit
+    onCodeScanned: (content: String, format: String) -> Unit,
+    focusMode: Boolean
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -144,50 +173,93 @@ private fun CameraPreview(
         }
     }
 
-    AndroidView(
-        factory = { ctx ->
-            val previewView = PreviewView(ctx)
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = { ctx ->
+                val previewView = PreviewView(ctx)
 
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
+                cameraProviderFuture.addListener({
+                    val cameraProvider = cameraProviderFuture.get()
 
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-
-                imageAnalysis.setAnalyzer(executor) { imageProxy ->
-                    if (!hasScanned) {
-                        processImage(imageProxy) { content, format ->
-                            hasScanned = true
-                            scannedCode = ScannedCode(content, format)
-                        }
+                    val preview = Preview.Builder().build().also {
+                        it.setSurfaceProvider(previewView.surfaceProvider)
                     }
-                    imageProxy.close()
+
+                    val resolutionSelector = ResolutionSelector.Builder()
+                        .setResolutionStrategy(
+                            ResolutionStrategy(
+                                AndroidSize(640, 480),
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
+                            )
+                        )
+                        .build()
+
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setResolutionSelector(resolutionSelector)
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+
+                    imageAnalysis.setAnalyzer(executor) { imageProxy ->
+                        if (!hasScanned) {
+                            processImage(imageProxy, focusMode) { content, format ->
+                                hasScanned = true
+                                scannedCode = ScannedCode(content, format)
+                            }
+                        }
+                        imageProxy.close()
+                    }
+
+                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        preview,
+                        imageAnalysis
+                    )
+                }, ContextCompat.getMainExecutor(ctx))
+
+                previewView
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Focus mode overlay: darken everything except center square
+        if (focusMode) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val squareSize = size.minDimension * 0.6f
+                val left = (size.width - squareSize) / 2f
+                val top = (size.height - squareSize) / 2f
+
+                val cutoutPath = Path().apply {
+                    addRect(
+                        androidx.compose.ui.geometry.Rect(
+                            offset = Offset(left, top),
+                            size = Size(squareSize, squareSize)
+                        )
+                    )
                 }
 
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                clipPath(cutoutPath, clipOp = ClipOp.Difference) {
+                    drawRect(color = Color.Black.copy(alpha = 0.6f))
+                }
 
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageAnalysis
+                // Draw border around the cutout
+                drawRect(
+                    color = Color.White,
+                    topLeft = Offset(left, top),
+                    size = Size(squareSize, squareSize),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                 )
-            }, ContextCompat.getMainExecutor(ctx))
-
-            previewView
-        },
-        modifier = Modifier.fillMaxSize()
-    )
+            }
+        }
+    }
 }
 
 private fun processImage(
     imageProxy: ImageProxy,
+    focusMode: Boolean,
     onDecoded: (content: String, format: String) -> Unit
 ) {
     val plane = imageProxy.planes[0]
@@ -196,24 +268,41 @@ private fun processImage(
     val width = imageProxy.width
     val height = imageProxy.height
 
-    val lumaBytes: ByteArray
+    val fullLuma: ByteArray
     if (rowStride == width) {
-        // No padding — read directly
-        lumaBytes = ByteArray(width * height)
+        fullLuma = ByteArray(width * height)
         buffer.rewind()
-        buffer.get(lumaBytes)
+        buffer.get(fullLuma)
     } else {
-        // Row stride has padding — copy row by row
-        lumaBytes = ByteArray(width * height)
+        fullLuma = ByteArray(width * height)
         buffer.rewind()
         for (row in 0 until height) {
             buffer.position(row * rowStride)
-            buffer.get(lumaBytes, row * width, width)
+            buffer.get(fullLuma, row * width, width)
         }
     }
 
-    val result = RustBridge.decodeBarcode(lumaBytes, width, height)
-    if (result != null) {
-        onDecoded(result.text, result.format)
+    if (focusMode) {
+        // Crop center 60% square (matching the overlay)
+        val squareSize = minOf(width, height) * 6 / 10
+        val cropX = (width - squareSize) / 2
+        val cropY = (height - squareSize) / 2
+        val croppedLuma = ByteArray(squareSize * squareSize)
+        for (row in 0 until squareSize) {
+            System.arraycopy(
+                fullLuma, (cropY + row) * width + cropX,
+                croppedLuma, row * squareSize,
+                squareSize
+            )
+        }
+        val result = RustBridge.decodeBarcode(croppedLuma, squareSize, squareSize, false)
+        if (result != null) {
+            onDecoded(result.text, result.format)
+        }
+    } else {
+        val result = RustBridge.decodeBarcode(fullLuma, width, height, false)
+        if (result != null) {
+            onDecoded(result.text, result.format)
+        }
     }
 }
