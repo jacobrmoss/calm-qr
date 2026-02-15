@@ -34,7 +34,7 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 ## Features
 
 - **Scan QR codes & barcodes** — powered by CameraX + Rust (rxing)
-- **Focus mode** — overlay with center crop for difficult scans
+- **Focus mode** — overlay with center crop for.. if you want that
 - **Save & manage scans** — persisted locally with Room
 - **Open links directly** — tap to launch URLs in the browser
 - **E-ink optimized UI** — built with Mudita Mindful Design (MMD) components
