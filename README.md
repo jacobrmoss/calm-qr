@@ -78,12 +78,12 @@ rustup target add aarch64-linux-android armv7-linux-androideabi
 ## Known Issues
 It's not perfect, and I've thrown it together quickly. Here are some of the things I'm thinking about it.
 ### Barcode scanning is not as reliable
-I decided to add in barcode scanning to replace that dreaded "I just need to scann the __ sent to your email" which doesn't really work so well when you don't want to carry around your email. Often those are QR codes, sometimes barcodes. I've found the barcode scanning isn't as reliable, and my attempts to improve it haven't done too much. Be sure when scanning in a barcode that it looks like the barcode you scanned. If it is overly simplified there's a good chance it was done incorrectly.
+I decided to add in barcode scanning to replace that dreaded "I just need to scan the __ sent to your email" which doesn't really work so well when you don't want to carry around your email. Often those are QR codes, sometimes barcodes. I've found the barcode scanning isn't as reliable, and my attempts to improve it haven't done too much. Be sure when scanning in a barcode that it looks like the barcode you scanned. If it is overly simplified there's a good chance it was done incorrectly.
 ### QR code images change
-The underlying data has been fairly consistent in my testing, however the library and methods I used generate new QR codes. This should be fine since the format allows for this variance, but it's something to keep in mind.
+The underlying data has been consistent in my testing, however, the library and methods I've used generate new QR code images most of the time than the exact one that is input. This should be fine since the format allows for this variance, but it's something to keep in mind.
 ### Under-tested in real life
-I've just started using it myself, so I can't say that it works well in all scenarios. Use with care and caution and have back ups images just in case.
-### Flashing for the Codes
+I've just started using it myself, so I can't say that it works well in all scenarios. Use with care and caution and have back up images just in case.
+### Flashing for the codes
 I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screen's flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
 
 ---
