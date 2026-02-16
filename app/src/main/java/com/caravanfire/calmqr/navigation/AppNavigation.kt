@@ -67,6 +67,11 @@ fun AppNavigation(
                 onSaved = { codeId ->
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
+                onRescan = {
+                    navController.navigate(Screen.Scanner.route) {
+                        popUpTo(Screen.ScanDetail.route) { inclusive = true }
+                    }
+                },
                 onCancel = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 }

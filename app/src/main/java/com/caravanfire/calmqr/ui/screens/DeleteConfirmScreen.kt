@@ -26,9 +26,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.ui.Dimens
 import com.mudita.mmd.components.buttons.ButtonMMD
@@ -70,7 +72,7 @@ fun DeleteConfirmScreen(
                             IconButton(onClick = onCancel) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
+                                    contentDescription = stringResource(R.string.back),
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -88,7 +90,7 @@ fun DeleteConfirmScreen(
                 .padding(16.dp)
         ) {
             TextMMD(
-                text = "Are you sure?",
+                text = stringResource(R.string.are_you_sure),
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
@@ -110,14 +112,14 @@ fun DeleteConfirmScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Yes, Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    TextMMD(text = stringResource(R.string.yes_delete), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 OutlinedButtonMMD(
                     onClick = onCancel,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    TextMMD(text = stringResource(R.string.cancel), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
                 Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
             }

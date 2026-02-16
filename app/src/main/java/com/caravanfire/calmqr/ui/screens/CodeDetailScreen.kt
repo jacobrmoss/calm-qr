@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.caravanfire.calmqr.data.SavedCode
 import com.caravanfire.calmqr.ui.Dimens
@@ -150,7 +151,7 @@ fun CodeDetailScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.back),
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -170,7 +171,7 @@ fun CodeDetailScreen(
                     .padding(16.dp)
             ) {
                 TextMMD(
-                    text = "Are you sure?",
+                    text = stringResource(R.string.are_you_sure),
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -194,7 +195,7 @@ fun CodeDetailScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        TextMMD(text = "Yes, Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                        TextMMD(text = stringResource(R.string.yes_delete), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                     }
                     Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                     OutlinedButtonMMD(
@@ -204,7 +205,7 @@ fun CodeDetailScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                        TextMMD(text = stringResource(R.string.cancel), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                     }
                     Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
                 }
@@ -238,7 +239,7 @@ fun CodeDetailScreen(
                     qrBitmap?.let { bitmap ->
                         Image(
                             bitmap = bitmap.asImageBitmap(),
-                            contentDescription = "QR Code",
+                            contentDescription = stringResource(R.string.qr_code_image),
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .fillMaxWidth(
@@ -262,7 +263,7 @@ fun CodeDetailScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        TextMMD(text = "Open in Browser", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                        TextMMD(text = stringResource(R.string.open_in_browser), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                     }
                 }
 
@@ -271,7 +272,7 @@ fun CodeDetailScreen(
                     onClick = { showDeleteConfirm = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Delete", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    TextMMD(text = stringResource(R.string.delete), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
                 Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
             }

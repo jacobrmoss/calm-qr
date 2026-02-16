@@ -36,8 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.ui.components.DashedDivider
 import com.mudita.mmd.components.buttons.ButtonMMD
@@ -77,13 +79,13 @@ fun HomeScreen(
                 HomeMode.NORMAL -> {
                     TopAppBarMMD(
                         showDivider = false,
-                        title = { TextMMD(text = "Calm QR", fontWeight = FontWeight.Bold) },
+                        title = { TextMMD(text = stringResource(R.string.app_title), fontWeight = FontWeight.Bold) },
                         actions = {
                             IconButton(
                                 onClick = { mode = HomeMode.SEARCH },
                                 modifier = Modifier.size(40.dp)
                             ) {
-                                Icon(Icons.Default.Search, contentDescription = "Search", modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search), modifier = Modifier.size(32.dp))
                             }
                             IconButton(
                                 onClick = {
@@ -92,7 +94,7 @@ fun HomeScreen(
                                 },
                                 modifier = Modifier.size(40.dp)
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), modifier = Modifier.size(32.dp))
                             }
                             IconButton(
                                 onClick = onScanClick,
@@ -106,7 +108,7 @@ fun HomeScreen(
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
                                             Icons.Default.Add,
-                                            contentDescription = "Scan",
+                                            contentDescription = stringResource(R.string.scan),
                                             tint = Color.White
                                         )
                                     }
@@ -129,7 +131,7 @@ fun HomeScreen(
                                         onSearch = { },
                                         expanded = false,
                                         onExpandedChange = { },
-                                        placeholder = { TextMMD("Search codes...") },
+                                        placeholder = { TextMMD(stringResource(R.string.search_codes_placeholder)) },
                                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                                         trailingIcon = {
                                             if (searchQuery.isNotEmpty()) {
@@ -152,7 +154,7 @@ fun HomeScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Close search",
+                                        contentDescription = stringResource(R.string.close_search),
                                         modifier = Modifier.size(32.dp)
                                     )
                                 }
@@ -164,7 +166,7 @@ fun HomeScreen(
                 HomeMode.DELETE -> {
                     TopAppBarMMD(
                         showDivider = false,
-                        title = { TextMMD(text = "Select codes", modifier = Modifier.offset(x = (-12).dp)) },
+                        title = { TextMMD(text = stringResource(R.string.select_codes), modifier = Modifier.offset(x = (-12).dp)) },
                         navigationIcon = {
                             Box(modifier = Modifier.padding(4.dp)) {
                                 IconButton(onClick = {
@@ -173,7 +175,7 @@ fun HomeScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Cancel",
+                                        contentDescription = stringResource(R.string.cancel),
                                         modifier = Modifier.size(32.dp)
                                     )
                                 }
@@ -191,7 +193,7 @@ fun HomeScreen(
                                 enabled = selectedIds.isNotEmpty()
                             ) {
                                 TextMMD(
-                                    text = "Delete ${selectedIds.size}",
+                                    text = stringResource(R.string.delete_count, selectedIds.size),
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -225,7 +227,7 @@ fun HomeScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    TextMMD(text = "No saved codes yet. Tap + to scan.")
+                    TextMMD(text = stringResource(R.string.no_saved_codes))
                 }
             } else {
                 LazyColumnMMD(

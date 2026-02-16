@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Skanner</string>
+    <string name="camera_permission_required">Kamerabehörighet krävs för att skanna koder.</string>
+    <string name="grant_permission">Ge behörighet</string>
+    <string name="disable_focus_mode">Inaktivera fokusläge</string>
+    <string name="enable_focus_mode">Aktivera fokusläge</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Kontrollera att streckkodsmönstret stämmer, annars skanna om</string>
+    <string name="save">Spara</string>
+    <string name="re_scan">Skanna om</string>
+    <string name="untitled">Namnlös</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Är du säker?</string>
+    <string name="yes_delete">Ja, radera</string>
+    <string name="delete">Radera</string>
+    <string name="open_in_browser">Öppna i webbläsare</string>
+
+    <!-- Shared -->
+    <string name="cancel">Avbryt</string>
+    <string name="back">Tillbaka</string>
+    <string name="qr_code_image">QR-kod</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Sök</string>
+    <string name="edit">Redigera</string>
+    <string name="scan">Skanna</string>
+    <string name="search_codes_placeholder">Sök koder…</string>
+    <string name="close_search">Stäng sökning</string>
+    <string name="select_codes">Välj koder</string>
+    <string name="delete_count">Radera %1$d</string>
+    <string name="no_saved_codes">Inga sparade koder ännu. Tryck på + för att skanna.</string>
+</resources>

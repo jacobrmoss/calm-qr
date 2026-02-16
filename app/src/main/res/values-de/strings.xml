@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">Kameraberechtigung ist zum Scannen von Codes erforderlich.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="disable_focus_mode">Fokusmodus deaktivieren</string>
+    <string name="enable_focus_mode">Fokusmodus aktivieren</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Bitte überprüfen Sie, ob das Barcode-Muster übereinstimmt, andernfalls erneut scannen</string>
+    <string name="save">Speichern</string>
+    <string name="re_scan">Erneut scannen</string>
+    <string name="untitled">Unbenannt</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Sind Sie sicher?</string>
+    <string name="yes_delete">Ja, löschen</string>
+    <string name="delete">Löschen</string>
+    <string name="open_in_browser">Im Browser öffnen</string>
+
+    <!-- Shared -->
+    <string name="cancel">Abbrechen</string>
+    <string name="back">Zurück</string>
+    <string name="qr_code_image">QR-Code</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Suchen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="scan">Scannen</string>
+    <string name="search_codes_placeholder">Codes suchen…</string>
+    <string name="close_search">Suche schließen</string>
+    <string name="select_codes">Codes auswählen</string>
+    <string name="delete_count">Löschen %1$d</string>
+    <string name="no_saved_codes">Noch keine gespeicherten Codes. Tippen Sie auf + zum Scannen.</string>
+</resources>

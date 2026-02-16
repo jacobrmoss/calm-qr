@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QR</string>
+
+    <!-- App title — intentionally not translated -->
+    <string name="app_title" translatable="false">Calm QR</string>
+
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">Camera permission is required to scan codes.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="disable_focus_mode">Disable focus mode</string>
+    <string name="enable_focus_mode">Enable focus mode</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Please verify the barcode pattern matches, otherwise re-scan</string>
+    <string name="save">Save</string>
+    <string name="re_scan">Re-Scan</string>
+    <string name="untitled">Untitled</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes_delete">Yes, Delete</string>
+    <string name="delete">Delete</string>
+    <string name="open_in_browser">Open in Browser</string>
+
+    <!-- Shared -->
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="qr_code_image">QR Code</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Search</string>
+    <string name="edit">Edit</string>
+    <string name="scan">Scan</string>
+    <string name="search_codes_placeholder">Search codes…</string>
+    <string name="close_search">Close search</string>
+    <string name="select_codes">Select codes</string>
+    <string name="delete_count">Delete %1$d</string>
+    <string name="no_saved_codes">No saved codes yet. Tap + to scan.</string>
 </resources>

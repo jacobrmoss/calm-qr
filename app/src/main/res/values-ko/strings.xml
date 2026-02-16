@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">스캐너</string>
+    <string name="camera_permission_required">코드를 스캔하려면 카메라 권한이 필요합니다.</string>
+    <string name="grant_permission">권한 부여</string>
+    <string name="disable_focus_mode">초점 모드 비활성화</string>
+    <string name="enable_focus_mode">초점 모드 활성화</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">바코드 패턴이 일치하는지 확인하세요. 그렇지 않으면 다시 스캔하세요</string>
+    <string name="save">저장</string>
+    <string name="re_scan">다시 스캔</string>
+    <string name="untitled">제목 없음</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">정말 삭제하시겠습니까?</string>
+    <string name="yes_delete">예, 삭제</string>
+    <string name="delete">삭제</string>
+    <string name="open_in_browser">브라우저에서 열기</string>
+
+    <!-- Shared -->
+    <string name="cancel">취소</string>
+    <string name="back">뒤로</string>
+    <string name="qr_code_image">QR 코드</string>
+
+    <!-- HomeScreen -->
+    <string name="search">검색</string>
+    <string name="edit">편집</string>
+    <string name="scan">스캔</string>
+    <string name="search_codes_placeholder">코드 검색…</string>
+    <string name="close_search">검색 닫기</string>
+    <string name="select_codes">코드 선택</string>
+    <string name="delete_count">삭제 %1$d</string>
+    <string name="no_saved_codes">저장된 코드가 없습니다. +를 눌러 스캔하세요.</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">Per scansionare i codici è necessaria l\'autorizzazione della fotocamera.</string>
+    <string name="grant_permission">Concedi autorizzazione</string>
+    <string name="disable_focus_mode">Disattiva modalità messa a fuoco</string>
+    <string name="enable_focus_mode">Attiva modalità messa a fuoco</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Verificare che il modello del codice a barre corrisponda, altrimenti ripetere la scansione</string>
+    <string name="save">Salva</string>
+    <string name="re_scan">Riscansiona</string>
+    <string name="untitled">Senza titolo</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Sei sicuro?</string>
+    <string name="yes_delete">Sì, elimina</string>
+    <string name="delete">Elimina</string>
+    <string name="open_in_browser">Apri nel browser</string>
+
+    <!-- Shared -->
+    <string name="cancel">Annulla</string>
+    <string name="back">Indietro</string>
+    <string name="qr_code_image">Codice QR</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Cerca</string>
+    <string name="edit">Modifica</string>
+    <string name="scan">Scansiona</string>
+    <string name="search_codes_placeholder">Cerca codici…</string>
+    <string name="close_search">Chiudi ricerca</string>
+    <string name="select_codes">Seleziona codici</string>
+    <string name="delete_count">Elimina %1$d</string>
+    <string name="no_saved_codes">Nessun codice salvato. Tocca + per scansionare.</string>
+</resources>

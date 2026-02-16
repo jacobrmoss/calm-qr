@@ -8,16 +8,16 @@ import androidx.compose.ui.unit.dp
 /** Shared spacing and style values used across screens. */
 object Dimens {
     /** Vertical gap between buttons. */
-    val buttonSpacing = 16.dp
+    val buttonSpacing = 14.dp
 
     /** Vertical padding inside button labels. */
-    val buttonTextPadding = 5.dp
+    val buttonTextPadding = 6.dp
 
     /** Bottom spacer below the last button on a screen. */
-    val bottomSpacing = 0.dp
+    val bottomSpacing = 1.dp
 
     /** Horizontal offset for top bar title text. */
-    val titleOffset = (-14).dp
+    val titleOffset = (-19).dp
 
     /** Max width fraction for QR code images. */
     const val qrMaxWidthFraction = 0.75f

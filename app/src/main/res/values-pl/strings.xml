@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Skaner</string>
+    <string name="camera_permission_required">Do skanowania kodów wymagane jest uprawnienie do aparatu.</string>
+    <string name="grant_permission">Przyznaj uprawnienie</string>
+    <string name="disable_focus_mode">Wyłącz tryb ostrości</string>
+    <string name="enable_focus_mode">Włącz tryb ostrości</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Sprawdź, czy wzór kodu kreskowego się zgadza, w przeciwnym razie zeskanuj ponownie</string>
+    <string name="save">Zapisz</string>
+    <string name="re_scan">Skanuj ponownie</string>
+    <string name="untitled">Bez tytułu</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Czy na pewno?</string>
+    <string name="yes_delete">Tak, usuń</string>
+    <string name="delete">Usuń</string>
+    <string name="open_in_browser">Otwórz w przeglądarce</string>
+
+    <!-- Shared -->
+    <string name="cancel">Anuluj</string>
+    <string name="back">Wstecz</string>
+    <string name="qr_code_image">Kod QR</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Szukaj</string>
+    <string name="edit">Edytuj</string>
+    <string name="scan">Skanuj</string>
+    <string name="search_codes_placeholder">Szukaj kodów…</string>
+    <string name="close_search">Zamknij wyszukiwanie</string>
+    <string name="select_codes">Wybierz kody</string>
+    <string name="delete_count">Usuń %1$d</string>
+    <string name="no_saved_codes">Brak zapisanych kodów. Naciśnij +, aby skanować.</string>
+</resources>

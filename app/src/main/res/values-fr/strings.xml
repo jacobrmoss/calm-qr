@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">L\'autorisation de la caméra est requise pour scanner les codes.</string>
+    <string name="grant_permission">Accorder l\'autorisation</string>
+    <string name="disable_focus_mode">Désactiver le mode mise au point</string>
+    <string name="enable_focus_mode">Activer le mode mise au point</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Veuillez vérifier que le motif du code-barres correspond, sinon re-scannez</string>
+    <string name="save">Enregistrer</string>
+    <string name="re_scan">Re-scanner</string>
+    <string name="untitled">Sans titre</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Êtes-vous sûr ?</string>
+    <string name="yes_delete">Oui, supprimer</string>
+    <string name="delete">Supprimer</string>
+    <string name="open_in_browser">Ouvrir dans le navigateur</string>
+
+    <!-- Shared -->
+    <string name="cancel">Annuler</string>
+    <string name="back">Retour</string>
+    <string name="qr_code_image">Code QR</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Rechercher</string>
+    <string name="edit">Modifier</string>
+    <string name="scan">Scanner</string>
+    <string name="search_codes_placeholder">Rechercher des codes…</string>
+    <string name="close_search">Fermer la recherche</string>
+    <string name="select_codes">Sélectionner les codes</string>
+    <string name="delete_count">Supprimer %1$d</string>
+    <string name="no_saved_codes">Aucun code enregistré. Appuyez sur + pour scanner.</string>
+</resources>
