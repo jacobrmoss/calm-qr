@@ -38,6 +38,13 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 - **Open links directly** — tap to launch URLs in the browser
 - **E-ink optimized UI** — built with Mudita Mindful Design (MMD) components
 - **Fully offline** — no network permissions, no analytics, no trackers
+- **Multi-language support** — 23 languages included
+
+---
+
+## Supported Languages
+
+English, Spanish, French, German, Portuguese, Chinese (Traditional & Simplified), Japanese, Korean, Arabic, Hindi, Italian, Russian, Polish, Dutch, Swedish, Norwegian, Danish, Finnish, Czech, Hungarian, Romanian, Ukrainian, Greek
 
 ---
 

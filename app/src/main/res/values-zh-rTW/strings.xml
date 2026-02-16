@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">掃描器</string>
+    <string name="camera_permission_required">掃描碼需要相機權限。</string>
+    <string name="grant_permission">授予權限</string>
+    <string name="disable_focus_mode">關閉對焦模式</string>
+    <string name="enable_focus_mode">開啟對焦模式</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">請驗證條碼圖案是否相符，否則請重新掃描</string>
+    <string name="save">儲存</string>
+    <string name="re_scan">重新掃描</string>
+    <string name="untitled">未命名</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">確定嗎？</string>
+    <string name="yes_delete">是的，刪除</string>
+    <string name="delete">刪除</string>
+    <string name="open_in_browser">在瀏覽器中開啟</string>
+
+    <!-- Shared -->
+    <string name="cancel">取消</string>
+    <string name="back">返回</string>
+    <string name="qr_code_image">QR 碼</string>
+
+    <!-- HomeScreen -->
+    <string name="search">搜尋</string>
+    <string name="edit">編輯</string>
+    <string name="scan">掃描</string>
+    <string name="search_codes_placeholder">搜尋碼…</string>
+    <string name="close_search">關閉搜尋</string>
+    <string name="select_codes">選擇碼</string>
+    <string name="delete_count">刪除 %1$d</string>
+    <string name="no_saved_codes">尚無已儲存的碼。點擊 + 掃描。</string>
+</resources>
