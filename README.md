@@ -77,9 +77,7 @@ rustup target add aarch64-linux-android armv7-linux-androideabi
 ## Known Issues
 It's not perfect, and I've thrown it together quickly. Here are some of the things I'm thinking about it.
 ### Barcode scanning is not as reliable
-I decided to add in barcode scanning to replace that dreaded "I just need to scan the __ sent to your email" which doesn't really work so well when you don't carry around your email. Often those are QR codes, sometimes barcodes. I've found the barcode scanning isn't as reliable, and my attempts to improve it haven't done too much. Be sure when scanning in a barcode that it looks like the barcode you scanned. If it is overly simplified there's a good chance it was done incorrectly.
-
-A little note: I do have an optional screen overlay to reduce the camera area during the 'Scanning' mode, but often if you're struggling to scan a barcode removing it tends to have better results.
+I decided to add in barcode scanning to replace that dreaded "I just need to scan the __ sent to your email" which doesn't really work so well when you don't carry around your email. Often those are QR codes, sometimes barcodes. I've found the barcode scanning isn't as reliable, and my attempts to improve it haven't done too much. Be sure when scanning in a barcode that it looks like the barcode you scanned. If it is overly simplified there's a good chance it was done incorrectly. I've added a little helper text for the users to verify manually whether it was done correctly and prompts to re-scan if it wasn't.
 ### QR code images change
 The underlying data has been consistent in my testing, however, the library and methods I've used generate new QR code images most of the time than the exact one that is input. This should be fine since the format allows for this variance, but it's something to keep in mind.
 ### Under-tested in real life
