@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.caravanfire.calmqr.data.SavedCode
 import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
+import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.buttons.OutlinedButtonMMD
