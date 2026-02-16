@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">स्कैनर</string>
+    <string name="camera_permission_required">कोड स्कैन करने के लिए कैमरा अनुमति आवश्यक है।</string>
+    <string name="grant_permission">अनुमति दें</string>
+    <string name="disable_focus_mode">फोकस मोड बंद करें</string>
+    <string name="enable_focus_mode">फोकस मोड चालू करें</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">कृपया सत्यापित करें कि बारकोड पैटर्न मेल खाता है, अन्यथा पुनः स्कैन करें</string>
+    <string name="save">सहेजें</string>
+    <string name="re_scan">पुनः स्कैन</string>
+    <string name="untitled">शीर्षकहीन</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">क्या आप निश्चित हैं?</string>
+    <string name="yes_delete">हाँ, हटाएं</string>
+    <string name="delete">हटाएं</string>
+    <string name="open_in_browser">ब्राउज़र में खोलें</string>
+
+    <!-- Shared -->
+    <string name="cancel">रद्द करें</string>
+    <string name="back">वापस</string>
+    <string name="qr_code_image">QR कोड</string>
+
+    <!-- HomeScreen -->
+    <string name="search">खोजें</string>
+    <string name="edit">संपादित करें</string>
+    <string name="scan">स्कैन</string>
+    <string name="search_codes_placeholder">कोड खोजें…</string>
+    <string name="close_search">खोज बंद करें</string>
+    <string name="select_codes">कोड चुनें</string>
+    <string name="delete_count">हटाएं %1$d</string>
+    <string name="no_saved_codes">अभी तक कोई सहेजे गए कोड नहीं हैं। स्कैन करने के लिए + दबाएं।</string>
+</resources>

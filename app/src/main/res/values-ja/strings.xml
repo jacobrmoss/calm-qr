@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">スキャナー</string>
+    <string name="camera_permission_required">コードをスキャンするにはカメラの許可が必要です。</string>
+    <string name="grant_permission">許可を付与</string>
+    <string name="disable_focus_mode">フォーカスモードを無効にする</string>
+    <string name="enable_focus_mode">フォーカスモードを有効にする</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">バーコードのパターンが一致することを確認してください。一致しない場合は再スキャンしてください</string>
+    <string name="save">保存</string>
+    <string name="re_scan">再スキャン</string>
+    <string name="untitled">無題</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">本当に削除しますか？</string>
+    <string name="yes_delete">はい、削除</string>
+    <string name="delete">削除</string>
+    <string name="open_in_browser">ブラウザで開く</string>
+
+    <!-- Shared -->
+    <string name="cancel">キャンセル</string>
+    <string name="back">戻る</string>
+    <string name="qr_code_image">QRコード</string>
+
+    <!-- HomeScreen -->
+    <string name="search">検索</string>
+    <string name="edit">編集</string>
+    <string name="scan">スキャン</string>
+    <string name="search_codes_placeholder">コードを検索…</string>
+    <string name="close_search">検索を閉じる</string>
+    <string name="select_codes">コードを選択</string>
+    <string name="delete_count">削除 %1$d</string>
+    <string name="no_saved_codes">保存されたコードはまだありません。+ をタップしてスキャンしてください。</string>
+</resources>

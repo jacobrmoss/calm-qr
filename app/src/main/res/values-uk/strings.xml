@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Сканер</string>
+    <string name="camera_permission_required">Для сканування кодів потрібен дозвіл камери.</string>
+    <string name="grant_permission">Надати дозвіл</string>
+    <string name="disable_focus_mode">Вимкнути режим фокусування</string>
+    <string name="enable_focus_mode">Увімкнути режим фокусування</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Будь ласка, перевірте, чи збігається малюнок штрих-коду, інакше відскануйте повторно</string>
+    <string name="save">Зберегти</string>
+    <string name="re_scan">Повторне сканування</string>
+    <string name="untitled">Без назви</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Ви впевнені?</string>
+    <string name="yes_delete">Так, видалити</string>
+    <string name="delete">Видалити</string>
+    <string name="open_in_browser">Відкрити у браузері</string>
+
+    <!-- Shared -->
+    <string name="cancel">Скасувати</string>
+    <string name="back">Назад</string>
+    <string name="qr_code_image">QR-код</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Пошук</string>
+    <string name="edit">Редагувати</string>
+    <string name="scan">Сканувати</string>
+    <string name="search_codes_placeholder">Шукати коди…</string>
+    <string name="close_search">Закрити пошук</string>
+    <string name="select_codes">Вибрати коди</string>
+    <string name="delete_count">Видалити %1$d</string>
+    <string name="no_saved_codes">Збережених кодів ще немає. Натисніть + для сканування.</string>
+</resources>

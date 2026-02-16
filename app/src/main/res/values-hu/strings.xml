@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Szkenner</string>
+    <string name="camera_permission_required">A kódok beolvasásához kameraengedély szükséges.</string>
+    <string name="grant_permission">Engedély megadása</string>
+    <string name="disable_focus_mode">Fókusz mód kikapcsolása</string>
+    <string name="enable_focus_mode">Fókusz mód bekapcsolása</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Ellenőrizze, hogy a vonalkód mintája egyezik, különben olvassa be újra</string>
+    <string name="save">Mentés</string>
+    <string name="re_scan">Újra beolvasás</string>
+    <string name="untitled">Névtelen</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Biztos benne?</string>
+    <string name="yes_delete">Igen, törlés</string>
+    <string name="delete">Törlés</string>
+    <string name="open_in_browser">Megnyitás böngészőben</string>
+
+    <!-- Shared -->
+    <string name="cancel">Mégse</string>
+    <string name="back">Vissza</string>
+    <string name="qr_code_image">QR-kód</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Keresés</string>
+    <string name="edit">Szerkesztés</string>
+    <string name="scan">Beolvasás</string>
+    <string name="search_codes_placeholder">Kódok keresése…</string>
+    <string name="close_search">Keresés bezárása</string>
+    <string name="select_codes">Kódok kiválasztása</string>
+    <string name="delete_count">Törlés %1$d</string>
+    <string name="no_saved_codes">Még nincsenek mentett kódok. Nyomja meg a + gombot a beolvasáshoz.</string>
+</resources>

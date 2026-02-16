@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Skanneri</string>
+    <string name="camera_permission_required">Kameran käyttöoikeus vaaditaan koodien skannaamiseen.</string>
+    <string name="grant_permission">Myönnä käyttöoikeus</string>
+    <string name="disable_focus_mode">Poista tarkennustila käytöstä</string>
+    <string name="enable_focus_mode">Ota tarkennustila käyttöön</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Tarkista, että viivakoodikuvio täsmää, muuten skannaa uudelleen</string>
+    <string name="save">Tallenna</string>
+    <string name="re_scan">Skannaa uudelleen</string>
+    <string name="untitled">Nimetön</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Oletko varma?</string>
+    <string name="yes_delete">Kyllä, poista</string>
+    <string name="delete">Poista</string>
+    <string name="open_in_browser">Avaa selaimessa</string>
+
+    <!-- Shared -->
+    <string name="cancel">Peruuta</string>
+    <string name="back">Takaisin</string>
+    <string name="qr_code_image">QR-koodi</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Hae</string>
+    <string name="edit">Muokkaa</string>
+    <string name="scan">Skannaa</string>
+    <string name="search_codes_placeholder">Hae koodeja…</string>
+    <string name="close_search">Sulje haku</string>
+    <string name="select_codes">Valitse koodit</string>
+    <string name="delete_count">Poista %1$d</string>
+    <string name="no_saved_codes">Ei tallennettuja koodeja. Napauta + skannataksesi.</string>
+</resources>

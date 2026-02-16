@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">Kameratilladelse er påkrævet for at scanne koder.</string>
+    <string name="grant_permission">Giv tilladelse</string>
+    <string name="disable_focus_mode">Deaktiver fokustilstand</string>
+    <string name="enable_focus_mode">Aktiver fokustilstand</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Kontrollér at stregkodemønsteret stemmer, ellers scan igen</string>
+    <string name="save">Gem</string>
+    <string name="re_scan">Scan igen</string>
+    <string name="untitled">Unavngivet</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Er du sikker?</string>
+    <string name="yes_delete">Ja, slet</string>
+    <string name="delete">Slet</string>
+    <string name="open_in_browser">Åbn i browser</string>
+
+    <!-- Shared -->
+    <string name="cancel">Annuller</string>
+    <string name="back">Tilbage</string>
+    <string name="qr_code_image">QR-kode</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Søg</string>
+    <string name="edit">Rediger</string>
+    <string name="scan">Scan</string>
+    <string name="search_codes_placeholder">Søg efter koder…</string>
+    <string name="close_search">Luk søgning</string>
+    <string name="select_codes">Vælg koder</string>
+    <string name="delete_count">Slet %1$d</string>
+    <string name="no_saved_codes">Ingen gemte koder endnu. Tryk på + for at scanne.</string>
+</resources>

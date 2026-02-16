@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">الماسح</string>
+    <string name="camera_permission_required">إذن الكاميرا مطلوب لمسح الرموز.</string>
+    <string name="grant_permission">منح الإذن</string>
+    <string name="disable_focus_mode">تعطيل وضع التركيز</string>
+    <string name="enable_focus_mode">تفعيل وضع التركيز</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">يرجى التحقق من تطابق نمط الباركود، وإلا أعد المسح</string>
+    <string name="save">حفظ</string>
+    <string name="re_scan">إعادة المسح</string>
+    <string name="untitled">بدون عنوان</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">هل أنت متأكد؟</string>
+    <string name="yes_delete">نعم، حذف</string>
+    <string name="delete">حذف</string>
+    <string name="open_in_browser">فتح في المتصفح</string>
+
+    <!-- Shared -->
+    <string name="cancel">إلغاء</string>
+    <string name="back">رجوع</string>
+    <string name="qr_code_image">رمز QR</string>
+
+    <!-- HomeScreen -->
+    <string name="search">بحث</string>
+    <string name="edit">تعديل</string>
+    <string name="scan">مسح</string>
+    <string name="search_codes_placeholder">البحث عن رموز…</string>
+    <string name="close_search">إغلاق البحث</string>
+    <string name="select_codes">تحديد الرموز</string>
+    <string name="delete_count">حذف %1$d</string>
+    <string name="no_saved_codes">لا توجد رموز محفوظة بعد. اضغط على + للمسح.</string>
+</resources>

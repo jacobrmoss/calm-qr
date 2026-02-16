@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Skener</string>
+    <string name="camera_permission_required">Pro skenování kódů je vyžadováno oprávnění fotoaparátu.</string>
+    <string name="grant_permission">Udělit oprávnění</string>
+    <string name="disable_focus_mode">Vypnout režim zaostření</string>
+    <string name="enable_focus_mode">Zapnout režim zaostření</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Ověřte, zda vzor čárového kódu odpovídá, jinak naskenujte znovu</string>
+    <string name="save">Uložit</string>
+    <string name="re_scan">Skenovat znovu</string>
+    <string name="untitled">Bez názvu</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Jste si jisti?</string>
+    <string name="yes_delete">Ano, smazat</string>
+    <string name="delete">Smazat</string>
+    <string name="open_in_browser">Otevřít v prohlížeči</string>
+
+    <!-- Shared -->
+    <string name="cancel">Zrušit</string>
+    <string name="back">Zpět</string>
+    <string name="qr_code_image">QR kód</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Hledat</string>
+    <string name="edit">Upravit</string>
+    <string name="scan">Skenovat</string>
+    <string name="search_codes_placeholder">Hledat kódy…</string>
+    <string name="close_search">Zavřít hledání</string>
+    <string name="select_codes">Vybrat kódy</string>
+    <string name="delete_count">Smazat %1$d</string>
+    <string name="no_saved_codes">Zatím žádné uložené kódy. Klepněte na + pro skenování.</string>
+</resources>

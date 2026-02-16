@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,12 +82,18 @@ fun ScanDetailScreen(
     format: String,
     savedCodeDao: SavedCodeDao,
     onSaved: (Long) -> Unit,
+    onRescan: () -> Unit,
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var editableName by remember { mutableStateOf("Untitled") }
+    var editableName by remember { mutableStateOf("") }
     var hasBeenTouched by remember { mutableStateOf(false) }
+    val untitledDefault = stringResource(R.string.untitled)
+
+    LaunchedEffect(Unit) {
+        editableName = untitledDefault
+    }
 
     val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR")
 
@@ -129,7 +136,7 @@ fun ScanDetailScreen(
                             IconButton(onClick = onCancel) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
+                                    contentDescription = stringResource(R.string.back),
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -153,19 +160,31 @@ fun ScanDetailScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    qrBitmap?.let { bitmap ->
-                        Image(
-                            bitmap = bitmap.asImageBitmap(),
-                            contentDescription = "QR Code",
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(
-                                    if (is1D) 0.7f
-                                    else 0.5f
-                                ),
-                            contentScale = ContentScale.Fit,
-                            filterQuality = FilterQuality.None
-                        )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (is1D) {
+                            TextMMD(
+                                text = stringResource(R.string.barcode_verify_warning),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                        qrBitmap?.let { bitmap ->
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = stringResource(R.string.qr_code_image),
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(
+                                        if (is1D) 0.7f
+                                        else 0.5f
+                                    ),
+                                contentScale = ContentScale.Fit,
+                                filterQuality = FilterQuality.None
+                            )
+                        }
                     }
                 }
 
@@ -186,7 +205,17 @@ fun ScanDetailScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextMMD(text = "Save", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                TextMMD(text = stringResource(R.string.save), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+            }
+
+            if (is1D) {
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                OutlinedButtonMMD(
+                    onClick = onRescan,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextMMD(text = stringResource(R.string.re_scan), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                }
             }
 
             if (isUrl) {
@@ -199,7 +228,7 @@ fun ScanDetailScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextMMD(text = "Open in Browser", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    TextMMD(text = stringResource(R.string.open_in_browser), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
             }
 
@@ -208,7 +237,7 @@ fun ScanDetailScreen(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextMMD(text = "Cancel", style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                TextMMD(text = stringResource(R.string.cancel), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
             }
             Spacer(modifier = Modifier.height(Dimens.bottomSpacing))
         }

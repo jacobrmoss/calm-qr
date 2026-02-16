@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ScannerScreen -->
+    <string name="scanner_title">Scanner</string>
+    <string name="camera_permission_required">Cameramachtiging is vereist om codes te scannen.</string>
+    <string name="grant_permission">Machtiging verlenen</string>
+    <string name="disable_focus_mode">Focusmodus uitschakelen</string>
+    <string name="enable_focus_mode">Focusmodus inschakelen</string>
+
+    <!-- ScanDetailScreen -->
+    <string name="barcode_verify_warning">Controleer of het streepjescodepatroon overeenkomt, anders opnieuw scannen</string>
+    <string name="save">Opslaan</string>
+    <string name="re_scan">Opnieuw scannen</string>
+    <string name="untitled">Naamloos</string>
+
+    <!-- CodeDetailScreen / DeleteConfirmScreen -->
+    <string name="are_you_sure">Weet u het zeker?</string>
+    <string name="yes_delete">Ja, verwijderen</string>
+    <string name="delete">Verwijderen</string>
+    <string name="open_in_browser">Openen in browser</string>
+
+    <!-- Shared -->
+    <string name="cancel">Annuleren</string>
+    <string name="back">Terug</string>
+    <string name="qr_code_image">QR-code</string>
+
+    <!-- HomeScreen -->
+    <string name="search">Zoeken</string>
+    <string name="edit">Bewerken</string>
+    <string name="scan">Scannen</string>
+    <string name="search_codes_placeholder">Codes zoeken…</string>
+    <string name="close_search">Zoeken sluiten</string>
+    <string name="select_codes">Codes selecteren</string>
+    <string name="delete_count">Verwijderen %1$d</string>
+    <string name="no_saved_codes">Nog geen opgeslagen codes. Tik op + om te scannen.</string>
+</resources>

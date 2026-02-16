@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,14 +49,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.caravanfire.calmqr.rust.RustBridge
+import com.caravanfire.calmqr.ui.Dimens
+import com.caravanfire.calmqr.R
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.text.TextMMD
+import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
+import com.mudita.mmd.components.text_field.TextFieldMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
 import java.util.concurrent.Executors
 
@@ -90,28 +98,44 @@ fun ScannerScreen(
             Column {
             TopAppBarMMD(
                 showDivider = false,
-                title = { TextMMD(text = "Scanner", modifier = Modifier.offset(x = (-12).dp)) },
+                title = {
+                    TextFieldMMD(
+                        value = stringResource(R.string.scanner_title),
+                        onValueChange = {},
+                        readOnly = true,
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
+                        colors = TextFieldDefaultsMMD.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(x = Dimens.titleOffset)
+                    )
+                },
                 navigationIcon = {
                     Box(modifier = Modifier.padding(4.dp)) {
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.back),
                                 modifier = Modifier.size(32.dp)
                             )
                         }
                     }
                 },
-                actions = {
-                    IconButton(onClick = { focusMode = !focusMode }) {
-                        Icon(
-                            imageVector = if (focusMode) Icons.Filled.CenterFocusStrong
-                                          else Icons.Filled.CenterFocusWeak,
-                            contentDescription = if (focusMode) "Disable focus mode" else "Enable focus mode",
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
+                // Disabled for now — scanner overlay focus mode hidden from users
+                // actions = {
+                //     IconButton(onClick = { focusMode = !focusMode }) {
+                //         Icon(
+                //             imageVector = if (focusMode) Icons.Filled.CenterFocusStrong
+                //                           else Icons.Filled.CenterFocusWeak,
+                //             contentDescription = if (focusMode) "Disable focus mode" else "Enable focus mode",
+                //             modifier = Modifier.size(32.dp)
+                //         )
+                //     }
+                // }
             )
             HorizontalDivider(thickness = 3.dp)
             }
@@ -130,14 +154,14 @@ fun ScannerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextMMD(
-                        text = "Camera permission is required to scan codes.",
+                        text = stringResource(R.string.camera_permission_required),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     ButtonMMD(onClick = {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                     }) {
-                        TextMMD(text = "Grant Permission")
+                        TextMMD(text = stringResource(R.string.grant_permission))
                     }
                 }
             }
