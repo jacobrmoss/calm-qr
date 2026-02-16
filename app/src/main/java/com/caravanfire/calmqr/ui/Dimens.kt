@@ -17,7 +17,7 @@ object Dimens {
     val bottomSpacing = 1.dp
 
     /** Horizontal offset for top bar title text. */
-    val titleOffset = (-22).dp
+    val titleOffset = (-21).dp
 
     /** Max width fraction for QR code images. */
     const val qrMaxWidthFraction = 0.75f
