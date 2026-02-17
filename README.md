@@ -92,6 +92,11 @@ I've just started using it myself, so I can't say that it works well in all scen
 ### Flashing for the codes
 I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screens flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
 
+## Ideas I have for improvements
+- Flashlight mode -- toggle on the flashlight from the scanner
+- "Try harder" -- experimenting with this algorithm switch in the `rxing` library with toggles or a timer, in case the camera decoder is struggling
+- Connect to Wifi -- being able to detect if a QR is for Wifi and bringing you either to the SSID and Pass for it, or if I can connecting to it from the app
+
 ---
 
 ## License
