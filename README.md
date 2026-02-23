@@ -1,4 +1,4 @@
-<img align="left" src="scan-icon.png" width="100" height="100" alt="QR Logo">
+<img align="left" src="calm-qr-icon.svg" width="100" height="100" alt="QR Logo">
 <a href="https://buymeacoffee.com/jacobmoss" target="_blank">
   <img align="right" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174">
 </a>
