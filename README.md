@@ -36,6 +36,7 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 - **Scan QR codes & barcodes** — powered by CameraX + Rust (rxing)
 - **Save & manage scans** — persisted locally with Room
 - **Open links directly** — tap to launch URLs in the browser
+- **Save Wifi** — save wifi configs from QR codes directly to your device
 - **E-ink optimized UI** — built with Mudita Mindful Design (MMD) components
 - **Fully offline** — no network permissions, no analytics, no trackers
 - **Multi-language support** — 23 languages included
