@@ -24,6 +24,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,7 +48,8 @@ import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
 import com.caravanfire.calmqr.wifi.WifiSaveResult
-import com.caravanfire.calmqr.wifi.saveWifi
+import com.caravanfire.calmqr.wifi.buildWifiSaveIntent
+import com.caravanfire.calmqr.wifi.parseWifiSaveResult
 import com.caravanfire.calmqr.wifi.isWifiQrCode
 import com.caravanfire.calmqr.wifi.parseWifiQrCode
 import com.mudita.mmd.components.buttons.ButtonMMD
@@ -96,6 +99,24 @@ fun CodeDetailScreen(
     var editableName by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostStateMMD() }
+
+    // Track the SSID for the snackbar message after the system dialog returns
+    var pendingWifiSsid by remember { mutableStateOf<String?>(null) }
+    val wifiLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { activityResult ->
+        val ssid = pendingWifiSsid ?: return@rememberLauncherForActivityResult
+        val result = parseWifiSaveResult(activityResult.resultCode, activityResult.data)
+        scope.launch {
+            snackbarHostState.showSnackbar(
+                when (result) {
+                    WifiSaveResult.SAVED -> context.getString(R.string.wifi_saved, ssid)
+                    WifiSaveResult.ALREADY_SAVED -> context.getString(R.string.wifi_already_saved, ssid)
+                    WifiSaveResult.FAILED -> context.getString(R.string.wifi_save_failed)
+                }
+            )
+        }
+    }
 
     // E-ink refresh when returning from another app, but not during delete confirmation
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -284,15 +305,16 @@ fun CodeDetailScreen(
                     ButtonMMD(
                         onClick = {
                             parseWifiQrCode(savedCode.content)?.let { creds ->
-                                val result = saveWifi(context, creds)
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        when (result) {
-                                            WifiSaveResult.SAVED -> context.getString(R.string.wifi_saved, creds.ssid)
-                                            WifiSaveResult.ALREADY_SAVED -> context.getString(R.string.wifi_already_saved, creds.ssid)
-                                            WifiSaveResult.FAILED -> context.getString(R.string.wifi_save_failed)
-                                        }
-                                    )
+                                val intent = buildWifiSaveIntent(creds)
+                                if (intent != null) {
+                                    pendingWifiSsid = creds.ssid
+                                    wifiLauncher.launch(intent)
+                                } else {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(R.string.wifi_save_failed)
+                                        )
+                                    }
                                 }
                             }
                         },
