@@ -62,7 +62,8 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
         return JObject::null();
     }
 
-    // Reinterpret i8 slice as u8 slice safely
+    // Reinterpret i8 slice as u8 slice — pass raw luma through so rxing's
+    // adaptive binarizer (HybridBinarizer) can handle varying lighting.
     let luma: Vec<u8> = buf.into_iter().map(|b| b as u8).collect();
 
     let mut hints = DecodingHintDictionary::new();

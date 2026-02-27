@@ -6,6 +6,9 @@
     <string name="grant_permission">Przyznaj uprawnienie</string>
     <string name="disable_focus_mode">Wyłącz tryb ostrości</string>
     <string name="enable_focus_mode">Włącz tryb ostrości</string>
+    <string name="enable_flashlight">Włącz latarkę</string>
+    <string name="disable_flashlight">Wyłącz latarkę</string>
+    <string name="initializing_camera">Inicjalizacja aparatu</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Sprawdź, czy wzór kodu kreskowego się zgadza, w przeciwnym razie zeskanuj ponownie</string>

@@ -6,6 +6,9 @@
     <string name="grant_permission">منح الإذن</string>
     <string name="disable_focus_mode">تعطيل وضع التركيز</string>
     <string name="enable_focus_mode">تفعيل وضع التركيز</string>
+    <string name="enable_flashlight">تشغيل الفلاش</string>
+    <string name="disable_flashlight">إطفاء الفلاش</string>
+    <string name="initializing_camera">جارٍ تهيئة الكاميرا</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">يرجى التحقق من تطابق نمط الباركود، وإلا أعد المسح</string>

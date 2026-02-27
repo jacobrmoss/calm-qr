@@ -6,6 +6,9 @@
     <string name="grant_permission">Accorder l\'autorisation</string>
     <string name="disable_focus_mode">Désactiver le mode mise au point</string>
     <string name="enable_focus_mode">Activer le mode mise au point</string>
+    <string name="enable_flashlight">Allumer la lampe torche</string>
+    <string name="disable_flashlight">Éteindre la lampe torche</string>
+    <string name="initializing_camera">Initialisation de la caméra</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Veuillez vérifier que le motif du code-barres correspond, sinon re-scannez</string>

@@ -6,6 +6,9 @@
     <string name="grant_permission">Berechtigung erteilen</string>
     <string name="disable_focus_mode">Fokusmodus deaktivieren</string>
     <string name="enable_focus_mode">Fokusmodus aktivieren</string>
+    <string name="enable_flashlight">Taschenlampe einschalten</string>
+    <string name="disable_flashlight">Taschenlampe ausschalten</string>
+    <string name="initializing_camera">Kamera wird initialisiert</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Bitte überprüfen Sie, ob das Barcode-Muster übereinstimmt, andernfalls erneut scannen</string>

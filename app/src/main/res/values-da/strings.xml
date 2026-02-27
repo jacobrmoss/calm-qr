@@ -6,6 +6,9 @@
     <string name="grant_permission">Giv tilladelse</string>
     <string name="disable_focus_mode">Deaktiver fokustilstand</string>
     <string name="enable_focus_mode">Aktiver fokustilstand</string>
+    <string name="enable_flashlight">Tænd lommelygte</string>
+    <string name="disable_flashlight">Sluk lommelygte</string>
+    <string name="initializing_camera">Initialiserer kamera</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Kontrollér at stregkodemønsteret stemmer, ellers scan igen</string>

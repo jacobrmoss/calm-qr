@@ -6,6 +6,9 @@
     <string name="grant_permission">Concedi autorizzazione</string>
     <string name="disable_focus_mode">Disattiva modalità messa a fuoco</string>
     <string name="enable_focus_mode">Attiva modalità messa a fuoco</string>
+    <string name="enable_flashlight">Accendi torcia</string>
+    <string name="disable_flashlight">Spegni torcia</string>
+    <string name="initializing_camera">Inizializzazione fotocamera</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verificare che il modello del codice a barre corrisponda, altrimenti ripetere la scansione</string>

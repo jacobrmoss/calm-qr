@@ -11,6 +11,9 @@
     <string name="grant_permission">Grant Permission</string>
     <string name="disable_focus_mode">Disable focus mode</string>
     <string name="enable_focus_mode">Enable focus mode</string>
+    <string name="enable_flashlight">Turn on flashlight</string>
+    <string name="disable_flashlight">Turn off flashlight</string>
+    <string name="initializing_camera">Initializing camera</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Please verify the barcode pattern matches, otherwise re-scan</string>

@@ -6,6 +6,9 @@
     <string name="grant_permission">अनुमति दें</string>
     <string name="disable_focus_mode">फोकस मोड बंद करें</string>
     <string name="enable_focus_mode">फोकस मोड चालू करें</string>
+    <string name="enable_flashlight">फ्लैशलाइट चालू करें</string>
+    <string name="disable_flashlight">फ्लैशलाइट बंद करें</string>
+    <string name="initializing_camera">कैमरा प्रारंभ हो रहा है</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">कृपया सत्यापित करें कि बारकोड पैटर्न मेल खाता है, अन्यथा पुनः स्कैन करें</string>

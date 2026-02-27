@@ -6,6 +6,9 @@
     <string name="grant_permission">Machtiging verlenen</string>
     <string name="disable_focus_mode">Focusmodus uitschakelen</string>
     <string name="enable_focus_mode">Focusmodus inschakelen</string>
+    <string name="enable_flashlight">Zaklamp inschakelen</string>
+    <string name="disable_flashlight">Zaklamp uitschakelen</string>
+    <string name="initializing_camera">Camera initialiseren</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Controleer of het streepjescodepatroon overeenkomt, anders opnieuw scannen</string>

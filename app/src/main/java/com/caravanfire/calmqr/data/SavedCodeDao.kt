@@ -29,4 +29,7 @@ interface SavedCodeDao {
 
     @Query("UPDATE saved_codes SET name = :name WHERE id = :id")
     suspend fun updateName(id: Long, name: String)
+
+    @Query("UPDATE saved_codes SET timestamp = :timestamp WHERE id = :id")
+    suspend fun updateTimestamp(id: Long, timestamp: Long = System.currentTimeMillis())
 }

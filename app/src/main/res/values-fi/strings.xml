@@ -6,6 +6,9 @@
     <string name="grant_permission">Myönnä käyttöoikeus</string>
     <string name="disable_focus_mode">Poista tarkennustila käytöstä</string>
     <string name="enable_focus_mode">Ota tarkennustila käyttöön</string>
+    <string name="enable_flashlight">Ota taskulamppu käyttöön</string>
+    <string name="disable_flashlight">Sammuta taskulamppu</string>
+    <string name="initializing_camera">Alustetaan kameraa</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Tarkista, että viivakoodikuvio täsmää, muuten skannaa uudelleen</string>

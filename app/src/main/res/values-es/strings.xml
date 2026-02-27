@@ -6,6 +6,9 @@
     <string name="grant_permission">Conceder permiso</string>
     <string name="disable_focus_mode">Desactivar modo de enfoque</string>
     <string name="enable_focus_mode">Activar modo de enfoque</string>
+    <string name="enable_flashlight">Encender linterna</string>
+    <string name="disable_flashlight">Apagar linterna</string>
+    <string name="initializing_camera">Inicializando cámara</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verifique que el patrón del código de barras coincida, de lo contrario vuelva a escanear</string>
