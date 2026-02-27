@@ -21,6 +21,10 @@
     <string name="yes_delete">Ja, radera</string>
     <string name="delete">Radera</string>
     <string name="open_in_browser">Öppna i webbläsare</string>
+    <string name="save_wifi">Spara WiFi på enheten</string>
+    <string name="wifi_saved">Nätverket "%1$s" sparat</string>
+    <string name="wifi_already_saved">"%1$s" är redan sparat</string>
+    <string name="wifi_save_failed">Kunde inte spara WiFi-nätverk</string>
 
     <!-- Shared -->
     <string name="cancel">Avbryt</string>

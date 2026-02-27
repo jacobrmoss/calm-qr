@@ -47,8 +47,14 @@ import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
+import com.caravanfire.calmqr.wifi.WifiSaveResult
+import com.caravanfire.calmqr.wifi.saveWifi
+import com.caravanfire.calmqr.wifi.isWifiQrCode
+import com.caravanfire.calmqr.wifi.parseWifiQrCode
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.buttons.OutlinedButtonMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostStateMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
@@ -106,8 +112,13 @@ fun ScanDetailScreen(
     val qrBitmap = remember(qrData) { qrData?.let { decodeQrPixelData(it) } }
 
     val isUrl = content.startsWith("http://") || content.startsWith("https://")
+    val isWifi = isWifiQrCode(content)
+    val snackbarHostState = remember { SnackbarHostStateMMD() }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHostMMD(hostState = snackbarHostState)
+        },
         topBar = {
             Column {
                 TopAppBarMMD(
@@ -231,6 +242,29 @@ fun ScanDetailScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextMMD(text = stringResource(R.string.open_in_browser), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                }
+            }
+
+            if (isWifi) {
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                ButtonMMD(
+                    onClick = {
+                        parseWifiQrCode(content)?.let { creds ->
+                            val result = saveWifi(context, creds)
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    when (result) {
+                                        WifiSaveResult.SAVED -> context.getString(R.string.wifi_saved, creds.ssid)
+                                        WifiSaveResult.ALREADY_SAVED -> context.getString(R.string.wifi_already_saved, creds.ssid)
+                                        WifiSaveResult.FAILED -> context.getString(R.string.wifi_save_failed)
+                                    }
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextMMD(text = stringResource(R.string.save_wifi), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
             }
 

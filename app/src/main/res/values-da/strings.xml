@@ -21,6 +21,10 @@
     <string name="yes_delete">Ja, slet</string>
     <string name="delete">Slet</string>
     <string name="open_in_browser">Åbn i browser</string>
+    <string name="save_wifi">Gem WiFi på enheden</string>
+    <string name="wifi_saved">Netværket "%1$s" er gemt</string>
+    <string name="wifi_already_saved">"%1$s" er allerede gemt</string>
+    <string name="wifi_save_failed">Kunne ikke gemme WiFi-netværk</string>
 
     <!-- Shared -->
     <string name="cancel">Annuller</string>

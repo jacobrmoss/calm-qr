@@ -21,6 +21,10 @@
     <string name="yes_delete">是的，刪除</string>
     <string name="delete">刪除</string>
     <string name="open_in_browser">在瀏覽器中開啟</string>
+    <string name="save_wifi">將 WiFi 儲存至裝置</string>
+    <string name="wifi_saved">網路「%1$s」已儲存</string>
+    <string name="wifi_already_saved">「%1$s」已儲存</string>
+    <string name="wifi_save_failed">無法儲存 WiFi 網路</string>
 
     <!-- Shared -->
     <string name="cancel">取消</string>

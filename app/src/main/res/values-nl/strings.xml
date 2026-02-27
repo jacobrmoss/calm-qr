@@ -21,6 +21,10 @@
     <string name="yes_delete">Ja, verwijderen</string>
     <string name="delete">Verwijderen</string>
     <string name="open_in_browser">Openen in browser</string>
+    <string name="save_wifi">WiFi opslaan op apparaat</string>
+    <string name="wifi_saved">Netwerk "%1$s" opgeslagen</string>
+    <string name="wifi_already_saved">"%1$s" is al opgeslagen</string>
+    <string name="wifi_save_failed">Kan WiFi-netwerk niet opslaan</string>
 
     <!-- Shared -->
     <string name="cancel">Annuleren</string>

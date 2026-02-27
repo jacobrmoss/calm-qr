@@ -21,6 +21,10 @@
     <string name="yes_delete">Kyllä, poista</string>
     <string name="delete">Poista</string>
     <string name="open_in_browser">Avaa selaimessa</string>
+    <string name="save_wifi">Tallenna WiFi laitteelle</string>
+    <string name="wifi_saved">Verkko "%1$s" tallennettu</string>
+    <string name="wifi_already_saved">"%1$s" on jo tallennettu</string>
+    <string name="wifi_save_failed">WiFi-verkon tallentaminen epäonnistui</string>
 
     <!-- Shared -->
     <string name="cancel">Peruuta</string>

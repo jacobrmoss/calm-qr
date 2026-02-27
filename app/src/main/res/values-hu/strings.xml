@@ -21,6 +21,10 @@
     <string name="yes_delete">Igen, törlés</string>
     <string name="delete">Törlés</string>
     <string name="open_in_browser">Megnyitás böngészőben</string>
+    <string name="save_wifi">WiFi mentése az eszközre</string>
+    <string name="wifi_saved">A(z) "%1$s" hálózat mentve</string>
+    <string name="wifi_already_saved">A(z) "%1$s" már mentve van</string>
+    <string name="wifi_save_failed">Nem sikerült menteni a WiFi hálózatot</string>
 
     <!-- Shared -->
     <string name="cancel">Mégse</string>

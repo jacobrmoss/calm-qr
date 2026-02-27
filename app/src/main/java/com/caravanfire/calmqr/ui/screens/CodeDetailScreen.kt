@@ -45,8 +45,14 @@ import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
+import com.caravanfire.calmqr.wifi.WifiSaveResult
+import com.caravanfire.calmqr.wifi.saveWifi
+import com.caravanfire.calmqr.wifi.isWifiQrCode
+import com.caravanfire.calmqr.wifi.parseWifiQrCode
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.buttons.OutlinedButtonMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostStateMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
@@ -89,6 +95,7 @@ fun CodeDetailScreen(
     var code by remember { mutableStateOf<SavedCode?>(null) }
     var editableName by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostStateMMD() }
 
     // E-ink refresh when returning from another app, but not during delete confirmation
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -119,6 +126,9 @@ fun CodeDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
     Scaffold(
+        snackbarHost = {
+            SnackbarHostMMD(hostState = snackbarHostState)
+        },
         topBar = {
             Column {
             TopAppBarMMD(
@@ -215,6 +225,7 @@ fun CodeDetailScreen(
         code?.let { savedCode ->
             val isUrl = savedCode.content.startsWith("http://") ||
                     savedCode.content.startsWith("https://")
+            val isWifi = isWifiQrCode(savedCode.content)
 
             val is1D = savedCode.format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")
             val qrBitmap = remember(savedCode.content, savedCode.format, savedCode.qrImageData) {
@@ -265,6 +276,29 @@ fun CodeDetailScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         TextMMD(text = stringResource(R.string.open_in_browser), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                    }
+                }
+
+                if (isWifi) {
+                    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                    ButtonMMD(
+                        onClick = {
+                            parseWifiQrCode(savedCode.content)?.let { creds ->
+                                val result = saveWifi(context, creds)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        when (result) {
+                                            WifiSaveResult.SAVED -> context.getString(R.string.wifi_saved, creds.ssid)
+                                            WifiSaveResult.ALREADY_SAVED -> context.getString(R.string.wifi_already_saved, creds.ssid)
+                                            WifiSaveResult.FAILED -> context.getString(R.string.wifi_save_failed)
+                                        }
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextMMD(text = stringResource(R.string.save_wifi), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                     }
                 }
 

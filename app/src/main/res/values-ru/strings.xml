@@ -21,6 +21,10 @@
     <string name="yes_delete">Да, удалить</string>
     <string name="delete">Удалить</string>
     <string name="open_in_browser">Открыть в браузере</string>
+    <string name="save_wifi">Сохранить WiFi на устройство</string>
+    <string name="wifi_saved">Сеть "%1$s" сохранена</string>
+    <string name="wifi_already_saved">"%1$s" уже сохранена</string>
+    <string name="wifi_save_failed">Не удалось сохранить сеть WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Отмена</string>

@@ -21,6 +21,10 @@
     <string name="yes_delete">نعم، حذف</string>
     <string name="delete">حذف</string>
     <string name="open_in_browser">فتح في المتصفح</string>
+    <string name="save_wifi">حفظ WiFi على الجهاز</string>
+    <string name="wifi_saved">تم حفظ الشبكة "%1$s"</string>
+    <string name="wifi_already_saved">"%1$s" محفوظة بالفعل</string>
+    <string name="wifi_save_failed">تعذّر حفظ شبكة WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">إلغاء</string>
