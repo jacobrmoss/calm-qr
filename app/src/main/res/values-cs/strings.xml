@@ -21,6 +21,10 @@
     <string name="yes_delete">Ano, smazat</string>
     <string name="delete">Smazat</string>
     <string name="open_in_browser">Otevřít v prohlížeči</string>
+    <string name="save_wifi">Uložit WiFi do zařízení</string>
+    <string name="wifi_saved">Síť "%1$s" uložena</string>
+    <string name="wifi_already_saved">"%1$s" je již uložena</string>
+    <string name="wifi_save_failed">Nepodařilo se uložit WiFi síť</string>
 
     <!-- Shared -->
     <string name="cancel">Zrušit</string>

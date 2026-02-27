@@ -21,6 +21,10 @@
     <string name="yes_delete">Oui, supprimer</string>
     <string name="delete">Supprimer</string>
     <string name="open_in_browser">Ouvrir dans le navigateur</string>
+    <string name="save_wifi">Enregistrer le WiFi sur l\u2019appareil</string>
+    <string name="wifi_saved">Réseau "%1$s" enregistré</string>
+    <string name="wifi_already_saved">"%1$s" est déjà enregistré</string>
+    <string name="wifi_save_failed">Impossible d\u2019enregistrer le réseau WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Annuler</string>

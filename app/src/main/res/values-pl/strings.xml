@@ -21,6 +21,10 @@
     <string name="yes_delete">Tak, usuń</string>
     <string name="delete">Usuń</string>
     <string name="open_in_browser">Otwórz w przeglądarce</string>
+    <string name="save_wifi">Zapisz WiFi na urządzeniu</string>
+    <string name="wifi_saved">Sieć "%1$s" zapisana</string>
+    <string name="wifi_already_saved">"%1$s" jest już zapisana</string>
+    <string name="wifi_save_failed">Nie udało się zapisać sieci WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Anuluj</string>

@@ -21,6 +21,10 @@
     <string name="yes_delete">Sì, elimina</string>
     <string name="delete">Elimina</string>
     <string name="open_in_browser">Apri nel browser</string>
+    <string name="save_wifi">Salva WiFi sul dispositivo</string>
+    <string name="wifi_saved">Rete "%1$s" salvata</string>
+    <string name="wifi_already_saved">"%1$s" è già salvata</string>
+    <string name="wifi_save_failed">Impossibile salvare la rete WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Annulla</string>

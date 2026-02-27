@@ -21,6 +21,10 @@
     <string name="yes_delete">Da, șterge</string>
     <string name="delete">Șterge</string>
     <string name="open_in_browser">Deschide în browser</string>
+    <string name="save_wifi">Salvează WiFi pe dispozitiv</string>
+    <string name="wifi_saved">Rețeaua "%1$s" a fost salvată</string>
+    <string name="wifi_already_saved">"%1$s" este deja salvată</string>
+    <string name="wifi_save_failed">Nu s-a putut salva rețeaua WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Anulează</string>

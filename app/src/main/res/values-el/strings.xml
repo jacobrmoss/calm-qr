@@ -21,6 +21,10 @@
     <string name="yes_delete">Ναι, διαγραφή</string>
     <string name="delete">Διαγραφή</string>
     <string name="open_in_browser">Άνοιγμα στο πρόγραμμα περιήγησης</string>
+    <string name="save_wifi">Αποθήκευση WiFi στη συσκευή</string>
+    <string name="wifi_saved">Το δίκτυο "%1$s" αποθηκεύτηκε</string>
+    <string name="wifi_already_saved">Το "%1$s" είναι ήδη αποθηκευμένο</string>
+    <string name="wifi_save_failed">Δεν ήταν δυνατή η αποθήκευση του δικτύου WiFi</string>
 
     <!-- Shared -->
     <string name="cancel">Ακύρωση</string>

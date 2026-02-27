@@ -21,6 +21,10 @@
     <string name="yes_delete">예, 삭제</string>
     <string name="delete">삭제</string>
     <string name="open_in_browser">브라우저에서 열기</string>
+    <string name="save_wifi">기기에 WiFi 저장</string>
+    <string name="wifi_saved">네트워크 "%1$s" 저장됨</string>
+    <string name="wifi_already_saved">"%1$s"은(는) 이미 저장되어 있습니다</string>
+    <string name="wifi_save_failed">WiFi 네트워크를 저장할 수 없습니다</string>
 
     <!-- Shared -->
     <string name="cancel">취소</string>

@@ -21,6 +21,10 @@
     <string name="yes_delete">Ja, löschen</string>
     <string name="delete">Löschen</string>
     <string name="open_in_browser">Im Browser öffnen</string>
+    <string name="save_wifi">WLAN auf Gerät speichern</string>
+    <string name="wifi_saved">Netzwerk "%1$s" gespeichert</string>
+    <string name="wifi_already_saved">"%1$s" ist bereits gespeichert</string>
+    <string name="wifi_save_failed">WLAN-Netzwerk konnte nicht gespeichert werden</string>
 
     <!-- Shared -->
     <string name="cancel">Abbrechen</string>
