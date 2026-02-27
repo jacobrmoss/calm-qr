@@ -97,7 +97,7 @@ fun ScanDetailScreen(
         editableName = untitledDefault
     }
 
-    val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR")
+    val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")
 
     val qrData = remember(content, format) {
         if (is1D) RustBridge.generateBarcode(content, format, 512, 200)

@@ -216,7 +216,7 @@ fun CodeDetailScreen(
             val isUrl = savedCode.content.startsWith("http://") ||
                     savedCode.content.startsWith("https://")
 
-            val is1D = savedCode.format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR")
+            val is1D = savedCode.format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")
             val qrBitmap = remember(savedCode.content, savedCode.format, savedCode.qrImageData) {
                 val data = savedCode.qrImageData
                     ?: if (is1D) RustBridge.generateBarcode(savedCode.content, savedCode.format, 512, 200)
