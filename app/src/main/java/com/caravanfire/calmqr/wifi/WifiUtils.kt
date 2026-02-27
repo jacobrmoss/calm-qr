@@ -1,6 +1,5 @@
 package com.caravanfire.calmqr.wifi
 
-import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiNetworkSuggestion
 import android.os.Build
@@ -9,7 +8,7 @@ import android.util.Log
 
 private const val TAG = "WifiUtils"
 
-/** Result of a [saveWifi] attempt. */
+/** Result of a WiFi save attempt. */
 enum class WifiSaveResult {
     /** Network was handed to the system save dialog. */
     SAVED,
@@ -104,34 +103,60 @@ private fun buildSuggestion(creds: WifiCredentials): WifiNetworkSuggestion {
 }
 
 /**
- * Save a WiFi network to the device via [Settings.ACTION_WIFI_ADD_NETWORKS].
+ * Build an [Intent] to add a WiFi network via [Settings.ACTION_WIFI_ADD_NETWORKS].
  *
- * The system dialog is idempotent — if the network is already saved the
- * result code will indicate so and the user sees "already saved".
+ * The returned intent must be launched with [androidx.activity.result.ActivityResultLauncher]
+ * (i.e. `startActivityForResult`) so the system dialog can identify the calling app.
+ * Using plain `startActivity` causes the dialog to show "null" as the app name.
  *
- * @return [WifiSaveResult] indicating the outcome.
+ * @return the configured [Intent], or `null` if the API level is too low.
  */
-fun saveWifi(context: Context, creds: WifiCredentials): WifiSaveResult {
-    Log.d(TAG, "saveWifi called: ssid=${creds.ssid}, auth=${creds.authType}, hidden=${creds.hidden}")
+fun buildWifiSaveIntent(creds: WifiCredentials): Intent? {
+    Log.d(TAG, "buildWifiSaveIntent: ssid=${creds.ssid}, auth=${creds.authType}, hidden=${creds.hidden}")
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         Log.w(TAG, "ACTION_WIFI_ADD_NETWORKS requires API 30+, device is ${Build.VERSION.SDK_INT}")
-        return WifiSaveResult.FAILED
+        return null
     }
 
     return try {
         val suggestion = buildSuggestion(creds)
-        val intent = Intent(Settings.ACTION_WIFI_ADD_NETWORKS).apply {
+        Intent(Settings.ACTION_WIFI_ADD_NETWORKS).apply {
             putParcelableArrayListExtra(
                 Settings.EXTRA_WIFI_NETWORK_LIST,
                 arrayListOf(suggestion)
             )
         }
-        context.startActivity(intent)
-        Log.i(TAG, "Launched ACTION_WIFI_ADD_NETWORKS for '${creds.ssid}'")
-        WifiSaveResult.SAVED
     } catch (e: Exception) {
-        Log.e(TAG, "ACTION_WIFI_ADD_NETWORKS failed", e)
-        WifiSaveResult.FAILED
+        Log.e(TAG, "Failed to build wifi save intent", e)
+        null
+    }
+}
+
+/**
+ * Interpret the result from the [Settings.ACTION_WIFI_ADD_NETWORKS] system dialog.
+ */
+fun parseWifiSaveResult(resultCode: Int, data: Intent?): WifiSaveResult {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return WifiSaveResult.FAILED
+
+    val results = data?.getIntegerArrayListExtra(Settings.EXTRA_WIFI_NETWORK_RESULT_LIST)
+    if (results == null || results.isEmpty()) {
+        Log.w(TAG, "No result list from wifi save dialog (resultCode=$resultCode)")
+        return WifiSaveResult.FAILED
+    }
+
+    return when (results[0]) {
+        Settings.ADD_WIFI_RESULT_SUCCESS -> {
+            Log.i(TAG, "WiFi network saved successfully")
+            WifiSaveResult.SAVED
+        }
+        Settings.ADD_WIFI_RESULT_ALREADY_EXISTS -> {
+            Log.i(TAG, "WiFi network already saved")
+            WifiSaveResult.ALREADY_SAVED
+        }
+        else -> {
+            Log.w(TAG, "WiFi save returned code: ${results[0]}")
+            WifiSaveResult.FAILED
+        }
     }
 }
