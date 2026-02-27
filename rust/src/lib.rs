@@ -2,7 +2,7 @@ use jni::objects::{JByteArray, JClass, JObject, JString, JValue};
 use jni::sys::{jboolean, jint, jlong};
 use jni::JNIEnv;
 use rxing::helpers::detect_in_luma_with_hints;
-use rxing::{BarcodeFormat, DecodeHintType, DecodeHintValue, DecodingHintDictionary, MultiFormatWriter, Writer};
+use rxing::{BarcodeFormat, DecodeHints, MultiFormatWriter, Writer};
 
 /// JNI entry point: `com.caravanfire.calmqr.rust.RustBridge.greet`
 ///
@@ -66,12 +66,9 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
     // adaptive binarizer (HybridBinarizer) can handle varying lighting.
     let luma: Vec<u8> = buf.into_iter().map(|b| b as u8).collect();
 
-    let mut hints = DecodingHintDictionary::new();
+    let mut hints = DecodeHints::default();
     if try_harder != 0 {
-        hints.insert(
-            DecodeHintType::TRY_HARDER,
-            DecodeHintValue::TryHarder(true),
-        );
+        hints.TryHarder = Some(true);
     }
 
     let result = detect_in_luma_with_hints(
@@ -99,6 +96,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
                 BarcodeFormat::PDF_417 => "PDF_417".to_string(),
                 BarcodeFormat::AZTEC => "AZTEC".to_string(),
                 BarcodeFormat::DATA_MATRIX => "DATA_MATRIX".to_string(),
+                BarcodeFormat::TELEPEN => "TELEPEN".to_string(),
                 other => format!("{}", other),
             };
 
@@ -173,6 +171,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_generateBarco
         "PDF_417" => BarcodeFormat::PDF_417,
         "AZTEC" => BarcodeFormat::AZTEC,
         "DATA_MATRIX" => BarcodeFormat::DATA_MATRIX,
+        "TELEPEN" => BarcodeFormat::TELEPEN,
         _ => BarcodeFormat::QR_CODE, // fallback to QR
     };
 
