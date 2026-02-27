@@ -6,6 +6,9 @@
     <string name="grant_permission">Udělit oprávnění</string>
     <string name="disable_focus_mode">Vypnout režim zaostření</string>
     <string name="enable_focus_mode">Zapnout režim zaostření</string>
+    <string name="enable_flashlight">Zapnout svítilnu</string>
+    <string name="disable_flashlight">Vypnout svítilnu</string>
+    <string name="initializing_camera">Inicializace fotoaparátu</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Ověřte, zda vzor čárového kódu odpovídá, jinak naskenujte znovu</string>

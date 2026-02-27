@@ -6,6 +6,9 @@
     <string name="grant_permission">Χορήγηση άδειας</string>
     <string name="disable_focus_mode">Απενεργοποίηση λειτουργίας εστίασης</string>
     <string name="enable_focus_mode">Ενεργοποίηση λειτουργίας εστίασης</string>
+    <string name="enable_flashlight">Ενεργοποίηση φακού</string>
+    <string name="disable_flashlight">Απενεργοποίηση φακού</string>
+    <string name="initializing_camera">Εκκίνηση κάμερας</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Επαληθεύστε ότι το μοτίβο του barcode ταιριάζει, διαφορετικά σαρώστε ξανά</string>

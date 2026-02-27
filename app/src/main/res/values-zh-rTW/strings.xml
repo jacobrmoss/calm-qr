@@ -6,6 +6,9 @@
     <string name="grant_permission">授予權限</string>
     <string name="disable_focus_mode">關閉對焦模式</string>
     <string name="enable_focus_mode">開啟對焦模式</string>
+    <string name="enable_flashlight">開啟手電筒</string>
+    <string name="disable_flashlight">關閉手電筒</string>
+    <string name="initializing_camera">正在初始化相機</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">請驗證條碼圖案是否相符，否則請重新掃描</string>

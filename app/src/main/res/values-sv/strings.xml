@@ -6,6 +6,9 @@
     <string name="grant_permission">Ge behörighet</string>
     <string name="disable_focus_mode">Inaktivera fokusläge</string>
     <string name="enable_focus_mode">Aktivera fokusläge</string>
+    <string name="enable_flashlight">Slå på ficklampa</string>
+    <string name="disable_flashlight">Stäng av ficklampa</string>
+    <string name="initializing_camera">Initierar kamera</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Kontrollera att streckkodsmönstret stämmer, annars skanna om</string>

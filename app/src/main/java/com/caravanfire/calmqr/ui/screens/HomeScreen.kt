@@ -272,7 +272,12 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp)
-                                    .clickable { onCodeClick(code.id) }
+                                    .clickable {
+                                        scope.launch {
+                                            savedCodeDao.updateTimestamp(code.id)
+                                        }
+                                        onCodeClick(code.id)
+                                    }
                                     .padding(horizontal = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {

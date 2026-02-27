@@ -6,6 +6,9 @@
     <string name="grant_permission">Engedély megadása</string>
     <string name="disable_focus_mode">Fókusz mód kikapcsolása</string>
     <string name="enable_focus_mode">Fókusz mód bekapcsolása</string>
+    <string name="enable_flashlight">Zseblámpa bekapcsolása</string>
+    <string name="disable_flashlight">Zseblámpa kikapcsolása</string>
+    <string name="initializing_camera">Kamera inicializálása</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Ellenőrizze, hogy a vonalkód mintája egyezik, különben olvassa be újra</string>

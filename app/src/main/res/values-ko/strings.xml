@@ -6,6 +6,9 @@
     <string name="grant_permission">권한 부여</string>
     <string name="disable_focus_mode">초점 모드 비활성화</string>
     <string name="enable_focus_mode">초점 모드 활성화</string>
+    <string name="enable_flashlight">손전등 켜기</string>
+    <string name="disable_flashlight">손전등 끄기</string>
+    <string name="initializing_camera">카메라 초기화 중</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">바코드 패턴이 일치하는지 확인하세요. 그렇지 않으면 다시 스캔하세요</string>

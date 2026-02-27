@@ -6,6 +6,9 @@
     <string name="grant_permission">Предоставить разрешение</string>
     <string name="disable_focus_mode">Отключить режим фокусировки</string>
     <string name="enable_focus_mode">Включить режим фокусировки</string>
+    <string name="enable_flashlight">Включить фонарик</string>
+    <string name="disable_flashlight">Выключить фонарик</string>
+    <string name="initializing_camera">Инициализация камеры</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Пожалуйста, убедитесь, что рисунок штрих-кода совпадает, иначе отсканируйте повторно</string>

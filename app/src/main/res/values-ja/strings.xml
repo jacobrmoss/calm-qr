@@ -6,6 +6,9 @@
     <string name="grant_permission">許可を付与</string>
     <string name="disable_focus_mode">フォーカスモードを無効にする</string>
     <string name="enable_focus_mode">フォーカスモードを有効にする</string>
+    <string name="enable_flashlight">フラッシュライトをオンにする</string>
+    <string name="disable_flashlight">フラッシュライトをオフにする</string>
+    <string name="initializing_camera">カメラを初期化中</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">バーコードのパターンが一致することを確認してください。一致しない場合は再スキャンしてください</string>

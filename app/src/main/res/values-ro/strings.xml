@@ -6,6 +6,9 @@
     <string name="grant_permission">Acordă permisiunea</string>
     <string name="disable_focus_mode">Dezactivează modul focalizare</string>
     <string name="enable_focus_mode">Activează modul focalizare</string>
+    <string name="enable_flashlight">Pornește lanterna</string>
+    <string name="disable_flashlight">Oprește lanterna</string>
+    <string name="initializing_camera">Inițializare cameră</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verificați dacă modelul codului de bare se potrivește, altfel scanați din nou</string>
