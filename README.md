@@ -27,7 +27,7 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 
 | Barcode | Barcode Verify | Browser Link | Empty Home |
 |---|---|---|---|
-| ![Barcode](screenshots/calm-qr-simple-barcode.png) | ![Barcode Verify](screenshots/calm-qr-barcode-verify.png) | ![Browser Link](screenshots/calm-qr-browser-link.png) | ![Empty Home](screenshots/calm-qr-homescreen-blank.png) |
+| ![Barcode](screenshots/calm-qr-simple-barcode.png) | ![Barcode Verify](screenshots/calm-qr-barcode-verify.png) | ![Browser Link](screenshots/calm-qr-browser-link.png) | ![Save WiFi](screenshots/calm-qr-save-wifi.png) |
 
 ---
 
@@ -65,22 +65,6 @@ QR Code, Aztec, Data Matrix, PDF 417, Code 128, Code 39, Code 93, Codabar, ITF, 
 
 ---
 
-## Building
-
-```bash
-# Debug
-./gradlew assembleDebug
-
-# Release (requires signing config in app/local.properties)
-./gradlew assembleRelease
-```
-
-Rust cross-compilation targets are required:
-
-```bash
-rustup target add aarch64-linux-android armv7-linux-androideabi
-```
-
 ## Known Issues
 It's not perfect, and I've thrown it together quickly. Here are some of the things I'm thinking about it.
 ### Barcode scanning is not as reliable
@@ -91,9 +75,6 @@ The underlying data has been consistent in my testing, however, the library and 
 I've just started using it myself, so I can't say that it works well in all scenarios. Use with care and caution and have back up images just in case.
 ### Flashing for the codes
 I added a full screen flash before displaying the codes -- this is to clean up the ghosting on the e-ink screen as we prepare the codes to be scanned. I quite like the result, however, I do worry for those who might be sensitive to screens flashing (even when that flash is not accompanied by direct light beams). I just want you to be aware if this is you.
-
-## Ideas I have for improvements
-- Connect to Wifi -- being able to detect if a QR is for Wifi and bringing you either to the SSID and Pass for it, or if I can connecting to it from the app
 
 ---
 
