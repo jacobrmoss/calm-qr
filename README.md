@@ -25,9 +25,9 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 |---|---|---|---|
 | ![Home](screenshots/calm-qr-homescreen-list.png) | ![Scan Result](screenshots/calm-qr-saving-qr.png) | ![Saved Code](screenshots/calm-qr-simple-qr.png) | ![Delete Confirm](screenshots/calm-qr-delete-confirmation.png) |
 
-| Barcode | Barcode Verify | Browser Link | Save WiFi |
+| Barcode | Barcode Verify | Browser Link | Home |
 |---|---|---|---|
-| ![Barcode](screenshots/calm-qr-simple-barcode.png) | ![Barcode Verify](screenshots/calm-qr-barcode-verify.png) | ![Browser Link](screenshots/calm-qr-browser-link.png) | ![Save WiFi](screenshots/calm-qr-save-wifi.png) |
+| ![Barcode](screenshots/calm-qr-simple-barcode.png) | ![Barcode Verify](screenshots/calm-qr-barcode-verify.png) | ![Browser Link](screenshots/calm-qr-browser-link.png) | ![Home](screenshots/calm-qr-homescreen-blank.png) |
 
 ---
 
