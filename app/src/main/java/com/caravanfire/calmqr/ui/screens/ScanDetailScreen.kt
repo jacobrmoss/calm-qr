@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import com.caravanfire.calmqr.data.SavedCode
 import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
@@ -94,7 +95,9 @@ fun ScanDetailScreen(
     savedCodeDao: SavedCodeDao,
     onSaved: (Long) -> Unit,
     onRescan: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onRequestInfo: (currentName: String) -> Unit = {},
+    savedStateHandle: SavedStateHandle? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -104,6 +107,18 @@ fun ScanDetailScreen(
 
     LaunchedEffect(Unit) {
         editableName = untitledDefault
+    }
+
+    // If returning from ScanInfoScreen with an edited name, adopt it.
+    // Note: savedStateHandle.get(...) is not a Compose-tracked read — the snapshot is
+    // taken whenever the composable re-enters (which happens on pop back from ScanInfo).
+    val pendingName = savedStateHandle?.get<String>(PENDING_NAME_KEY)
+    LaunchedEffect(pendingName) {
+        if (pendingName != null) {
+            editableName = pendingName
+            hasBeenTouched = true
+            savedStateHandle.remove<String>(PENDING_NAME_KEY)
+        }
     }
 
     val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")

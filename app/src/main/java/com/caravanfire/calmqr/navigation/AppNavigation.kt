@@ -12,6 +12,7 @@ import com.caravanfire.calmqr.ui.screens.CodeInfoScreen
 import com.caravanfire.calmqr.ui.screens.EinkTransitionScreen
 import com.caravanfire.calmqr.ui.screens.HomeScreen
 import com.caravanfire.calmqr.ui.screens.ScanDetailScreen
+import com.caravanfire.calmqr.ui.screens.ScanInfoScreen
 import com.caravanfire.calmqr.ui.screens.ScannerScreen
 
 @Composable
@@ -75,7 +76,8 @@ fun AppNavigation(
                 },
                 onCancel = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
-                }
+                },
+                savedStateHandle = backStackEntry.savedStateHandle,
             )
         }
 
@@ -134,6 +136,34 @@ fun AppNavigation(
                     navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
                         popUpTo(Screen.CodeDetail.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ScanInfo.route,
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType },
+                navArgument("content") { type = NavType.StringType },
+                navArgument("format") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val name = java.net.URLDecoder.decode(
+                backStackEntry.arguments?.getString("name") ?: "", "UTF-8"
+            )
+            val content = java.net.URLDecoder.decode(
+                backStackEntry.arguments?.getString("content") ?: "", "UTF-8"
+            )
+            val format = java.net.URLDecoder.decode(
+                backStackEntry.arguments?.getString("format") ?: "", "UTF-8"
+            )
+            ScanInfoScreen(
+                initialName = name,
+                content = content,
+                format = format,
+                previousSavedStateHandle = navController.previousBackStackEntry?.savedStateHandle,
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
