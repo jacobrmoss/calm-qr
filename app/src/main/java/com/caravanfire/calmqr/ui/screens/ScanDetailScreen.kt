@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -189,6 +190,15 @@ fun ScanDetailScreen(
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { onRequestInfo(editableName) }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = stringResource(R.string.info_action_info),
+                                modifier = Modifier.size(32.dp),
+                            )
                         }
                     }
                 )

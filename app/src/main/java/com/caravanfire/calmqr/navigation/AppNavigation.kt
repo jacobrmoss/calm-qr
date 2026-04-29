@@ -77,6 +77,11 @@ fun AppNavigation(
                 onCancel = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
+                onRequestInfo = { currentName ->
+                    navController.navigate(
+                        Screen.ScanInfo.createRoute(currentName, content, format)
+                    )
+                },
                 savedStateHandle = backStackEntry.savedStateHandle,
             )
         }
