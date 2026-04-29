@@ -245,4 +245,6 @@ dependencies {
     // Unit testing — gitignored; not committed
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test.junit)
+    // org.json is stubbed in android.jar for unit tests; provide real impl on test classpath
+    testImplementation("org.json:json:20231013")
 }
