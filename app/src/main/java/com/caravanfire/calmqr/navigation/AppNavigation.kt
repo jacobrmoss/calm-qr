@@ -132,7 +132,7 @@ fun AppNavigation(
                 savedCodeDao = savedCodeDao,
                 onBack = {
                     navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
-                        popUpTo(Screen.CodeInfo.route) { inclusive = true }
+                        popUpTo(Screen.CodeDetail.route) { inclusive = true }
                     }
                 }
             )
