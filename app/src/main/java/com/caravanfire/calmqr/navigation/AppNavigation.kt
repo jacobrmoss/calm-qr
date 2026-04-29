@@ -118,7 +118,10 @@ fun AppNavigation(
                     navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
                         popUpTo(Screen.CodeDetail.route) { inclusive = true }
                     }
-                }
+                },
+                onRequestInfo = {
+                    navController.navigate(Screen.CodeInfo.createRoute(codeId))
+                },
             )
         }
 

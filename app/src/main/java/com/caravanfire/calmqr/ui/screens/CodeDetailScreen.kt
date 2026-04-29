@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -91,7 +92,8 @@ fun CodeDetailScreen(
     savedCodeDao: SavedCodeDao,
     onBack: () -> Unit,
     onDeleted: () -> Unit,
-    onRequestEinkRefresh: () -> Unit = {}
+    onRequestEinkRefresh: () -> Unit = {},
+    onRequestInfo: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -187,6 +189,20 @@ fun CodeDetailScreen(
                                 modifier = Modifier.size(32.dp)
                             )
                         }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            savedCodeDao.updateName(codeId, editableName)
+                        }
+                        onRequestInfo()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = stringResource(R.string.info_action_info),
+                            modifier = Modifier.size(32.dp),
+                        )
                     }
                 }
             )
