@@ -48,9 +48,8 @@ fun CodeInfoScreen(
     InfoContent(
         name = editableName,
         onNameChange = { editableName = it },
-        format = loaded.format,
         content = loaded.content,
-        timestamp = loaded.timestamp,
+        createdAt = loaded.createdAt,
         snackbarHostState = snackbarHostState,
         onBack = {
             scope.launch {
@@ -63,7 +62,8 @@ fun CodeInfoScreen(
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar(
-                    context.getString(R.string.info_copied_to_clipboard)
+                    message = context.getString(R.string.info_copied_to_clipboard),
+                    withDismissAction = true,
                 )
             }
         },

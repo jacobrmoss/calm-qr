@@ -10,14 +10,16 @@ data class SavedCode(
     val content: String,
     val format: String,
     val timestamp: Long = System.currentTimeMillis(),
-    val qrImageData: ByteArray? = null
+    val qrImageData: ByteArray? = null,
+    val createdAt: Long? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SavedCode) return false
         return id == other.id && name == other.name && content == other.content &&
                 format == other.format && timestamp == other.timestamp &&
-                qrImageData.contentEquals(other.qrImageData)
+                qrImageData.contentEquals(other.qrImageData) &&
+                createdAt == other.createdAt
     }
 
     override fun hashCode(): Int {
@@ -27,6 +29,7 @@ data class SavedCode(
         result = 31 * result + format.hashCode()
         result = 31 * result + timestamp.hashCode()
         result = 31 * result + (qrImageData?.contentHashCode() ?: 0)
+        result = 31 * result + (createdAt?.hashCode() ?: 0)
         return result
     }
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -172,6 +173,19 @@ fun ScanDetailScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .layout { measurable, constraints ->
+                                    val extra = 21.dp.roundToPx()
+                                    val newMaxWidth = constraints.maxWidth + extra
+                                    val placeable = measurable.measure(
+                                        constraints.copy(
+                                            minWidth = newMaxWidth,
+                                            maxWidth = newMaxWidth,
+                                        ),
+                                    )
+                                    layout(constraints.maxWidth, placeable.height) {
+                                        placeable.placeRelative(0, 0)
+                                    }
+                                }
                                 .offset(x = Dimens.titleOffset)
                                 .onFocusChanged { focusState ->
                                     if (focusState.isFocused && !hasBeenTouched) {
@@ -193,12 +207,17 @@ fun ScanDetailScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { onRequestInfo(editableName) }) {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = stringResource(R.string.info_action_info),
-                                modifier = Modifier.size(32.dp),
-                            )
+                        if (format == "QR_CODE") {
+                            IconButton(
+                                onClick = { onRequestInfo(editableName) },
+                                modifier = Modifier.size(40.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    contentDescription = stringResource(R.string.info_action_info),
+                                    modifier = Modifier.size(32.dp),
+                                )
+                            }
                         }
                     }
                 )
@@ -256,7 +275,8 @@ fun ScanDetailScreen(
                                 name = editableName,
                                 content = content,
                                 format = format,
-                                qrImageData = qrData
+                                qrImageData = qrData,
+                                createdAt = System.currentTimeMillis()
                             )
                         )
                         onSaved(id)

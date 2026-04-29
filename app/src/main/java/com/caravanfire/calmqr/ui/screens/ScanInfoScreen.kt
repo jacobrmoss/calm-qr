@@ -23,7 +23,6 @@ const val PENDING_NAME_KEY = "pendingName"
 fun ScanInfoScreen(
     initialName: String,
     content: String,
-    format: String,
     previousSavedStateHandle: SavedStateHandle?,
     onBack: () -> Unit,
 ) {
@@ -40,9 +39,8 @@ fun ScanInfoScreen(
             editableName = newName
             previousSavedStateHandle?.set(PENDING_NAME_KEY, newName)
         },
-        format = format,
         content = content,
-        timestamp = null,
+        createdAt = null,
         snackbarHostState = snackbarHostState,
         onBack = onBack,
         onCopy = { raw ->
@@ -50,7 +48,8 @@ fun ScanInfoScreen(
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar(
-                    context.getString(R.string.info_copied_to_clipboard)
+                    message = context.getString(R.string.info_copied_to_clipboard),
+                    withDismissAction = true,
                 )
             }
         },

@@ -1,6 +1,5 @@
 package com.caravanfire.calmqr.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -52,9 +52,9 @@ import java.util.Date
  *
  * @param name editable code name; pass current value
  * @param onNameChange invoked with each edit
- * @param format raw barcode format string (e.g., "QR_CODE", "CODE_128")
  * @param content raw payload string from the QR/barcode
- * @param timestamp epoch ms when the code was saved; null on the unsaved path
+ * @param createdAt epoch ms when the code was first saved; null hides the date row
+ *   (e.g., the unsaved path, or pre-existing rows from before the column was added)
  * @param snackbarHostState shared host so the screen wrapper controls snackbar coroutines
  * @param onBack invoked when the back arrow is tapped
  * @param onCopy invoked with the original content when copy is tapped
@@ -64,9 +64,8 @@ import java.util.Date
 fun InfoContent(
     name: String,
     onNameChange: (String) -> Unit,
-    format: String,
     content: String,
-    timestamp: Long?,
+    createdAt: Long?,
     snackbarHostState: SnackbarHostStateMMD,
     onBack: () -> Unit,
     onCopy: (String) -> Unit,
@@ -96,6 +95,19 @@ fun InfoContent(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .layout { measurable, constraints ->
+                                    val extra = 29.dp.roundToPx()
+                                    val newMaxWidth = constraints.maxWidth + extra
+                                    val placeable = measurable.measure(
+                                        constraints.copy(
+                                            minWidth = newMaxWidth,
+                                            maxWidth = newMaxWidth,
+                                        ),
+                                    )
+                                    layout(constraints.maxWidth, placeable.height) {
+                                        placeable.placeRelative(0, 0)
+                                    }
+                                }
                                 .offset(x = Dimens.titleOffset),
                         )
                     },
@@ -122,34 +134,27 @@ fun InfoContent(
                 .padding(horizontal = 16.dp, vertical = 16.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            InfoRow(
-                label = stringResource(R.string.info_label_format),
-                value = formatDisplayLabel(format),
-            )
-            Spacer(Modifier.height(16.dp))
+            if (createdAt != null) {
+                InfoRow(
+                    label = stringResource(R.string.info_label_date_added),
+                    value = remember(createdAt) {
+                        DateFormat.getDateTimeInstance(
+                            DateFormat.LONG,
+                            DateFormat.SHORT,
+                        ).format(Date(createdAt))
+                    },
+                )
+                Spacer(Modifier.height(16.dp))
+            }
             InfoRow(
                 label = stringResource(R.string.info_label_content),
                 value = stringResource(contentTypeLabelRes(contentType)),
             )
-            if (timestamp != null) {
-                Spacer(Modifier.height(16.dp))
-                InfoRow(
-                    label = stringResource(R.string.info_label_date_added),
-                    value = remember(timestamp) {
-                        DateFormat.getDateTimeInstance(
-                            DateFormat.LONG,
-                            DateFormat.SHORT,
-                        ).format(Date(timestamp))
-                    },
-                )
-            }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             // Raw data label + copy icon row
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 TextMMD(
                     text = stringResource(R.string.info_label_raw_data),
@@ -210,23 +215,4 @@ private fun contentTypeLabelRes(type: ContentType): Int = when (type) {
     ContentType.VCARD -> R.string.content_type_vcard
     ContentType.GEO -> R.string.content_type_geo
     ContentType.PLAIN_TEXT -> R.string.content_type_plain_text
-}
-
-@Composable
-private fun formatDisplayLabel(format: String): String = when (format) {
-    "QR_CODE" -> stringResource(R.string.format_qr_code)
-    "CODE_128" -> stringResource(R.string.format_code_128)
-    "CODE_39" -> stringResource(R.string.format_code_39)
-    "CODE_93" -> stringResource(R.string.format_code_93)
-    "EAN_13" -> stringResource(R.string.format_ean_13)
-    "EAN_8" -> stringResource(R.string.format_ean_8)
-    "UPC_A" -> stringResource(R.string.format_upc_a)
-    "UPC_E" -> stringResource(R.string.format_upc_e)
-    "ITF" -> stringResource(R.string.format_itf)
-    "CODABAR" -> stringResource(R.string.format_codabar)
-    "PDF_417" -> stringResource(R.string.format_pdf_417)
-    "AZTEC" -> stringResource(R.string.format_aztec)
-    "DATA_MATRIX" -> stringResource(R.string.format_data_matrix)
-    "TELEPEN" -> stringResource(R.string.format_telepen)
-    else -> format
 }

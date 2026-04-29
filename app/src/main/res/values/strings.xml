@@ -47,11 +47,10 @@
     <string name="no_saved_codes">No saved codes yet. Tap + to scan.</string>
 
     <!-- Info page -->
-    <string name="info_copied_to_clipboard">Copied to Clipboard</string>
-    <string name="info_label_format">Format</string>
-    <string name="info_label_content">Content</string>
-    <string name="info_label_date_added">Date added</string>
-    <string name="info_label_raw_data">Raw data</string>
+    <string name="info_copied_to_clipboard">Raw Data Copied to Clipboard</string>
+    <string name="info_label_content">Content Type</string>
+    <string name="info_label_date_added">Date Added</string>
+    <string name="info_label_raw_data">Raw Data</string>
     <string name="info_action_copy">Copy</string>
     <string name="info_action_info">Info</string>
 
@@ -64,20 +63,4 @@
     <string name="content_type_vcard">Contact card</string>
     <string name="content_type_geo">Geographic location</string>
     <string name="content_type_plain_text">Plain text</string>
-
-    <!-- Format display labels -->
-    <string name="format_qr_code">QR Code</string>
-    <string name="format_code_128">Code 128</string>
-    <string name="format_code_39">Code 39</string>
-    <string name="format_code_93">Code 93</string>
-    <string name="format_ean_13">EAN-13</string>
-    <string name="format_ean_8">EAN-8</string>
-    <string name="format_upc_a">UPC-A</string>
-    <string name="format_upc_e">UPC-E</string>
-    <string name="format_itf">ITF</string>
-    <string name="format_codabar">Codabar</string>
-    <string name="format_pdf_417">PDF417</string>
-    <string name="format_aztec">Aztec</string>
-    <string name="format_data_matrix">Data Matrix</string>
-    <string name="format_telepen">Telepen</string>
 </resources>

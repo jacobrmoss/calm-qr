@@ -79,7 +79,7 @@ fun AppNavigation(
                 },
                 onRequestInfo = { currentName ->
                     navController.navigate(
-                        Screen.ScanInfo.createRoute(currentName, content, format)
+                        Screen.ScanInfo.createRoute(currentName, content)
                     )
                 },
                 savedStateHandle = backStackEntry.savedStateHandle,
@@ -152,8 +152,7 @@ fun AppNavigation(
             route = Screen.ScanInfo.route,
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
-                navArgument("content") { type = NavType.StringType },
-                navArgument("format") { type = NavType.StringType }
+                navArgument("content") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val name = java.net.URLDecoder.decode(
@@ -162,13 +161,9 @@ fun AppNavigation(
             val content = java.net.URLDecoder.decode(
                 backStackEntry.arguments?.getString("content") ?: "", "UTF-8"
             )
-            val format = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("format") ?: "", "UTF-8"
-            )
             ScanInfoScreen(
                 initialName = name,
                 content = content,
-                format = format,
                 previousSavedStateHandle = navController.previousBackStackEntry?.savedStateHandle,
                 onBack = {
                     navController.popBackStack()
