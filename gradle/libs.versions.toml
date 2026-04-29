@@ -11,6 +11,7 @@ navigation = "2.7.7"
 camerax = "1.4.1"
 room = "2.6.1"
 junit = "4.13.2"
+json = "20231013"
 
 [libraries]
 mudita-mmd = { module = "com.mudita:MMD", version.ref = "mmd" }
@@ -35,6 +36,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
+json = { group = "org.json", name = "json", version.ref = "json" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

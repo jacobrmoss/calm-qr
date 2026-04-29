@@ -246,5 +246,5 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test.junit)
     // org.json is stubbed in android.jar for unit tests; provide real impl on test classpath
-    testImplementation("org.json:json:20231013")
+    testImplementation(libs.json)
 }
