@@ -40,4 +40,22 @@
     <string name="select_codes">Вибрати коди</string>
     <string name="delete_count">Видалити %1$d</string>
     <string name="no_saved_codes">Збережених кодів ще немає. Натисніть + для сканування.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Необроблені дані скопійовано в буфер обміну</string>
+    <string name="info_label_content">Тип вмісту</string>
+    <string name="info_label_date_added">Дата додавання</string>
+    <string name="info_label_raw_data">Необроблені дані</string>
+    <string name="info_action_copy">Копіювати</string>
+    <string name="info_action_info">Інфо</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Мережа Wi-Fi</string>
+    <string name="content_type_phone">Номер телефону</string>
+    <string name="content_type_email">Електронна пошта</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Картка контакту</string>
+    <string name="content_type_geo">Географічне розташування</string>
+    <string name="content_type_plain_text">Звичайний текст</string>
 </resources>

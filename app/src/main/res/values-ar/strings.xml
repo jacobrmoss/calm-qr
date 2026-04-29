@@ -40,4 +40,22 @@
     <string name="select_codes">تحديد الرموز</string>
     <string name="delete_count">حذف %1$d</string>
     <string name="no_saved_codes">لا توجد رموز محفوظة بعد. اضغط على + للمسح.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">تم نسخ البيانات الأولية إلى الحافظة</string>
+    <string name="info_label_content">نوع المحتوى</string>
+    <string name="info_label_date_added">تاريخ الإضافة</string>
+    <string name="info_label_raw_data">البيانات الأولية</string>
+    <string name="info_action_copy">نسخ</string>
+    <string name="info_action_info">معلومات</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">رابط</string>
+    <string name="content_type_wifi">شبكة Wi-Fi</string>
+    <string name="content_type_phone">رقم هاتف</string>
+    <string name="content_type_email">بريد إلكتروني</string>
+    <string name="content_type_sms">رسالة نصية</string>
+    <string name="content_type_vcard">بطاقة جهة اتصال</string>
+    <string name="content_type_geo">موقع جغرافي</string>
+    <string name="content_type_plain_text">نص عادي</string>
 </resources>

@@ -40,4 +40,22 @@
     <string name="select_codes">Seleziona codici</string>
     <string name="delete_count">Elimina %1$d</string>
     <string name="no_saved_codes">Nessun codice salvato. Tocca + per scansionare.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Dati grezzi copiati negli appunti</string>
+    <string name="info_label_content">Tipo di contenuto</string>
+    <string name="info_label_date_added">Data di aggiunta</string>
+    <string name="info_label_raw_data">Dati grezzi</string>
+    <string name="info_action_copy">Copia</string>
+    <string name="info_action_info">Info</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Rete Wi-Fi</string>
+    <string name="content_type_phone">Numero di telefono</string>
+    <string name="content_type_email">E-mail</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Biglietto da visita</string>
+    <string name="content_type_geo">Posizione geografica</string>
+    <string name="content_type_plain_text">Testo semplice</string>
 </resources>

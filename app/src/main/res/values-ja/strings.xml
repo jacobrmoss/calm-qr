@@ -40,4 +40,22 @@
     <string name="select_codes">コードを選択</string>
     <string name="delete_count">削除 %1$d</string>
     <string name="no_saved_codes">保存されたコードはまだありません。+ をタップしてスキャンしてください。</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">生データをクリップボードにコピーしました</string>
+    <string name="info_label_content">コンテンツの種類</string>
+    <string name="info_label_date_added">追加日</string>
+    <string name="info_label_raw_data">生データ</string>
+    <string name="info_action_copy">コピー</string>
+    <string name="info_action_info">情報</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Wi-Fi ネットワーク</string>
+    <string name="content_type_phone">電話番号</string>
+    <string name="content_type_email">メール</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">連絡先カード</string>
+    <string name="content_type_geo">位置情報</string>
+    <string name="content_type_plain_text">プレーンテキスト</string>
 </resources>

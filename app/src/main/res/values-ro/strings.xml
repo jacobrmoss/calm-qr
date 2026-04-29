@@ -40,4 +40,22 @@
     <string name="select_codes">Selectează coduri</string>
     <string name="delete_count">Șterge %1$d</string>
     <string name="no_saved_codes">Niciun cod salvat încă. Apăsați + pentru a scana.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Date brute copiate în clipboard</string>
+    <string name="info_label_content">Tip de conținut</string>
+    <string name="info_label_date_added">Data adăugării</string>
+    <string name="info_label_raw_data">Date brute</string>
+    <string name="info_action_copy">Copiază</string>
+    <string name="info_action_info">Info</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Rețea Wi-Fi</string>
+    <string name="content_type_phone">Număr de telefon</string>
+    <string name="content_type_email">E-mail</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Card de contact</string>
+    <string name="content_type_geo">Locație geografică</string>
+    <string name="content_type_plain_text">Text simplu</string>
 </resources>

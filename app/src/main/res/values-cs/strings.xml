@@ -40,4 +40,22 @@
     <string name="select_codes">Vybrat kódy</string>
     <string name="delete_count">Smazat %1$d</string>
     <string name="no_saved_codes">Zatím žádné uložené kódy. Klepněte na + pro skenování.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Nezpracovaná data zkopírována do schránky</string>
+    <string name="info_label_content">Typ obsahu</string>
+    <string name="info_label_date_added">Datum přidání</string>
+    <string name="info_label_raw_data">Nezpracovaná data</string>
+    <string name="info_action_copy">Kopírovat</string>
+    <string name="info_action_info">Info</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Síť Wi-Fi</string>
+    <string name="content_type_phone">Telefonní číslo</string>
+    <string name="content_type_email">E-mail</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Vizitka</string>
+    <string name="content_type_geo">Zeměpisná poloha</string>
+    <string name="content_type_plain_text">Prostý text</string>
 </resources>

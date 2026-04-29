@@ -40,4 +40,22 @@
     <string name="select_codes">Επιλογή κωδικών</string>
     <string name="delete_count">Διαγραφή %1$d</string>
     <string name="no_saved_codes">Δεν υπάρχουν αποθηκευμένοι κωδικοί. Πατήστε + για σάρωση.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Τα ανεπεξέργαστα δεδομένα αντιγράφηκαν στο πρόχειρο</string>
+    <string name="info_label_content">Τύπος περιεχομένου</string>
+    <string name="info_label_date_added">Ημερομηνία προσθήκης</string>
+    <string name="info_label_raw_data">Ανεπεξέργαστα δεδομένα</string>
+    <string name="info_action_copy">Αντιγραφή</string>
+    <string name="info_action_info">Πληροφορίες</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Δίκτυο Wi-Fi</string>
+    <string name="content_type_phone">Αριθμός τηλεφώνου</string>
+    <string name="content_type_email">Email</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Κάρτα επαφής</string>
+    <string name="content_type_geo">Γεωγραφική τοποθεσία</string>
+    <string name="content_type_plain_text">Απλό κείμενο</string>
 </resources>

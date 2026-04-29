@@ -40,4 +40,22 @@
     <string name="select_codes">Выбрать коды</string>
     <string name="delete_count">Удалить %1$d</string>
     <string name="no_saved_codes">Сохранённых кодов пока нет. Нажмите + для сканирования.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Необработанные данные скопированы в буфер обмена</string>
+    <string name="info_label_content">Тип содержимого</string>
+    <string name="info_label_date_added">Дата добавления</string>
+    <string name="info_label_raw_data">Необработанные данные</string>
+    <string name="info_action_copy">Копировать</string>
+    <string name="info_action_info">Инфо</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Сеть Wi-Fi</string>
+    <string name="content_type_phone">Номер телефона</string>
+    <string name="content_type_email">Электронная почта</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Карточка контакта</string>
+    <string name="content_type_geo">Географическое местоположение</string>
+    <string name="content_type_plain_text">Обычный текст</string>
 </resources>

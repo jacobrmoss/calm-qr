@@ -40,4 +40,22 @@
     <string name="select_codes">选择码</string>
     <string name="delete_count">删除 %1$d</string>
     <string name="no_saved_codes">还没有保存的码。点击 + 扫描。</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">原始数据已复制到剪贴板</string>
+    <string name="info_label_content">内容类型</string>
+    <string name="info_label_date_added">添加日期</string>
+    <string name="info_label_raw_data">原始数据</string>
+    <string name="info_action_copy">复制</string>
+    <string name="info_action_info">信息</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Wi-Fi 网络</string>
+    <string name="content_type_phone">电话号码</string>
+    <string name="content_type_email">电子邮件</string>
+    <string name="content_type_sms">短信</string>
+    <string name="content_type_vcard">联系人卡片</string>
+    <string name="content_type_geo">地理位置</string>
+    <string name="content_type_plain_text">纯文本</string>
 </resources>

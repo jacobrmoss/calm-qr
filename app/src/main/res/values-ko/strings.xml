@@ -40,4 +40,22 @@
     <string name="select_codes">코드 선택</string>
     <string name="delete_count">삭제 %1$d</string>
     <string name="no_saved_codes">저장된 코드가 없습니다. +를 눌러 스캔하세요.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">원시 데이터를 클립보드에 복사했습니다</string>
+    <string name="info_label_content">콘텐츠 유형</string>
+    <string name="info_label_date_added">추가된 날짜</string>
+    <string name="info_label_raw_data">원시 데이터</string>
+    <string name="info_action_copy">복사</string>
+    <string name="info_action_info">정보</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Wi-Fi 네트워크</string>
+    <string name="content_type_phone">전화번호</string>
+    <string name="content_type_email">이메일</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">연락처 카드</string>
+    <string name="content_type_geo">지리적 위치</string>
+    <string name="content_type_plain_text">일반 텍스트</string>
 </resources>

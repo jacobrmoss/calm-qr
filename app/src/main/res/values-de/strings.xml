@@ -40,4 +40,22 @@
     <string name="select_codes">Codes auswählen</string>
     <string name="delete_count">Löschen %1$d</string>
     <string name="no_saved_codes">Noch keine gespeicherten Codes. Tippen Sie auf + zum Scannen.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Rohdaten in die Zwischenablage kopiert</string>
+    <string name="info_label_content">Inhaltstyp</string>
+    <string name="info_label_date_added">Hinzugefügt am</string>
+    <string name="info_label_raw_data">Rohdaten</string>
+    <string name="info_action_copy">Kopieren</string>
+    <string name="info_action_info">Info</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">WLAN-Netzwerk</string>
+    <string name="content_type_phone">Telefonnummer</string>
+    <string name="content_type_email">E-Mail</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Kontaktkarte</string>
+    <string name="content_type_geo">Geografischer Standort</string>
+    <string name="content_type_plain_text">Klartext</string>
 </resources>

@@ -40,4 +40,22 @@
     <string name="select_codes">Välj koder</string>
     <string name="delete_count">Radera %1$d</string>
     <string name="no_saved_codes">Inga sparade koder ännu. Tryck på + för att skanna.</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">Rådata kopierade till urklipp</string>
+    <string name="info_label_content">Innehållstyp</string>
+    <string name="info_label_date_added">Tillagd</string>
+    <string name="info_label_raw_data">Rådata</string>
+    <string name="info_action_copy">Kopiera</string>
+    <string name="info_action_info">Info</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Wi-Fi-nätverk</string>
+    <string name="content_type_phone">Telefonnummer</string>
+    <string name="content_type_email">E-post</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">Kontaktkort</string>
+    <string name="content_type_geo">Geografisk plats</string>
+    <string name="content_type_plain_text">Vanlig text</string>
 </resources>

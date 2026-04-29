@@ -40,4 +40,22 @@
     <string name="select_codes">कोड चुनें</string>
     <string name="delete_count">हटाएं %1$d</string>
     <string name="no_saved_codes">अभी तक कोई सहेजे गए कोड नहीं हैं। स्कैन करने के लिए + दबाएं।</string>
+
+    <!-- Info page -->
+    <string name="info_copied_to_clipboard">रॉ डेटा क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="info_label_content">सामग्री का प्रकार</string>
+    <string name="info_label_date_added">जोड़ने की तारीख</string>
+    <string name="info_label_raw_data">रॉ डेटा</string>
+    <string name="info_action_copy">कॉपी करें</string>
+    <string name="info_action_info">जानकारी</string>
+
+    <!-- Content type display labels -->
+    <string name="content_type_url">URL</string>
+    <string name="content_type_wifi">Wi-Fi नेटवर्क</string>
+    <string name="content_type_phone">फ़ोन नंबर</string>
+    <string name="content_type_email">ईमेल</string>
+    <string name="content_type_sms">SMS</string>
+    <string name="content_type_vcard">संपर्क कार्ड</string>
+    <string name="content_type_geo">भौगोलिक स्थान</string>
+    <string name="content_type_plain_text">सादा टेक्स्ट</string>
 </resources>
