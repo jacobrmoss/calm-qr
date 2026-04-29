@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.ui.screens.CodeDetailScreen
+import com.caravanfire.calmqr.ui.screens.CodeInfoScreen
 import com.caravanfire.calmqr.ui.screens.EinkTransitionScreen
 import com.caravanfire.calmqr.ui.screens.HomeScreen
 import com.caravanfire.calmqr.ui.screens.ScanDetailScreen
@@ -114,6 +115,24 @@ fun AppNavigation(
                 onRequestEinkRefresh = {
                     navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
                         popUpTo(Screen.CodeDetail.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.CodeInfo.route,
+            arguments = listOf(
+                navArgument("codeId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
+            CodeInfoScreen(
+                codeId = codeId,
+                savedCodeDao = savedCodeDao,
+                onBack = {
+                    navController.navigate(Screen.EinkTransition.createRoute(codeId)) {
+                        popUpTo(Screen.CodeInfo.route) { inclusive = true }
                     }
                 }
             )
