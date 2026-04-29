@@ -36,6 +36,10 @@ rust/target/
 *.jks
 *.keystore
 
+# ── Tests (kept local, not version controlled) ──────────────────
+app/src/test/
+app/src/androidTest/
+
 # ── Misc ─────────────────────────────────────────────────────────
 *.log
 *.tmp

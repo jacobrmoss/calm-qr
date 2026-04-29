@@ -241,4 +241,8 @@ dependencies {
     implementation(libs.mudita.mmd)
 
     debugImplementation(libs.androidx.ui.tooling)
+
+    // Unit testing — gitignored; not committed
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test.junit)
 }
