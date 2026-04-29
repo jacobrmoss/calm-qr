@@ -35,4 +35,17 @@ sealed class Screen(val route: String) {
     data object DeleteConfirm : Screen("delete_confirm/{codeId}") {
         fun createRoute(codeId: Long): String = "delete_confirm/$codeId"
     }
+
+    data object CodeInfo : Screen("code_info/{codeId}") {
+        fun createRoute(codeId: Long): String = "code_info/$codeId"
+    }
+
+    data object ScanInfo : Screen("scan_info/{name}/{content}/{format}") {
+        fun createRoute(name: String, content: String, format: String): String {
+            val encodedName = URLEncoder.encode(name, "UTF-8")
+            val encodedContent = URLEncoder.encode(content, "UTF-8")
+            val encodedFormat = URLEncoder.encode(format, "UTF-8")
+            return "scan_info/$encodedName/$encodedContent/$encodedFormat"
+        }
+    }
 }
