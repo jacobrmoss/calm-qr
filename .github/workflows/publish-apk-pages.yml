@@ -67,11 +67,11 @@ jobs:
             git fetch --depth=1 origin gh-pages
             git reset --hard origin/gh-pages
           fi
-          mkdir -p latest
-          cp ../apk/*.apk latest/calm-qr.apk
+          mkdir -p "$TAG"
+          cp ../apk/*.apk "$TAG/calm-qr.apk"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add latest/calm-qr.apk
+          git add "$TAG/calm-qr.apk"
           if git diff --cached --quiet; then
             echo "No changes to publish"
             exit 0
