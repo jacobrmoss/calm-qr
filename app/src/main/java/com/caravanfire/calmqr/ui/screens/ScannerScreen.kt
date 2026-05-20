@@ -2,18 +2,21 @@ package com.caravanfire.calmqr.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Size as AndroidSize
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,12 +29,15 @@ import androidx.compose.foundation.layout.size
 import androidx.camera.core.Camera
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -41,10 +47,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +87,7 @@ fun ScannerScreen(
         )
     }
     var flashlightOn by remember { mutableStateOf(false) }
+    var viewfinderEnabled by rememberSaveable { mutableStateOf(false) }
     var camera by remember { mutableStateOf<Camera?>(null) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -125,6 +135,23 @@ fun ScannerScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewfinderEnabled = !viewfinderEnabled }) {
+                        Icon(
+                            imageVector = if (viewfinderEnabled)
+                                Icons.Filled.CenterFocusStrong
+                            else
+                                Icons.Filled.CropFree,
+                            contentDescription = if (viewfinderEnabled)
+                                stringResource(R.string.disable_viewfinder)
+                            else
+                                stringResource(R.string.enable_viewfinder),
+                            tint = if (viewfinderEnabled)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                LocalContentColor.current,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                     IconButton(onClick = {
                         val newState = !flashlightOn
                         flashlightOn = newState
@@ -151,6 +178,7 @@ fun ScannerScreen(
         ) {
             if (hasCameraPermission) {
                 CameraPreview(
+                    viewfinderEnabled = viewfinderEnabled,
                     onCodeScanned = onCodeScanned,
                     onCameraBound = { camera = it }
                 )
@@ -177,8 +205,11 @@ fun ScannerScreen(
 
 private data class ScannedCode(val content: String, val format: String)
 
+private data class CropRect(val left: Int, val top: Int, val width: Int, val height: Int)
+
 @Composable
 private fun CameraPreview(
+    viewfinderEnabled: Boolean,
     onCodeScanned: (content: String, format: String) -> Unit,
     onCameraBound: (Camera) -> Unit
 ) {
@@ -186,7 +217,14 @@ private fun CameraPreview(
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasScanned by remember { mutableStateOf(false) }
     var scannedCode by remember { mutableStateOf<ScannedCode?>(null) }
+    var localCamera by remember { mutableStateOf<Camera?>(null) }
+    var focusPoint by remember { mutableStateOf<Offset?>(null) }
     val executor = remember { Executors.newSingleThreadExecutor() }
+    val binarizerToggle = remember { java.util.concurrent.atomic.AtomicInteger(0) }
+    val viewfinderEnabledRef = remember { java.util.concurrent.atomic.AtomicBoolean(viewfinderEnabled) }
+    LaunchedEffect(viewfinderEnabled) {
+        viewfinderEnabledRef.set(viewfinderEnabled)
+    }
 
     val previewView = remember {
         PreviewView(context).apply {
@@ -198,7 +236,6 @@ private fun CameraPreview(
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
-    // Handle navigation on the main thread when a code is scanned
     LaunchedEffect(scannedCode) {
         scannedCode?.let { code ->
             onCodeScanned(code.content, code.format)
@@ -217,29 +254,45 @@ private fun CameraPreview(
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
 
-                    // Lower preview resolution — 640x480 is plenty for a scanner
-                    val previewResolutionSelector = ResolutionSelector.Builder()
-                        .setResolutionStrategy(
-                            ResolutionStrategy(
-                                AndroidSize(640, 480),
-                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
-                            )
+                    val resolutionSelector = ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                        .setAllowedResolutionMode(
+                            ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
                         )
                         .build()
 
                     val preview = Preview.Builder()
-                        .setResolutionSelector(previewResolutionSelector)
+                        .setResolutionSelector(resolutionSelector)
                         .build().also { p ->
-                        p.setSurfaceProvider(previewView.surfaceProvider)
-                    }
+                            p.setSurfaceProvider(previewView.surfaceProvider)
+                        }
 
                     val imageAnalysis = ImageAnalysis.Builder()
+                        .setResolutionSelector(resolutionSelector)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
 
                     imageAnalysis.setAnalyzer(executor) { imageProxy ->
                         if (!hasScanned) {
-                            processImage(imageProxy) { content, format ->
+                            val binarizer = binarizerToggle.getAndUpdate { (it + 1) % 2 }
+                            val crop = if (viewfinderEnabledRef.get()) {
+                                val w = imageProxy.width
+                                val h = imageProxy.height
+                                val side = (kotlin.math.min(w, h) * 0.7f).toInt()
+                                val left = (w - side) / 2
+                                val top = (h - side) / 2
+                                CropRect(left, top, side, side)
+                            } else {
+                                CropRect(0, 0, 0, 0)
+                            }
+                            processImage(
+                                imageProxy,
+                                binarizer = binarizer,
+                                cropLeft = crop.left, cropTop = crop.top,
+                                cropWidth = crop.width, cropHeight = crop.height,
+                                tryRotate = true
+                            ) { content, format ->
                                 hasScanned = true
                                 scannedCode = ScannedCode(content, format)
                             }
@@ -256,13 +309,42 @@ private fun CameraPreview(
                         preview,
                         imageAnalysis
                     )
+                    localCamera = cam
                     onCameraBound(cam)
                 }, ContextCompat.getMainExecutor(ctx))
 
                 previewView
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(localCamera) {
+                    detectTapGestures { offset ->
+                        val cam = localCamera ?: return@detectTapGestures
+                        val factory = previewView.meteringPointFactory
+                        val point = factory.createPoint(offset.x, offset.y)
+                        cam.cameraControl.cancelFocusAndMetering()
+                        cam.cameraControl.startFocusAndMetering(
+                            FocusMeteringAction.Builder(point).build()
+                        )
+                        focusPoint = offset
+                    }
+                }
+                .pointerInput(localCamera) {
+                    detectTransformGestures { _, _, zoom, _ ->
+                        val cam = localCamera ?: return@detectTransformGestures
+                        val state = cam.cameraInfo.zoomState.value ?: return@detectTransformGestures
+                        val current = state.zoomRatio
+                        val next = (current * zoom).coerceIn(state.minZoomRatio, state.maxZoomRatio)
+                        cam.cameraControl.setZoomRatio(next)
+                    }
+                }
         )
+
+        if (viewfinderEnabled) {
+            ViewfinderBox()
+        }
+
+        FocusRing(position = focusPoint, onFinished = { focusPoint = null })
 
         if (!isCameraStreaming) {
             Box(
@@ -283,6 +365,12 @@ private fun CameraPreview(
 
 private fun processImage(
     imageProxy: ImageProxy,
+    binarizer: Int,
+    cropLeft: Int,
+    cropTop: Int,
+    cropWidth: Int,
+    cropHeight: Int,
+    tryRotate: Boolean,
     onDecoded: (content: String, format: String) -> Unit
 ) {
     val plane = imageProxy.planes[0]
@@ -305,7 +393,12 @@ private fun processImage(
         }
     }
 
-    val result = RustBridge.decodeBarcode(luma, width, height, false)
+    val result = RustBridge.decodeBarcode(
+        luma, width, height,
+        binarizer,
+        cropLeft, cropTop, cropWidth, cropHeight,
+        tryRotate
+    )
     if (result != null) {
         onDecoded(result.text, result.format)
     }

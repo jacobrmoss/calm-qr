@@ -13,7 +13,11 @@
     <string name="enable_focus_mode">Enable focus mode</string>
     <string name="enable_flashlight">Turn on flashlight</string>
     <string name="disable_flashlight">Turn off flashlight</string>
+    <string name="enable_viewfinder">Enable viewfinder crop</string>
+    <string name="disable_viewfinder">Disable viewfinder crop</string>
     <string name="initializing_camera">Initializing camera</string>
+    <string name="save_to_contacts">Save to Contacts</string>
+    <string name="contact_save_failed">Could not save contact</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Please verify the barcode pattern matches, otherwise re-scan</string>

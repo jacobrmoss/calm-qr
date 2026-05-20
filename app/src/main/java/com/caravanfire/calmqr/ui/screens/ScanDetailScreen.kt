@@ -53,6 +53,9 @@ import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
 import com.caravanfire.calmqr.wifi.WifiSaveResult
+import com.caravanfire.calmqr.vcard.buildContactInsertIntent
+import com.caravanfire.calmqr.vcard.isVCardQrCode
+import com.caravanfire.calmqr.vcard.parseVCard
 import com.caravanfire.calmqr.wifi.buildWifiSaveIntent
 import com.caravanfire.calmqr.wifi.parseWifiSaveResult
 import com.caravanfire.calmqr.wifi.isWifiQrCode
@@ -133,6 +136,7 @@ fun ScanDetailScreen(
 
     val isUrl = content.startsWith("http://") || content.startsWith("https://")
     val isWifi = isWifiQrCode(content)
+    val isVcard = isVCardQrCode(content)
     val snackbarHostState = remember { SnackbarHostStateMMD() }
 
     // Track the SSID for the snackbar message after the system dialog returns
@@ -332,6 +336,35 @@ fun ScanDetailScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextMMD(text = stringResource(R.string.save_wifi), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
+                }
+            }
+
+            if (isVcard) {
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                ButtonMMD(
+                    onClick = {
+                        val contact = parseVCard(content)
+                        if (contact != null) {
+                            try {
+                                context.startActivity(buildContactInsertIntent(contact))
+                            } catch (_: Exception) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.contact_save_failed)
+                                    )
+                                }
+                            }
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.contact_save_failed)
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextMMD(text = stringResource(R.string.save_to_contacts), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
                 }
             }
 
