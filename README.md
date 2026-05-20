@@ -1,4 +1,4 @@
-<img align="left" src="calm-qr-icon.svg" width="100" height="100" alt="QR Logo">
+<img align="left" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="100" height="100" alt="QR Logo">
 <a href="https://buymeacoffee.com/jacobmoss" target="_blank">
   <img align="right" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174">
 </a>
@@ -37,6 +37,7 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 - **Save & manage scans** — persisted locally with Room
 - **Open links directly** — tap to launch URLs in the browser
 - **Save Wifi** — save wifi configs from QR codes directly to your device
+- **Save to Contacts** — save vCard QR codes to your phone contacts
 - **E-ink optimized UI** — built with Mudita Mindful Design (MMD) components
 - **Fully offline** — no network permissions, no analytics, no trackers
 - **Multi-language support** — 23 languages included
