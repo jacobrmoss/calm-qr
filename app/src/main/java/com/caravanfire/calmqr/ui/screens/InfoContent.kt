@@ -65,6 +65,7 @@ fun InfoContent(
     name: String,
     onNameChange: (String) -> Unit,
     content: String,
+    format: String,
     createdAt: Long?,
     snackbarHostState: SnackbarHostStateMMD,
     onBack: () -> Unit,
@@ -147,6 +148,11 @@ fun InfoContent(
                 Spacer(Modifier.height(16.dp))
             }
             InfoRow(
+                label = stringResource(R.string.info_label_format),
+                value = formatLabel(format),
+            )
+            Spacer(Modifier.height(16.dp))
+            InfoRow(
                 label = stringResource(R.string.info_label_content),
                 value = stringResource(contentTypeLabelRes(contentType)),
             )
@@ -204,6 +210,25 @@ private fun InfoRow(label: String, value: String) {
             style = MaterialTheme.typography.bodyLarge,
         )
     }
+}
+
+/** Friendly display name for a barcode format. Technical standard names — not localized. */
+private fun formatLabel(format: String): String = when (format) {
+    "QR_CODE" -> "QR Code"
+    "CODE_128" -> "Code 128"
+    "CODE_39" -> "Code 39"
+    "CODE_93" -> "Code 93"
+    "EAN_13" -> "EAN-13"
+    "EAN_8" -> "EAN-8"
+    "UPC_A" -> "UPC-A"
+    "UPC_E" -> "UPC-E"
+    "ITF" -> "ITF"
+    "CODABAR" -> "Codabar"
+    "PDF_417" -> "PDF417"
+    "AZTEC" -> "Aztec"
+    "DATA_MATRIX" -> "Data Matrix"
+    "TELEPEN" -> "Telepen"
+    else -> format
 }
 
 private fun contentTypeLabelRes(type: ContentType): Int = when (type) {

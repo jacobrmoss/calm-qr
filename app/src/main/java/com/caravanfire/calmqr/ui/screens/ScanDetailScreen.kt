@@ -211,17 +211,15 @@ fun ScanDetailScreen(
                         }
                     },
                     actions = {
-                        if (format == "QR_CODE") {
-                            IconButton(
-                                onClick = { onRequestInfo(editableName) },
-                                modifier = Modifier.size(40.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = stringResource(R.string.info_action_info),
-                                    modifier = Modifier.size(32.dp),
-                                )
-                            }
+                        IconButton(
+                            onClick = { onRequestInfo(editableName) },
+                            modifier = Modifier.size(40.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = stringResource(R.string.info_action_info),
+                                modifier = Modifier.size(32.dp),
+                            )
                         }
                     }
                 )

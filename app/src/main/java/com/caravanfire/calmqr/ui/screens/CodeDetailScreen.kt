@@ -211,7 +211,7 @@ fun CodeDetailScreen(
                     }
                 },
                 actions = {
-                    if (code?.format == "QR_CODE") {
+                    if (code != null) {
                         IconButton(
                             onClick = {
                                 scope.launch {

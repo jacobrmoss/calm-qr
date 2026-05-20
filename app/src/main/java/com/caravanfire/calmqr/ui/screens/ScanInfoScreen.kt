@@ -23,6 +23,7 @@ const val PENDING_NAME_KEY = "pendingName"
 fun ScanInfoScreen(
     initialName: String,
     content: String,
+    format: String,
     previousSavedStateHandle: SavedStateHandle?,
     onBack: () -> Unit,
 ) {
@@ -40,6 +41,7 @@ fun ScanInfoScreen(
             previousSavedStateHandle?.set(PENDING_NAME_KEY, newName)
         },
         content = content,
+        format = format,
         createdAt = null,
         snackbarHostState = snackbarHostState,
         onBack = onBack,

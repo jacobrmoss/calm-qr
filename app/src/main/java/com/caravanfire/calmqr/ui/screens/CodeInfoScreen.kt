@@ -49,6 +49,7 @@ fun CodeInfoScreen(
         name = editableName,
         onNameChange = { editableName = it },
         content = loaded.content,
+        format = loaded.format,
         createdAt = loaded.createdAt,
         snackbarHostState = snackbarHostState,
         onBack = {
