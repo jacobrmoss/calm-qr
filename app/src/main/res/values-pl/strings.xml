@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Włącz tryb ostrości</string>
     <string name="enable_flashlight">Włącz latarkę</string>
     <string name="disable_flashlight">Wyłącz latarkę</string>
+    <string name="enable_viewfinder">Włącz kadrowanie celownika</string>
+    <string name="disable_viewfinder">Wyłącz kadrowanie celownika</string>
     <string name="initializing_camera">Inicjalizacja aparatu</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Sieć "%1$s" zapisana</string>
     <string name="wifi_already_saved">"%1$s" jest już zapisana</string>
     <string name="wifi_save_failed">Nie udało się zapisać sieci WiFi</string>
+    <string name="save_to_contacts">Zapisz w kontaktach</string>
+    <string name="contact_save_failed">Nie udało się zapisać kontaktu</string>
 
     <!-- Shared -->
     <string name="cancel">Anuluj</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Surowe dane skopiowane do schowka</string>
     <string name="info_label_content">Typ treści</string>
     <string name="info_label_date_added">Data dodania</string>
+    <string name="info_label_format">Format</string>
     <string name="info_label_raw_data">Surowe dane</string>
     <string name="info_action_copy">Kopiuj</string>
     <string name="info_action_info">Info</string>

@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Fókusz mód bekapcsolása</string>
     <string name="enable_flashlight">Zseblámpa bekapcsolása</string>
     <string name="disable_flashlight">Zseblámpa kikapcsolása</string>
+    <string name="enable_viewfinder">Keresőkivágás bekapcsolása</string>
+    <string name="disable_viewfinder">Keresőkivágás kikapcsolása</string>
     <string name="initializing_camera">Kamera inicializálása</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">A(z) "%1$s" hálózat mentve</string>
     <string name="wifi_already_saved">A(z) "%1$s" már mentve van</string>
     <string name="wifi_save_failed">Nem sikerült menteni a WiFi hálózatot</string>
+    <string name="save_to_contacts">Mentés a Névjegyekbe</string>
+    <string name="contact_save_failed">Nem sikerült menteni a névjegyet</string>
 
     <!-- Shared -->
     <string name="cancel">Mégse</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Nyers adatok a vágólapra másolva</string>
     <string name="info_label_content">Tartalomtípus</string>
     <string name="info_label_date_added">Hozzáadás dátuma</string>
+    <string name="info_label_format">Formátum</string>
     <string name="info_label_raw_data">Nyers adatok</string>
     <string name="info_action_copy">Másolás</string>
     <string name="info_action_info">Infó</string>

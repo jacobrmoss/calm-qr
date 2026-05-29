@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Ativar modo de foco</string>
     <string name="enable_flashlight">Ligar lanterna</string>
     <string name="disable_flashlight">Desligar lanterna</string>
+    <string name="enable_viewfinder">Ativar recorte do visor</string>
+    <string name="disable_viewfinder">Desativar recorte do visor</string>
     <string name="initializing_camera">Inicializando câmera</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Rede "%1$s" salva</string>
     <string name="wifi_already_saved">"%1$s" já está salva</string>
     <string name="wifi_save_failed">Não foi possível salvar a rede WiFi</string>
+    <string name="save_to_contacts">Salvar nos Contatos</string>
+    <string name="contact_save_failed">Não foi possível salvar o contato</string>
 
     <!-- Shared -->
     <string name="cancel">Cancelar</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Dados brutos copiados para a área de transferência</string>
     <string name="info_label_content">Tipo de conteúdo</string>
     <string name="info_label_date_added">Data de adição</string>
+    <string name="info_label_format">Formato</string>
     <string name="info_label_raw_data">Dados brutos</string>
     <string name="info_action_copy">Copiar</string>
     <string name="info_action_info">Info</string>

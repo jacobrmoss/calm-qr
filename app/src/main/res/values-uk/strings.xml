@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Увімкнути режим фокусування</string>
     <string name="enable_flashlight">Увімкнути ліхтарик</string>
     <string name="disable_flashlight">Вимкнути ліхтарик</string>
+    <string name="enable_viewfinder">Увімкнути обрізку видошукача</string>
+    <string name="disable_viewfinder">Вимкнути обрізку видошукача</string>
     <string name="initializing_camera">Ініціалізація камери</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Мережу "%1$s" збережено</string>
     <string name="wifi_already_saved">"%1$s" вже збережено</string>
     <string name="wifi_save_failed">Не вдалося зберегти мережу WiFi</string>
+    <string name="save_to_contacts">Зберегти в контакти</string>
+    <string name="contact_save_failed">Не вдалося зберегти контакт</string>
 
     <!-- Shared -->
     <string name="cancel">Скасувати</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Необроблені дані скопійовано в буфер обміну</string>
     <string name="info_label_content">Тип вмісту</string>
     <string name="info_label_date_added">Дата додавання</string>
+    <string name="info_label_format">Формат</string>
     <string name="info_label_raw_data">Необроблені дані</string>
     <string name="info_action_copy">Копіювати</string>
     <string name="info_action_info">Інфо</string>

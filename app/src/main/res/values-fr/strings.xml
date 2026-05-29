@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Activer le mode mise au point</string>
     <string name="enable_flashlight">Allumer la lampe torche</string>
     <string name="disable_flashlight">Éteindre la lampe torche</string>
+    <string name="enable_viewfinder">Activer le recadrage du viseur</string>
+    <string name="disable_viewfinder">Désactiver le recadrage du viseur</string>
     <string name="initializing_camera">Initialisation de la caméra</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Réseau "%1$s" enregistré</string>
     <string name="wifi_already_saved">"%1$s" est déjà enregistré</string>
     <string name="wifi_save_failed">Impossible d\u2019enregistrer le réseau WiFi</string>
+    <string name="save_to_contacts">Enregistrer dans les Contacts</string>
+    <string name="contact_save_failed">Impossible d\'enregistrer le contact</string>
 
     <!-- Shared -->
     <string name="cancel">Annuler</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Données brutes copiées dans le presse-papiers</string>
     <string name="info_label_content">Type de contenu</string>
     <string name="info_label_date_added">Date d\'ajout</string>
+    <string name="info_label_format">Format</string>
     <string name="info_label_raw_data">Données brutes</string>
     <string name="info_action_copy">Copier</string>
     <string name="info_action_info">Infos</string>

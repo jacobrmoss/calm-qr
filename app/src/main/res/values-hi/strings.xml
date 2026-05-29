@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">फोकस मोड चालू करें</string>
     <string name="enable_flashlight">फ्लैशलाइट चालू करें</string>
     <string name="disable_flashlight">फ्लैशलाइट बंद करें</string>
+    <string name="enable_viewfinder">व्यूफ़ाइंडर क्रॉप चालू करें</string>
+    <string name="disable_viewfinder">व्यूफ़ाइंडर क्रॉप बंद करें</string>
     <string name="initializing_camera">कैमरा प्रारंभ हो रहा है</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">नेटवर्क "%1$s" सहेजा गया</string>
     <string name="wifi_already_saved">"%1$s" पहले से सहेजा हुआ है</string>
     <string name="wifi_save_failed">WiFi नेटवर्क सहेजा नहीं जा सका</string>
+    <string name="save_to_contacts">संपर्कों में सहेजें</string>
+    <string name="contact_save_failed">संपर्क सहेजा नहीं जा सका</string>
 
     <!-- Shared -->
     <string name="cancel">रद्द करें</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">रॉ डेटा क्लिपबोर्ड पर कॉपी किया गया</string>
     <string name="info_label_content">सामग्री का प्रकार</string>
     <string name="info_label_date_added">जोड़ने की तारीख</string>
+    <string name="info_label_format">प्रारूप</string>
     <string name="info_label_raw_data">रॉ डेटा</string>
     <string name="info_action_copy">कॉपी करें</string>
     <string name="info_action_info">जानकारी</string>

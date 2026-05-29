@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">초점 모드 활성화</string>
     <string name="enable_flashlight">손전등 켜기</string>
     <string name="disable_flashlight">손전등 끄기</string>
+    <string name="enable_viewfinder">뷰파인더 자르기 활성화</string>
+    <string name="disable_viewfinder">뷰파인더 자르기 비활성화</string>
     <string name="initializing_camera">카메라 초기화 중</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">네트워크 "%1$s" 저장됨</string>
     <string name="wifi_already_saved">"%1$s"은(는) 이미 저장되어 있습니다</string>
     <string name="wifi_save_failed">WiFi 네트워크를 저장할 수 없습니다</string>
+    <string name="save_to_contacts">연락처에 저장</string>
+    <string name="contact_save_failed">연락처를 저장할 수 없습니다</string>
 
     <!-- Shared -->
     <string name="cancel">취소</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">원시 데이터를 클립보드에 복사했습니다</string>
     <string name="info_label_content">콘텐츠 유형</string>
     <string name="info_label_date_added">추가된 날짜</string>
+    <string name="info_label_format">형식</string>
     <string name="info_label_raw_data">원시 데이터</string>
     <string name="info_action_copy">복사</string>
     <string name="info_action_info">정보</string>

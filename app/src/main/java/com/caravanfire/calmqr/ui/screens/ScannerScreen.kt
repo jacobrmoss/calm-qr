@@ -219,6 +219,7 @@ private fun CameraPreview(
     var scannedCode by remember { mutableStateOf<ScannedCode?>(null) }
     var localCamera by remember { mutableStateOf<Camera?>(null) }
     var focusPoint by remember { mutableStateOf<Offset?>(null) }
+    var focusTick by remember { mutableStateOf(0) }
     val executor = remember { Executors.newSingleThreadExecutor() }
     val binarizerToggle = remember { java.util.concurrent.atomic.AtomicInteger(0) }
     val viewfinderEnabledRef = remember { java.util.concurrent.atomic.AtomicBoolean(viewfinderEnabled) }
@@ -327,6 +328,7 @@ private fun CameraPreview(
                             FocusMeteringAction.Builder(point).build()
                         )
                         focusPoint = offset
+                        focusTick++
                     }
                 }
                 .pointerInput(localCamera) {
@@ -344,7 +346,7 @@ private fun CameraPreview(
             ViewfinderBox()
         }
 
-        FocusRing(position = focusPoint, onFinished = { focusPoint = null })
+        FocusRing(position = focusPoint, tick = focusTick, onFinished = { focusPoint = null })
 
         if (!isCameraStreaming) {
             Box(

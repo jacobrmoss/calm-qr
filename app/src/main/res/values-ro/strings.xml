@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Activează modul focalizare</string>
     <string name="enable_flashlight">Pornește lanterna</string>
     <string name="disable_flashlight">Oprește lanterna</string>
+    <string name="enable_viewfinder">Activează decuparea vizorului</string>
+    <string name="disable_viewfinder">Dezactivează decuparea vizorului</string>
     <string name="initializing_camera">Inițializare cameră</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Rețeaua "%1$s" a fost salvată</string>
     <string name="wifi_already_saved">"%1$s" este deja salvată</string>
     <string name="wifi_save_failed">Nu s-a putut salva rețeaua WiFi</string>
+    <string name="save_to_contacts">Salvează în Contacte</string>
+    <string name="contact_save_failed">Nu s-a putut salva contactul</string>
 
     <!-- Shared -->
     <string name="cancel">Anulează</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Date brute copiate în clipboard</string>
     <string name="info_label_content">Tip de conținut</string>
     <string name="info_label_date_added">Data adăugării</string>
+    <string name="info_label_format">Format</string>
     <string name="info_label_raw_data">Date brute</string>
     <string name="info_action_copy">Copiază</string>
     <string name="info_action_info">Info</string>

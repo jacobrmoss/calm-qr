@@ -1,12 +1,9 @@
 package com.caravanfire.calmqr.ui.screens
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -17,26 +14,41 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
-/** A pulsing ring that animates at the given pixel position, then fades. */
+/**
+ * A focus indicator drawn at the tapped pixel position, held briefly, then cleared.
+ * Replays on every [tick] change so each tap re-triggers it — even repeated taps on
+ * the same spot, or a tap while a previous ring is still showing.
+ *
+ * Drawn as solid black + white at full opacity (no fade or scale animation): while the
+ * camera is live the e-ink panel runs in a fast, near-1-bit mode that renders crisp
+ * black<->white transitions reliably but drops the gray, gradually-changing pixels an
+ * alpha fade produces. The black halo under the white ring keeps it visible against any
+ * grayscale camera background.
+ */
 @Composable
 fun FocusRing(
     position: Offset?,
+    tick: Int,
     onFinished: () -> Unit
 ) {
     if (position == null) return
-    val scale = remember(position) { Animatable(1.4f) }
-    val alpha = remember(position) { Animatable(1f) }
-    LaunchedEffect(position) {
-        scale.animateTo(1f, tween(180))
-        alpha.animateTo(0f, tween(420))
+    LaunchedEffect(tick) {
+        delay(450)
         onFinished()
     }
-    val radiusDp = 36.dp
+    val radiusDp = 30.dp
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val r = radiusDp.toPx() * scale.value
+        val r = radiusDp.toPx()
         drawCircle(
-            color = Color.White.copy(alpha = alpha.value),
+            color = Color.Black,
+            radius = r,
+            center = position,
+            style = Stroke(width = 7.dp.toPx())
+        )
+        drawCircle(
+            color = Color.White,
             radius = r,
             center = position,
             style = Stroke(width = 3.dp.toPx())

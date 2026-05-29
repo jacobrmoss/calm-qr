@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Ενεργοποίηση λειτουργίας εστίασης</string>
     <string name="enable_flashlight">Ενεργοποίηση φακού</string>
     <string name="disable_flashlight">Απενεργοποίηση φακού</string>
+    <string name="enable_viewfinder">Ενεργοποίηση περικοπής σκοπεύτρου</string>
+    <string name="disable_viewfinder">Απενεργοποίηση περικοπής σκοπεύτρου</string>
     <string name="initializing_camera">Εκκίνηση κάμερας</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Το δίκτυο "%1$s" αποθηκεύτηκε</string>
     <string name="wifi_already_saved">Το "%1$s" είναι ήδη αποθηκευμένο</string>
     <string name="wifi_save_failed">Δεν ήταν δυνατή η αποθήκευση του δικτύου WiFi</string>
+    <string name="save_to_contacts">Αποθήκευση στις Επαφές</string>
+    <string name="contact_save_failed">Δεν ήταν δυνατή η αποθήκευση της επαφής</string>
 
     <!-- Shared -->
     <string name="cancel">Ακύρωση</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Τα ανεπεξέργαστα δεδομένα αντιγράφηκαν στο πρόχειρο</string>
     <string name="info_label_content">Τύπος περιεχομένου</string>
     <string name="info_label_date_added">Ημερομηνία προσθήκης</string>
+    <string name="info_label_format">Μορφή</string>
     <string name="info_label_raw_data">Ανεπεξέργαστα δεδομένα</string>
     <string name="info_action_copy">Αντιγραφή</string>
     <string name="info_action_info">Πληροφορίες</string>

@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Focusmodus inschakelen</string>
     <string name="enable_flashlight">Zaklamp inschakelen</string>
     <string name="disable_flashlight">Zaklamp uitschakelen</string>
+    <string name="enable_viewfinder">Zoekeruitsnede inschakelen</string>
+    <string name="disable_viewfinder">Zoekeruitsnede uitschakelen</string>
     <string name="initializing_camera">Camera initialiseren</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Netwerk "%1$s" opgeslagen</string>
     <string name="wifi_already_saved">"%1$s" is al opgeslagen</string>
     <string name="wifi_save_failed">Kan WiFi-netwerk niet opslaan</string>
+    <string name="save_to_contacts">Opslaan in Contacten</string>
+    <string name="contact_save_failed">Kan contact niet opslaan</string>
 
     <!-- Shared -->
     <string name="cancel">Annuleren</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Onbewerkte gegevens naar klembord gekopieerd</string>
     <string name="info_label_content">Inhoudstype</string>
     <string name="info_label_date_added">Toegevoegd op</string>
+    <string name="info_label_format">Formaat</string>
     <string name="info_label_raw_data">Onbewerkte gegevens</string>
     <string name="info_action_copy">Kopiëren</string>
     <string name="info_action_info">Info</string>

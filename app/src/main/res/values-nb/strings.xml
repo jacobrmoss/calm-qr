@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Aktiver fokusmodus</string>
     <string name="enable_flashlight">Slå på lommelykt</string>
     <string name="disable_flashlight">Slå av lommelykt</string>
+    <string name="enable_viewfinder">Aktiver søkerbeskjæring</string>
+    <string name="disable_viewfinder">Deaktiver søkerbeskjæring</string>
     <string name="initializing_camera">Initialiserer kamera</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Nettverket "%1$s" er lagret</string>
     <string name="wifi_already_saved">"%1$s" er allerede lagret</string>
     <string name="wifi_save_failed">Kunne ikke lagre WiFi-nettverk</string>
+    <string name="save_to_contacts">Lagre i Kontakter</string>
+    <string name="contact_save_failed">Kunne ikke lagre kontakten</string>
 
     <!-- Shared -->
     <string name="cancel">Avbryt</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Rådata kopiert til utklippstavlen</string>
     <string name="info_label_content">Innholdstype</string>
     <string name="info_label_date_added">Lagt til</string>
+    <string name="info_label_format">Format</string>
     <string name="info_label_raw_data">Rådata</string>
     <string name="info_action_copy">Kopier</string>
     <string name="info_action_info">Info</string>

@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">تفعيل وضع التركيز</string>
     <string name="enable_flashlight">تشغيل الفلاش</string>
     <string name="disable_flashlight">إطفاء الفلاش</string>
+    <string name="enable_viewfinder">تفعيل إطار الاقتصاص</string>
+    <string name="disable_viewfinder">تعطيل إطار الاقتصاص</string>
     <string name="initializing_camera">جارٍ تهيئة الكاميرا</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">تم حفظ الشبكة "%1$s"</string>
     <string name="wifi_already_saved">"%1$s" محفوظة بالفعل</string>
     <string name="wifi_save_failed">تعذّر حفظ شبكة WiFi</string>
+    <string name="save_to_contacts">حفظ في جهات الاتصال</string>
+    <string name="contact_save_failed">تعذّر حفظ جهة الاتصال</string>
 
     <!-- Shared -->
     <string name="cancel">إلغاء</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">تم نسخ البيانات الأولية إلى الحافظة</string>
     <string name="info_label_content">نوع المحتوى</string>
     <string name="info_label_date_added">تاريخ الإضافة</string>
+    <string name="info_label_format">الصيغة</string>
     <string name="info_label_raw_data">البيانات الأولية</string>
     <string name="info_action_copy">نسخ</string>
     <string name="info_action_info">معلومات</string>

@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Attiva modalità messa a fuoco</string>
     <string name="enable_flashlight">Accendi torcia</string>
     <string name="disable_flashlight">Spegni torcia</string>
+    <string name="enable_viewfinder">Attiva ritaglio mirino</string>
+    <string name="disable_viewfinder">Disattiva ritaglio mirino</string>
     <string name="initializing_camera">Inizializzazione fotocamera</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Rete "%1$s" salvata</string>
     <string name="wifi_already_saved">"%1$s" è già salvata</string>
     <string name="wifi_save_failed">Impossibile salvare la rete WiFi</string>
+    <string name="save_to_contacts">Salva nei Contatti</string>
+    <string name="contact_save_failed">Impossibile salvare il contatto</string>
 
     <!-- Shared -->
     <string name="cancel">Annulla</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Dati grezzi copiati negli appunti</string>
     <string name="info_label_content">Tipo di contenuto</string>
     <string name="info_label_date_added">Data di aggiunta</string>
+    <string name="info_label_format">Formato</string>
     <string name="info_label_raw_data">Dati grezzi</string>
     <string name="info_action_copy">Copia</string>
     <string name="info_action_info">Info</string>

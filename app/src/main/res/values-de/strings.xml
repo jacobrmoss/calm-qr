@@ -8,6 +8,8 @@
     <string name="enable_focus_mode">Fokusmodus aktivieren</string>
     <string name="enable_flashlight">Taschenlampe einschalten</string>
     <string name="disable_flashlight">Taschenlampe ausschalten</string>
+    <string name="enable_viewfinder">Sucher-Zuschnitt aktivieren</string>
+    <string name="disable_viewfinder">Sucher-Zuschnitt deaktivieren</string>
     <string name="initializing_camera">Kamera wird initialisiert</string>
 
     <!-- ScanDetailScreen -->
@@ -25,6 +27,8 @@
     <string name="wifi_saved">Netzwerk "%1$s" gespeichert</string>
     <string name="wifi_already_saved">"%1$s" ist bereits gespeichert</string>
     <string name="wifi_save_failed">WLAN-Netzwerk konnte nicht gespeichert werden</string>
+    <string name="save_to_contacts">In Kontakten speichern</string>
+    <string name="contact_save_failed">Kontakt konnte nicht gespeichert werden</string>
 
     <!-- Shared -->
     <string name="cancel">Abbrechen</string>
@@ -45,6 +49,7 @@
     <string name="info_copied_to_clipboard">Rohdaten in die Zwischenablage kopiert</string>
     <string name="info_label_content">Inhaltstyp</string>
     <string name="info_label_date_added">Hinzugefügt am</string>
+    <string name="info_label_format">Format</string>
     <string name="info_label_raw_data">Rohdaten</string>
     <string name="info_action_copy">Kopieren</string>
     <string name="info_action_info">Info</string>
