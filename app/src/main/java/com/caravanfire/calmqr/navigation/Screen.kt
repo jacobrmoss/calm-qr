@@ -1,27 +1,22 @@
 package com.caravanfire.calmqr.navigation
 
-import java.net.URLEncoder
-
+/**
+ * Every route argument is a numeric Room row id — never scanned content.
+ *
+ * Routes are URIs; string payloads in routes need escaping contracts that are
+ * easy to break (a stray extra decode once crashed the app on content with "%"
+ * and corrupted "+" to space). Scans are inserted into the database first and
+ * screens load them by id, so no payload ever touches the URI layer.
+ * RouteHygieneTest enforces this.
+ */
 sealed class Screen(val route: String) {
 
     data object Home : Screen("home")
 
     data object Scanner : Screen("scanner")
 
-    data object ScanResult : Screen("scan_result/{content}/{format}") {
-        fun createRoute(content: String, format: String): String {
-            val encodedContent = URLEncoder.encode(content, "UTF-8")
-            val encodedFormat = URLEncoder.encode(format, "UTF-8")
-            return "scan_result/$encodedContent/$encodedFormat"
-        }
-    }
-
-    data object ScanDetail : Screen("scan_detail/{content}/{format}") {
-        fun createRoute(content: String, format: String): String {
-            val encodedContent = URLEncoder.encode(content, "UTF-8")
-            val encodedFormat = URLEncoder.encode(format, "UTF-8")
-            return "scan_detail/$encodedContent/$encodedFormat"
-        }
+    data object ScanDetail : Screen("scan_detail/{codeId}") {
+        fun createRoute(codeId: Long): String = "scan_detail/$codeId"
     }
 
     data object EinkTransition : Screen("eink_transition/{codeId}") {
@@ -32,20 +27,11 @@ sealed class Screen(val route: String) {
         fun createRoute(codeId: Long): String = "code_detail/$codeId"
     }
 
-    data object DeleteConfirm : Screen("delete_confirm/{codeId}") {
-        fun createRoute(codeId: Long): String = "delete_confirm/$codeId"
-    }
-
     data object CodeInfo : Screen("code_info/{codeId}") {
         fun createRoute(codeId: Long): String = "code_info/$codeId"
     }
 
-    data object ScanInfo : Screen("scan_info/{name}/{content}/{format}") {
-        fun createRoute(name: String, content: String, format: String): String {
-            val encodedName = URLEncoder.encode(name, "UTF-8")
-            val encodedContent = URLEncoder.encode(content, "UTF-8")
-            val encodedFormat = URLEncoder.encode(format, "UTF-8")
-            return "scan_info/$encodedName/$encodedContent/$encodedFormat"
-        }
+    data object ScanInfo : Screen("scan_info/{codeId}") {
+        fun createRoute(codeId: Long): String = "scan_info/$codeId"
     }
 }

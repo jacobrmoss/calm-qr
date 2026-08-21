@@ -11,7 +11,10 @@ data class SavedCode(
     val format: String,
     val timestamp: Long = System.currentTimeMillis(),
     val qrImageData: ByteArray? = null,
-    val createdAt: Long? = null
+    val createdAt: Long? = null,
+    // false while a scan sits on the ScanDetail screen pre-save; such rows are
+    // hidden from Home and swept at app start
+    val isSaved: Boolean = true
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -19,7 +22,7 @@ data class SavedCode(
         return id == other.id && name == other.name && content == other.content &&
                 format == other.format && timestamp == other.timestamp &&
                 qrImageData.contentEquals(other.qrImageData) &&
-                createdAt == other.createdAt
+                createdAt == other.createdAt && isSaved == other.isSaved
     }
 
     override fun hashCode(): Int {
@@ -30,6 +33,7 @@ data class SavedCode(
         result = 31 * result + timestamp.hashCode()
         result = 31 * result + (qrImageData?.contentHashCode() ?: 0)
         result = 31 * result + (createdAt?.hashCode() ?: 0)
+        result = 31 * result + isSaved.hashCode()
         return result
     }
 }

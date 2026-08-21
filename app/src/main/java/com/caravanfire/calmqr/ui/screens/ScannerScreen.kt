@@ -4,11 +4,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
@@ -26,7 +27,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.camera.core.Camera
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CenterFocusStrong
@@ -55,16 +55,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.caravanfire.calmqr.R
 import com.caravanfire.calmqr.rust.RustBridge
 import com.caravanfire.calmqr.ui.Dimens
-import com.caravanfire.calmqr.R
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.progress_indicator.CircularProgressIndicatorMMD
 import com.mudita.mmd.components.text.TextMMD
@@ -76,7 +78,7 @@ import java.util.concurrent.Executors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScannerScreen(
-    onCodeScanned: (content: String, format: String) -> Unit,
+    onCodeScanned: (content: String, format: String, qrGrid: String?) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -88,6 +90,7 @@ fun ScannerScreen(
     }
     var flashlightOn by remember { mutableStateOf(false) }
     var viewfinderEnabled by rememberSaveable { mutableStateOf(false) }
+    var exactMatchEnabled by rememberSaveable { mutableStateOf(false) }
     var camera by remember { mutableStateOf<Camera?>(null) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -135,6 +138,22 @@ fun ScannerScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { exactMatchEnabled = !exactMatchEnabled }) {
+                        Icon(
+                            painter = painterResource(
+                                if (exactMatchEnabled) R.drawable.ic_equal_filled
+                                else R.drawable.ic_equal_outlined
+                            ),
+                            contentDescription = if (exactMatchEnabled)
+                                stringResource(R.string.disable_exact_match)
+                            else
+                                stringResource(R.string.enable_exact_match),
+                            // Unspecified: the drawables are two-tone (knocked-out
+                            // equals in the filled disc); tinting would flatten them
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                     IconButton(onClick = { viewfinderEnabled = !viewfinderEnabled }) {
                         Icon(
                             imageVector = if (viewfinderEnabled)
@@ -179,6 +198,7 @@ fun ScannerScreen(
             if (hasCameraPermission) {
                 CameraPreview(
                     viewfinderEnabled = viewfinderEnabled,
+                    exactMatchEnabled = exactMatchEnabled,
                     onCodeScanned = onCodeScanned,
                     onCameraBound = { camera = it }
                 )
@@ -203,14 +223,15 @@ fun ScannerScreen(
     }
 }
 
-private data class ScannedCode(val content: String, val format: String)
+private data class ScannedCode(val content: String, val format: String, val qrGrid: String?)
 
 private data class CropRect(val left: Int, val top: Int, val width: Int, val height: Int)
 
 @Composable
 private fun CameraPreview(
     viewfinderEnabled: Boolean,
-    onCodeScanned: (content: String, format: String) -> Unit,
+    exactMatchEnabled: Boolean,
+    onCodeScanned: (content: String, format: String, qrGrid: String?) -> Unit,
     onCameraBound: (Camera) -> Unit
 ) {
     val context = LocalContext.current
@@ -221,11 +242,19 @@ private fun CameraPreview(
     var focusPoint by remember { mutableStateOf<Offset?>(null) }
     var focusTick by remember { mutableStateOf(0) }
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val binarizerToggle = remember { java.util.concurrent.atomic.AtomicInteger(0) }
+    val manualTapRef = remember { java.util.concurrent.atomic.AtomicBoolean(false) }
     val viewfinderEnabledRef = remember { java.util.concurrent.atomic.AtomicBoolean(viewfinderEnabled) }
     LaunchedEffect(viewfinderEnabled) {
         viewfinderEnabledRef.set(viewfinderEnabled)
     }
+    val exactMatchRef = remember { java.util.concurrent.atomic.AtomicBoolean(exactMatchEnabled) }
+    LaunchedEffect(exactMatchEnabled) {
+        exactMatchRef.set(exactMatchEnabled)
+    }
+
+    // Fresh native engine session per scanner entry: per-scan state (holds,
+    // votes, aim-lock, tap override) clears; score calibration persists.
+    remember { RustBridge.engineReset(exactMatchEnabled) }
 
     val previewView = remember {
         PreviewView(context).apply {
@@ -239,7 +268,7 @@ private fun CameraPreview(
 
     LaunchedEffect(scannedCode) {
         scannedCode?.let { code ->
-            onCodeScanned(code.content, code.format)
+            onCodeScanned(code.content, code.format, code.qrGrid)
         }
     }
 
@@ -253,6 +282,12 @@ private fun CameraPreview(
         AndroidView(
             factory = { ctx ->
                 cameraProviderFuture.addListener({
+                    // The screen can be left before the provider future resolves
+                    // (fast back press on first open); binding to a destroyed
+                    // lifecycle throws.
+                    if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                        return@addListener
+                    }
                     val cameraProvider = cameraProviderFuture.get()
 
                     val resolutionSelector = ResolutionSelector.Builder()
@@ -274,28 +309,40 @@ private fun CameraPreview(
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
 
+                    // Every frame goes straight into the Rust engine, which owns
+                    // scoring, scheduling, decoding, holds, votes, nudge policy
+                    // and telemetry. Kotlin acts on the returned events: execute
+                    // a focus nudge (camera control cannot cross the JNI line)
+                    // and finish the scan.
                     imageAnalysis.setAnalyzer(executor) { imageProxy ->
                         if (!hasScanned) {
-                            val binarizer = binarizerToggle.getAndUpdate { (it + 1) % 2 }
+                            val plane = imageProxy.planes[0]
+                            val w = imageProxy.width
+                            val h = imageProxy.height
                             val crop = if (viewfinderEnabledRef.get()) {
-                                val w = imageProxy.width
-                                val h = imageProxy.height
                                 val side = (kotlin.math.min(w, h) * 0.7f).toInt()
-                                val left = (w - side) / 2
-                                val top = (h - side) / 2
-                                CropRect(left, top, side, side)
+                                CropRect((w - side) / 2, (h - side) / 2, side, side)
                             } else {
                                 CropRect(0, 0, 0, 0)
                             }
-                            processImage(
-                                imageProxy,
-                                binarizer = binarizer,
-                                cropLeft = crop.left, cropTop = crop.top,
-                                cropWidth = crop.width, cropHeight = crop.height,
-                                tryRotate = true
-                            ) { content, format ->
-                                hasScanned = true
-                                scannedCode = ScannedCode(content, format)
+                            val out = RustBridge.engineSubmitFrame(
+                                plane.buffer, plane.rowStride, w, h,
+                                crop.left, crop.top, crop.width, crop.height,
+                                exactMatchRef.get(), manualTapRef.get()
+                            )
+                            if (out != null) {
+                                if (out.nudgeX >= 0f) {
+                                    localCamera?.cameraControl?.startFocusAndMetering(
+                                        FocusMeteringAction.Builder(
+                                            SurfaceOrientedMeteringPointFactory(1f, 1f, imageAnalysis)
+                                                .createPoint(out.nudgeX, out.nudgeY)
+                                        ).build()
+                                    )
+                                }
+                                out.result?.let { r ->
+                                    hasScanned = true
+                                    scannedCode = ScannedCode(r.text, r.format, r.qrGrid)
+                                }
                             }
                         }
                         imageProxy.close()
@@ -321,6 +368,9 @@ private fun CameraPreview(
                 .pointerInput(localCamera) {
                     detectTapGestures { offset ->
                         val cam = localCamera ?: return@detectTapGestures
+                        // Manual focus takes over: the engine stops auto-nudging
+                        // for the rest of this scan
+                        manualTapRef.set(true)
                         val factory = previewView.meteringPointFactory
                         val point = factory.createPoint(offset.x, offset.y)
                         cam.cameraControl.cancelFocusAndMetering()
@@ -362,46 +412,5 @@ private fun CameraPreview(
                 }
             }
         }
-    }
-}
-
-private fun processImage(
-    imageProxy: ImageProxy,
-    binarizer: Int,
-    cropLeft: Int,
-    cropTop: Int,
-    cropWidth: Int,
-    cropHeight: Int,
-    tryRotate: Boolean,
-    onDecoded: (content: String, format: String) -> Unit
-) {
-    val plane = imageProxy.planes[0]
-    val buffer = plane.buffer
-    val rowStride = plane.rowStride
-    val width = imageProxy.width
-    val height = imageProxy.height
-
-    val luma: ByteArray
-    if (rowStride == width) {
-        luma = ByteArray(width * height)
-        buffer.rewind()
-        buffer.get(luma)
-    } else {
-        luma = ByteArray(width * height)
-        buffer.rewind()
-        for (row in 0 until height) {
-            buffer.position(row * rowStride)
-            buffer.get(luma, row * width, width)
-        }
-    }
-
-    val result = RustBridge.decodeBarcode(
-        luma, width, height,
-        binarizer,
-        cropLeft, cropTop, cropWidth, cropHeight,
-        tryRotate
-    )
-    if (result != null) {
-        onDecoded(result.text, result.format)
     }
 }

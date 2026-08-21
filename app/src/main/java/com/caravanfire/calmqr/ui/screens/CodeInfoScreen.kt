@@ -53,10 +53,12 @@ fun CodeInfoScreen(
         createdAt = loaded.createdAt,
         snackbarHostState = snackbarHostState,
         onBack = {
+            // Await the write: the screen we pop back to reloads the name from
+            // the database immediately.
             scope.launch {
                 savedCodeDao.updateName(codeId, editableName)
+                onBack()
             }
-            onBack()
         },
         onCopy = { raw ->
             clipboard.setText(AnnotatedString(raw))

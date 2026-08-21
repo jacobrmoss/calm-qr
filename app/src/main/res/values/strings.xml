@@ -15,6 +15,8 @@
     <string name="disable_flashlight">Turn off flashlight</string>
     <string name="enable_viewfinder">Enable viewfinder crop</string>
     <string name="disable_viewfinder">Disable viewfinder crop</string>
+    <string name="enable_exact_match">Enable exact match mode</string>
+    <string name="disable_exact_match">Disable exact match mode</string>
     <string name="initializing_camera">Initializing camera</string>
     <string name="save_to_contacts">Save to Contacts</string>
     <string name="contact_save_failed">Could not save contact</string>
@@ -68,4 +70,6 @@
     <string name="content_type_vcard">Contact card</string>
     <string name="content_type_geo">Geographic location</string>
     <string name="content_type_plain_text">Plain text</string>
+
+    <string name="no_browser_available">No browser app available</string>
 </resources>

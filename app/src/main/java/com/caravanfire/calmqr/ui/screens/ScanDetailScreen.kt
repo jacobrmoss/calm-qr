@@ -1,7 +1,6 @@
 package com.caravanfire.calmqr.ui.screens
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -24,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -43,15 +42,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import com.caravanfire.calmqr.data.SavedCode
-import com.caravanfire.calmqr.ui.Dimens
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
-import com.caravanfire.calmqr.rust.RustBridge
+import com.caravanfire.calmqr.ui.Dimens
+import com.caravanfire.calmqr.ui.barcodePixelData
+import com.caravanfire.calmqr.ui.decodeQrPixelData
+import com.caravanfire.calmqr.ui.is1DFormat
 import com.caravanfire.calmqr.wifi.WifiSaveResult
 import com.caravanfire.calmqr.vcard.buildContactInsertIntent
 import com.caravanfire.calmqr.vcard.isVCardQrCode
@@ -68,76 +67,75 @@ import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
+import android.graphics.Bitmap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
+import kotlinx.coroutines.withContext
 
-/** Decode raw pixel data from RustBridge.generateBarcode into an Android Bitmap. */
-private fun decodeQrPixelData(data: ByteArray): Bitmap? {
-    if (data.size < 8) return null
-    val buffer = ByteBuffer.wrap(data)
-    val width = buffer.getInt()
-    val height = buffer.getInt()
-    if (width <= 0 || height <= 0) return null
-    val expectedSize = 8 + width * height * 4
-    if (data.size < expectedSize) return null
-    val pixels = IntArray(width * height)
-    for (i in pixels.indices) {
-        val offset = 8 + i * 4
-        val a = data[offset].toInt() and 0xFF
-        val r = data[offset + 1].toInt() and 0xFF
-        val g = data[offset + 2].toInt() and 0xFF
-        val b = data[offset + 3].toInt() and 0xFF
-        pixels[i] = (a shl 24) or (r shl 16) or (g shl 8) or b
-    }
-    return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
-}
-
+/**
+ * Post-scan review screen. The scan is already a database row (inserted by the
+ * scanner flow with isSaved = false); Save marks it saved, Cancel/Re-scan
+ * delete it. Loads by [codeId] — scanned content never travels through
+ * navigation (see Screen.kt).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanDetailScreen(
-    content: String,
-    format: String,
+    codeId: Long,
     savedCodeDao: SavedCodeDao,
-    onSaved: (Long) -> Unit,
+    onSaved: () -> Unit,
     onRescan: () -> Unit,
     onCancel: () -> Unit,
-    onRequestInfo: (currentName: String) -> Unit = {},
-    savedStateHandle: SavedStateHandle? = null,
+    onRequestInfo: (Long) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var code by remember { mutableStateOf<SavedCode?>(null) }
     var editableName by remember { mutableStateOf("") }
     var hasBeenTouched by remember { mutableStateOf(false) }
     val untitledDefault = stringResource(R.string.untitled)
 
-    LaunchedEffect(Unit) {
-        editableName = untitledDefault
+    var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(codeId) {
+        val row = savedCodeDao.getCodeById(codeId)
+        if (row == null) {
+            // Row already deleted (e.g. stale restore after the unsaved sweep)
+            onCancel()
+            return@LaunchedEffect
+        }
+        // Decode the code image off the main thread, then publish it together
+        // with the row so the screen fills in with one paint (one e-ink refresh)
+        val bitmap = withContext(Dispatchers.Default) {
+            (row.qrImageData ?: barcodePixelData(row.content, row.format))
+                ?.let { decodeQrPixelData(it) }
+        }
+        qrBitmap = bitmap
+        code = row
+        editableName = row.name
+        // First focus clears the placeholder, but only while the name is untouched
+        hasBeenTouched = row.name != untitledDefault
     }
 
-    // If returning from ScanInfoScreen with an edited name, adopt it.
-    // Note: savedStateHandle.get(...) is not a Compose-tracked read — the snapshot is
-    // taken whenever the composable re-enters (which happens on pop back from ScanInfo).
-    val pendingName = savedStateHandle?.get<String>(PENDING_NAME_KEY)
-    LaunchedEffect(pendingName) {
-        if (pendingName != null) {
-            editableName = pendingName
-            hasBeenTouched = true
-            savedStateHandle.remove<String>(PENDING_NAME_KEY)
+    val loaded = code ?: return
+
+    val is1D = is1DFormat(loaded.format)
+
+    val isUrl = loaded.content.startsWith("http://") || loaded.content.startsWith("https://")
+    val isWifi = isWifiQrCode(loaded.content)
+    val isVcard = isVCardQrCode(loaded.content)
+    val snackbarHostState = remember { SnackbarHostStateMMD() }
+
+    fun discardAnd(next: () -> Unit) {
+        scope.launch {
+            savedCodeDao.deleteCode(loaded)
+            next()
         }
     }
 
-    val is1D = format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")
-
-    val qrData = remember(content, format) {
-        if (is1D) RustBridge.generateBarcode(content, format, 512, 200)
-        else RustBridge.generateBarcode(content, format, 512, 512)
-    }
-    val qrBitmap = remember(qrData) { qrData?.let { decodeQrPixelData(it) } }
-
-    val isUrl = content.startsWith("http://") || content.startsWith("https://")
-    val isWifi = isWifiQrCode(content)
-    val isVcard = isVCardQrCode(content)
-    val snackbarHostState = remember { SnackbarHostStateMMD() }
+    // System back must not skip the discard — leaving this screen any way other
+    // than Save deletes the pending row.
+    BackHandler { discardAnd(onCancel) }
 
     // Track the SSID for the snackbar message after the system dialog returns
     var pendingWifiSsid by remember { mutableStateOf<String?>(null) }
@@ -201,7 +199,7 @@ fun ScanDetailScreen(
                     },
                     navigationIcon = {
                         Box(modifier = Modifier.padding(4.dp)) {
-                            IconButton(onClick = onCancel) {
+                            IconButton(onClick = { discardAnd(onCancel) }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = stringResource(R.string.back),
@@ -212,7 +210,12 @@ fun ScanDetailScreen(
                     },
                     actions = {
                         IconButton(
-                            onClick = { onRequestInfo(editableName) },
+                            onClick = {
+                                scope.launch {
+                                    savedCodeDao.updateName(codeId, editableName)
+                                    onRequestInfo(codeId)
+                                }
+                            },
                             modifier = Modifier.size(40.dp),
                         ) {
                             Icon(
@@ -272,16 +275,8 @@ fun ScanDetailScreen(
             ButtonMMD(
                 onClick = {
                     scope.launch {
-                        val id = savedCodeDao.insertCode(
-                            SavedCode(
-                                name = editableName,
-                                content = content,
-                                format = format,
-                                qrImageData = qrData,
-                                createdAt = System.currentTimeMillis()
-                            )
-                        )
-                        onSaved(id)
+                        savedCodeDao.markSaved(codeId, editableName)
+                        onSaved()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -292,7 +287,7 @@ fun ScanDetailScreen(
             if (is1D) {
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 OutlinedButtonMMD(
-                    onClick = onRescan,
+                    onClick = { discardAnd(onRescan) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextMMD(text = stringResource(R.string.re_scan), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))
@@ -303,9 +298,17 @@ fun ScanDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 ButtonMMD(
                     onClick = {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(content))
-                        )
+                        try {
+                            context.startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(loaded.content))
+                            )
+                        } catch (_: Exception) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.no_browser_available)
+                                )
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -317,7 +320,7 @@ fun ScanDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 ButtonMMD(
                     onClick = {
-                        parseWifiQrCode(content)?.let { creds ->
+                        parseWifiQrCode(loaded.content)?.let { creds ->
                             val intent = buildWifiSaveIntent(creds)
                             if (intent != null) {
                                 pendingWifiSsid = creds.ssid
@@ -341,7 +344,7 @@ fun ScanDetailScreen(
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 ButtonMMD(
                     onClick = {
-                        val contact = parseVCard(content)
+                        val contact = parseVCard(loaded.content)
                         if (contact != null) {
                             try {
                                 context.startActivity(buildContactInsertIntent(contact))
@@ -368,7 +371,7 @@ fun ScanDetailScreen(
 
             Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             OutlinedButtonMMD(
-                onClick = onCancel,
+                onClick = { discardAnd(onCancel) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextMMD(text = stringResource(R.string.cancel), style = Dimens.buttonTextStyle, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = Dimens.buttonTextPadding))

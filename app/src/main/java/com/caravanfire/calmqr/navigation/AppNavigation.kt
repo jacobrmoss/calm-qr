@@ -1,25 +1,40 @@
 package com.caravanfire.calmqr.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.caravanfire.calmqr.R
+import com.caravanfire.calmqr.data.SavedCode
 import com.caravanfire.calmqr.data.SavedCodeDao
+import com.caravanfire.calmqr.ui.barcodePixelData
 import com.caravanfire.calmqr.ui.screens.CodeDetailScreen
 import com.caravanfire.calmqr.ui.screens.CodeInfoScreen
 import com.caravanfire.calmqr.ui.screens.EinkTransitionScreen
 import com.caravanfire.calmqr.ui.screens.HomeScreen
 import com.caravanfire.calmqr.ui.screens.ScanDetailScreen
-import com.caravanfire.calmqr.ui.screens.ScanInfoScreen
 import com.caravanfire.calmqr.ui.screens.ScannerScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private fun androidx.navigation.NavBackStackEntry.codeId(): Long =
+    arguments?.getLong("codeId") ?: 0L
+
+private val codeIdArg = navArgument("codeId") { type = NavType.LongType }
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     savedCodeDao: SavedCodeDao
 ) {
+    val scope = rememberCoroutineScope()
+    val untitled = stringResource(R.string.untitled)
+
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -38,9 +53,27 @@ fun AppNavigation(
 
         composable(Screen.Scanner.route) {
             ScannerScreen(
-                onCodeScanned = { content, format ->
-                    navController.navigate(Screen.ScanDetail.createRoute(content, format)) {
-                        popUpTo(Screen.Scanner.route) { inclusive = true }
+                onCodeScanned = { content, format, qrGrid ->
+                    // Insert first, then navigate by row id. Scanned content never
+                    // rides in a route (see Screen.kt).
+                    scope.launch {
+                        // barcodePixelData renders over JNI — keep it off the
+                        // main thread so the scan→detail transition stays smooth
+                        val id = withContext(Dispatchers.Default) {
+                            savedCodeDao.insertCode(
+                                SavedCode(
+                                    name = untitled,
+                                    content = content,
+                                    format = format,
+                                    qrImageData = barcodePixelData(content, format, qrGrid),
+                                    createdAt = System.currentTimeMillis(),
+                                    isSaved = false,
+                                )
+                            )
+                        }
+                        navController.navigate(Screen.ScanDetail.createRoute(id)) {
+                            popUpTo(Screen.Scanner.route) { inclusive = true }
+                        }
                     }
                 },
                 onBack = {
@@ -51,22 +84,12 @@ fun AppNavigation(
 
         composable(
             route = Screen.ScanDetail.route,
-            arguments = listOf(
-                navArgument("content") { type = NavType.StringType },
-                navArgument("format") { type = NavType.StringType }
-            )
+            arguments = listOf(codeIdArg)
         ) { backStackEntry ->
-            val content = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("content") ?: "", "UTF-8"
-            )
-            val format = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("format") ?: "", "UTF-8"
-            )
             ScanDetailScreen(
-                content = content,
-                format = format,
+                codeId = backStackEntry.codeId(),
                 savedCodeDao = savedCodeDao,
-                onSaved = { codeId ->
+                onSaved = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
                 onRescan = {
@@ -77,22 +100,17 @@ fun AppNavigation(
                 onCancel = {
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
-                onRequestInfo = { currentName ->
-                    navController.navigate(
-                        Screen.ScanInfo.createRoute(currentName, content, format)
-                    )
+                onRequestInfo = { codeId ->
+                    navController.navigate(Screen.ScanInfo.createRoute(codeId))
                 },
-                savedStateHandle = backStackEntry.savedStateHandle,
             )
         }
 
         composable(
             route = Screen.EinkTransition.route,
-            arguments = listOf(
-                navArgument("codeId") { type = NavType.LongType }
-            )
+            arguments = listOf(codeIdArg)
         ) { backStackEntry ->
-            val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
+            val codeId = backStackEntry.codeId()
             EinkTransitionScreen(
                 onReady = {
                     navController.navigate(Screen.CodeDetail.createRoute(codeId)) {
@@ -104,11 +122,9 @@ fun AppNavigation(
 
         composable(
             route = Screen.CodeDetail.route,
-            arguments = listOf(
-                navArgument("codeId") { type = NavType.LongType }
-            )
+            arguments = listOf(codeIdArg)
         ) { backStackEntry ->
-            val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
+            val codeId = backStackEntry.codeId()
 
             CodeDetailScreen(
                 codeId = codeId,
@@ -132,11 +148,9 @@ fun AppNavigation(
 
         composable(
             route = Screen.CodeInfo.route,
-            arguments = listOf(
-                navArgument("codeId") { type = NavType.LongType }
-            )
+            arguments = listOf(codeIdArg)
         ) { backStackEntry ->
-            val codeId = backStackEntry.arguments?.getLong("codeId") ?: 0L
+            val codeId = backStackEntry.codeId()
             CodeInfoScreen(
                 codeId = codeId,
                 savedCodeDao = savedCodeDao,
@@ -148,28 +162,15 @@ fun AppNavigation(
             )
         }
 
+        // Info page for a not-yet-saved scan: same screen as CodeInfo, but back
+        // pops straight to ScanDetail (no e-ink transition detour).
         composable(
             route = Screen.ScanInfo.route,
-            arguments = listOf(
-                navArgument("name") { type = NavType.StringType },
-                navArgument("content") { type = NavType.StringType },
-                navArgument("format") { type = NavType.StringType }
-            )
+            arguments = listOf(codeIdArg)
         ) { backStackEntry ->
-            val name = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("name") ?: "", "UTF-8"
-            )
-            val content = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("content") ?: "", "UTF-8"
-            )
-            val format = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("format") ?: "", "UTF-8"
-            )
-            ScanInfoScreen(
-                initialName = name,
-                content = content,
-                format = format,
-                previousSavedStateHandle = navController.previousBackStackEntry?.savedStateHandle,
+            CodeInfoScreen(
+                codeId = backStackEntry.codeId(),
+                savedCodeDao = savedCodeDao,
                 onBack = {
                     navController.popBackStack()
                 }
@@ -177,4 +178,3 @@ fun AppNavigation(
         }
     }
 }
-

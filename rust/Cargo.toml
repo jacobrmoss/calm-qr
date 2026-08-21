@@ -9,3 +9,12 @@ crate-type = ["cdylib"]
 [dependencies]
 jni = "0.21.1"
 rxing = { version = "0.8.5", default-features = false, features = ["encoding_rs"] }
+
+# Size-focused release build. opt-level stays 3 so the per-frame decode loop
+# keeps full speed on the Kompakt's slow SoC; LTO + 1 codegen unit + no unwind
+# tables do the shrinking (and LTO usually helps speed too).
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

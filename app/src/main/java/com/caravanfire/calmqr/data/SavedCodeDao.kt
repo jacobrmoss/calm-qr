@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SavedCodeDao {
 
-    @Query("SELECT * FROM saved_codes ORDER BY timestamp DESC")
+    @Query("SELECT * FROM saved_codes WHERE isSaved = 1 ORDER BY timestamp DESC")
     fun getAllCodes(): Flow<List<SavedCode>>
 
-    @Query("SELECT * FROM saved_codes WHERE name LIKE '%' || :query || '%' ORDER BY timestamp DESC")
+    @Query("SELECT * FROM saved_codes WHERE isSaved = 1 AND name LIKE '%' || :query || '%' ORDER BY timestamp DESC")
     fun searchCodes(query: String): Flow<List<SavedCode>>
 
     @Query("SELECT * FROM saved_codes WHERE id = :id")
@@ -29,6 +29,13 @@ interface SavedCodeDao {
 
     @Query("UPDATE saved_codes SET name = :name WHERE id = :id")
     suspend fun updateName(id: Long, name: String)
+
+    @Query("UPDATE saved_codes SET isSaved = 1, name = :name WHERE id = :id")
+    suspend fun markSaved(id: Long, name: String)
+
+    /** Sweep pre-save rows orphaned by process death mid-scan. */
+    @Query("DELETE FROM saved_codes WHERE isSaved = 0")
+    suspend fun deleteUnsaved()
 
     @Query("UPDATE saved_codes SET timestamp = :timestamp WHERE id = :id")
     suspend fun updateTimestamp(id: Long, timestamp: Long = System.currentTimeMillis())

@@ -1,7 +1,6 @@
 package com.caravanfire.calmqr.ui.screens
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -46,9 +45,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.caravanfire.calmqr.data.SavedCode
 import com.caravanfire.calmqr.ui.Dimens
+import com.caravanfire.calmqr.ui.barcodePixelData
+import com.caravanfire.calmqr.ui.decodeQrPixelData
+import com.caravanfire.calmqr.ui.is1DFormat
 import com.caravanfire.calmqr.data.SavedCodeDao
 import com.caravanfire.calmqr.R
-import com.caravanfire.calmqr.rust.RustBridge
 import com.caravanfire.calmqr.wifi.WifiSaveResult
 import com.caravanfire.calmqr.vcard.buildContactInsertIntent
 import com.caravanfire.calmqr.vcard.isVCardQrCode
@@ -65,29 +66,10 @@ import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
+import android.graphics.Bitmap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-
-/** Decode raw pixel data from RustBridge.generateBarcode into an Android Bitmap. */
-private fun decodeQrPixelData(data: ByteArray): Bitmap? {
-    if (data.size < 8) return null
-    val buffer = ByteBuffer.wrap(data)
-    val width = buffer.getInt()
-    val height = buffer.getInt()
-    if (width <= 0 || height <= 0) return null
-    val expectedSize = 8 + width * height * 4
-    if (data.size < expectedSize) return null
-    val pixels = IntArray(width * height)
-    for (i in pixels.indices) {
-        val offset = 8 + i * 4
-        val a = data[offset].toInt() and 0xFF
-        val r = data[offset + 1].toInt() and 0xFF
-        val g = data[offset + 2].toInt() and 0xFF
-        val b = data[offset + 3].toInt() and 0xFF
-        pixels[i] = (a shl 24) or (r shl 16) or (g shl 8) or b
-    }
-    return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
-}
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +84,7 @@ fun CodeDetailScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var code by remember { mutableStateOf<SavedCode?>(null) }
+    var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var editableName by remember { mutableStateOf("") }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostStateMMD() }
@@ -147,6 +130,14 @@ fun CodeDetailScreen(
 
     LaunchedEffect(codeId) {
         val loaded = savedCodeDao.getCodeById(codeId)
+        // Decode the code image off the main thread, then publish it together
+        // with the row so the screen fills in with one paint (one e-ink refresh)
+        qrBitmap = loaded?.let { row ->
+            withContext(Dispatchers.Default) {
+                (row.qrImageData ?: barcodePixelData(row.content, row.format))
+                    ?.let { decodeQrPixelData(it) }
+            }
+        }
         code = loaded
         editableName = loaded?.name ?: ""
     }
@@ -289,13 +280,7 @@ fun CodeDetailScreen(
             val isWifi = isWifiQrCode(savedCode.content)
             val isVcard = isVCardQrCode(savedCode.content)
 
-            val is1D = savedCode.format in listOf("CODE_128", "CODE_39", "CODE_93", "EAN_13", "EAN_8", "UPC_A", "UPC_E", "ITF", "CODABAR", "TELEPEN")
-            val qrBitmap = remember(savedCode.content, savedCode.format, savedCode.qrImageData) {
-                val data = savedCode.qrImageData
-                    ?: if (is1D) RustBridge.generateBarcode(savedCode.content, savedCode.format, 512, 200)
-                       else RustBridge.generateBarcode(savedCode.content, savedCode.format, 512, 512)
-                data?.let { decodeQrPixelData(it) }
-            }
+            val is1D = is1DFormat(savedCode.format)
 
             Column(
                 modifier = Modifier
@@ -331,9 +316,17 @@ fun CodeDetailScreen(
                     Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                     ButtonMMD(
                         onClick = {
-                            context.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(savedCode.content))
-                            )
+                            try {
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse(savedCode.content))
+                                )
+                            } catch (_: Exception) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.no_browser_available)
+                                    )
+                                }
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

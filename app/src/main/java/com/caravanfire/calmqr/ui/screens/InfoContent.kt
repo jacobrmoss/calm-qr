@@ -47,8 +47,8 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * Shared body of the info page, used by both CodeInfoScreen (saved) and
- * ScanInfoScreen (mid-scan, pre-save).
+ * Shared body of the info page (CodeInfoScreen, reached from both saved codes
+ * and mid-scan review).
  *
  * @param name editable code name; pass current value
  * @param onNameChange invoked with each edit
