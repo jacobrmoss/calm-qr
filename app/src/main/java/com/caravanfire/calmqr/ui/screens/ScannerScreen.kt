@@ -328,7 +328,11 @@ private fun CameraPreview(
                             val out = RustBridge.engineSubmitFrame(
                                 plane.buffer, plane.rowStride, w, h,
                                 crop.left, crop.top, crop.width, crop.height,
-                                exactMatchRef.get(), manualTapRef.get()
+                                exactMatchRef.get(), manualTapRef.get(),
+                                // Frame-to-display rotation: lets the engine
+                                // report a code's orientation as the user saw
+                                // it in the viewfinder, not as the sensor did.
+                                imageProxy.imageInfo.rotationDegrees
                             )
                             if (out != null) {
                                 if (out.nudgeX >= 0f) {

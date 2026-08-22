@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 jni = "0.21.1"
-rxing = { version = "0.8.5", default-features = false, features = ["encoding_rs"] }
+rxing = { version = "0.9.2", default-features = false, features = ["encoding_rs", "decoders", "encoders", "qrcode", "oned", "aztec", "datamatrix", "pdf417"] }
 
 # Size-focused release build. opt-level stays 3 so the per-frame decode loop
 # keeps full speed on the Kompakt's slow SoC; LTO + 1 codegen unit + no unwind

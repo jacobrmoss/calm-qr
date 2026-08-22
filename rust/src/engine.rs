@@ -1,14 +1,14 @@
 //! The scan engine: every camera frame is fed here raw, and everything that
-//! can happen in Rust does — scoring, best-frame selection, gate calibration,
-//! decode scheduling on a persistent worker pool, QR grid holds, 1D vote
-//! confirmation, focus-nudge policy, and telemetry. Kotlin keeps only what
+//! can happen in Rust does — scoring, best-frame selection, decode scheduling
+//! on a persistent worker pool, QR grid holds, 1D vote confirmation,
+//! focus-nudge policy, and telemetry. Kotlin keeps only what
 //! Android forces on it: delivering frames, executing the camera-control AF
 //! call, and navigating on a finished scan.
 //!
 //! Log lines are byte-for-byte the ones the Kotlin scheduler emitted, so the
 //! ScanPerf/GridExtract telemetry (and the docs describing it) stay valid.
 
-use crate::{alog, analyze_frame, decode_luma, format_to_string};
+use crate::{alog, analyze_frame, decode_luma, format_to_string, rotate_orientation};
 use jni::objects::{JByteBuffer, JClass, JObject, JValue};
 use jni::sys::{jboolean, jint};
 use jni::JNIEnv;
@@ -20,14 +20,6 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 // ---- Tuning constants ------------------------------------------------------
-/// Scene-relative gate: a frame within this fraction of the decayed scene
-/// maximum is dispatch-worthy. No learned calibration, no cold start — every
-/// scene self-calibrates, and a fresh process's first frame dispatches
-/// instantly (it IS the scene max).
-const REF_FRACTION: f32 = 0.65;
-/// Per-frame decay of the scene maximum (~0.67/s at 20fps): a scene change or
-/// a one-frame glare spike stops gating the new reality within ~a second.
-const SCENE_MAX_DECAY: f32 = 0.98;
 /// Baseline sharpness floor: below this a frame has essentially no structure
 /// (every hit ever measured scored >=~900; blank scenes 40-200). Keeps a
 /// scene made purely of blur from having its "local best" decoded eagerly —
@@ -42,12 +34,6 @@ const GRID_RETRY: Duration = Duration::from_millis(3000);
 const CONFIRM_1D: Duration = Duration::from_millis(1500);
 const LOCATE_INTERVAL: Duration = Duration::from_millis(500);
 const LOCATE_STABLE_DIST2: f32 = 0.02;
-/// After this many consecutive detector-empty frames (~250ms), a sharp scene
-/// stops getting eager back-to-back decodes and drops to the paced cadence —
-/// full decodes still (never lite while above bar), so the detector-gap
-/// classes (tiny QRs, 45° barcodes) keep full-strength attempts, just paced.
-const EMPTY_STREAK_LAZY: u32 = 5;
-
 /// A 1D detection earns focus-nudge rights only through persistence: this many
 /// consecutive stable sightings (~300ms) with no hit landing is the defocus
 /// signature — bar-like, held centered, undecodable. (A text false positive
@@ -68,8 +54,8 @@ fn is_1d(format: &str) -> bool {
     ONE_D_FORMATS.contains(&format)
 }
 
-// Process-lifetime counters/calibration (survive engine resets, like the
-// Kotlin GridStats / ScoreCalibration objects did).
+// Process-lifetime counters (survive engine resets, like the Kotlin
+// GridStats object did).
 static QR_HITS: AtomicU32 = AtomicU32::new(0);
 static GRID_MISSES: AtomicU32 = AtomicU32::new(0);
 static GRID_RECOVERIES: AtomicU32 = AtomicU32::new(0);
@@ -80,6 +66,12 @@ struct FrameBuf {
     h: u32,
     score: f32,
     crop: (i32, i32, i32, i32),
+    /// What the cheap detectors saw on this frame — travels with the decode
+    /// so a result can be judged against the scene it came from.
+    qr_sighted: bool,
+    oned_sighted: bool,
+    /// Camera frame→display rotation (degrees, clockwise) for this frame.
+    rotation: i32,
 }
 
 struct WorkItem {
@@ -93,6 +85,10 @@ struct WorkItem {
     format_filter: i32,
     try_inverted: bool,
     lite: bool,
+    invert_first: bool,
+    qr_sighted: bool,
+    oned_sighted: bool,
+    rotation: i32,
 }
 
 struct Completed {
@@ -101,8 +97,12 @@ struct Completed {
     format_filter: i32,
     lite: bool,
     try_inverted: bool,
-    // (result, qr_grid, winning variant, full-frame dims, crop)
-    outcome: Option<(rxing::RXingResult, Option<String>, usize)>,
+    qr_sighted: bool,
+    oned_sighted: bool,
+    rotation: i32,
+    // (result, qr_grid, winning variant, physical polarity, orientation),
+    // full-frame dims, crop
+    outcome: Option<(rxing::RXingResult, Option<String>, usize, bool, u8)>,
     w: u32,
     h: u32,
     crop: (i32, i32, i32, i32),
@@ -115,6 +115,8 @@ struct PendingQr {
     held_since: Option<Instant>,
     retries: u32,
     nudges: u32,
+    /// Physical polarity of the held hit — retries pre-flip to match.
+    inverted: bool,
 }
 
 impl PendingQr {
@@ -175,15 +177,12 @@ struct EngineState {
     last_dispatch_score: f32,
     active: u32,
     dispatch_counter: u64,
-    insurance_counter: u64,
     // Focus trend
     prev_score: f32,
     rising: u32,
     plateau: u32,
     // Aim-lock metric (stamped on first cheap detection)
     aim_lock: Option<Instant>,
-    // Scene-relative reference: decayed maximum of recent frame scores
-    scene_max: f32,
     // Cheap detection (per frame); last_locate throttles the log lines only
     last_locate: Instant,
     last_loc: Option<(f32, f32)>,
@@ -231,12 +230,10 @@ impl EngineState {
             last_dispatch_score: 0.0,
             active: 0,
             dispatch_counter: 0,
-            insurance_counter: 0,
             prev_score: 0.0,
             rising: 0,
             plateau: 0,
             aim_lock: None,
-            scene_max: 0.0,
             last_locate: now - LOCATE_INTERVAL,
             last_loc: None,
             qr_detections: 0,
@@ -276,10 +273,14 @@ impl EngineState {
         self.exact = exact;
     }
 
-    /// The dispatch-worthiness bar: every scene uniquely calibrates it (a
-    /// fraction of the decayed scene max), floored by the absolute baseline.
+    /// The dispatch-worthiness bar: the flat blur floor. (The scene-relative
+    /// calibration that scaled this with a decayed per-scene score maximum was
+    /// removed 2026-08-21: sun-inflated scores — hard shadow edges, specular
+    /// glare — ratcheted the bar above the actual code frames and starved the
+    /// fallback decode path in direct sunlight. Lighting is the camera's job;
+    /// this gate only filters structureless blur.)
     fn gate_bar(&self) -> f32 {
-        (self.scene_max * REF_FRACTION).max(BASELINE_SCORE)
+        BASELINE_SCORE
     }
 
     /// Per-episode nudge budget: one intervention when earned, one more only
@@ -366,6 +367,7 @@ fn engine() -> &'static Arc<EngineShared> {
                     item.format_filter,
                     item.try_inverted,
                     item.lite,
+                    item.invert_first,
                 );
                 let ms = t0.elapsed().as_millis();
                 sh.completed.lock().unwrap().push(Completed {
@@ -374,6 +376,9 @@ fn engine() -> &'static Arc<EngineShared> {
                     format_filter: item.format_filter,
                     lite: item.lite,
                     try_inverted: item.try_inverted,
+                    qr_sighted: item.qr_sighted,
+                    oned_sighted: item.oned_sighted,
+                    rotation: item.rotation,
                     outcome,
                     w: item.w,
                     h: item.h,
@@ -450,7 +455,7 @@ fn finish_scan(
     }
 }
 
-/// Per-completed-decode policy: telemetry, calibration, holds, votes.
+/// Per-completed-decode policy: telemetry, holds, votes.
 /// Returns a finished scan and/or a nudge request.
 fn apply_completion(
     st: &mut EngineState,
@@ -486,7 +491,7 @@ fn apply_completion(
     };
     let outcome_label = match &c.outcome {
         None => "miss".to_string(),
-        Some((r, g, _)) => format!("{} grid={}", format_to_string(*r.getBarcodeFormat()), g.is_some()),
+        Some((r, g, _, _, _)) => format!("{} grid={}", format_to_string(*r.getBarcodeFormat()), g.is_some()),
     };
     alog(
         "ScanPerf",
@@ -501,7 +506,7 @@ fn apply_completion(
         ),
     );
 
-    let Some((result, qr_grid, variant)) = c.outcome else {
+    let Some((result, qr_grid, variant, inverted, orientation)) = c.outcome else {
         if !c.lite {
             st.session_misses += 1;
         }
@@ -509,6 +514,31 @@ fn apply_completion(
     };
     let format = format_to_string(*result.getBarcodeFormat());
     let content = result.getText().to_string();
+    // Presentation orientation as the user saw it: the symbol's orientation in
+    // the sensor frame composed with the frame→display rotation. Tagged onto
+    // the exact grid ("o<k>:") so the rendered copy is rotated/mirrored like
+    // the physical code was in the viewfinder.
+    let qr_grid = qr_grid.map(|g| {
+        let o = rotate_orientation(orientation, (c.rotation / 90).rem_euclid(4));
+        // Per-scan exact-copy telemetry: exactly what the saved copy will show,
+        // so a field "did it match?" verdict can be audited against the log.
+        let dim = g.trim_start_matches("inv:").split(':').next().unwrap_or("?");
+        alog(
+            "ScanPerf",
+            &format!(
+                "exact grid dim {dim}: {} polarity, rot {}°{}, mode={}",
+                if inverted { "inverted" } else { "normal" },
+                (o % 4) as i32 * 90,
+                if o >= 4 { ", mirrored" } else { "" },
+                if st.exact { "exact" } else { "normal" }
+            ),
+        );
+        if o != 0 {
+            format!("o{o}:{g}")
+        } else {
+            g
+        }
+    });
     alog("ScanPerf", &format!("decode hit in {}ms ({format})", c.ms));
 
     let center = outcome_center(&result, variant, c.w, c.h, c.crop);
@@ -541,6 +571,7 @@ fn apply_completion(
             st.qr.held_since = Some(now);
             st.qr.retries = 0;
             st.qr.nudges = 0;
+            st.qr.inverted = inverted;
             alog("ScanPerf", "QR hit without grid — holding for retry");
         }
         // Only a STUCK hold gets focus help (measured: sweeps blur retries).
@@ -552,6 +583,18 @@ fn apply_completion(
     }
 
     if is_1d(&format) {
+        // A 1D read from a frame where the QR detector saw a symbol but the
+        // 1D detector saw no bar structure is the texture-misread signature
+        // (field-measured 2026-08-21: a vote-confirmed barcode read off a QR
+        // the user was aiming at). It casts no vote. A real barcode sharing
+        // the frame with a QR still counts — the 1D detector corroborates it.
+        if c.qr_sighted && !c.oned_sighted {
+            alog(
+                "ScanPerf",
+                &format!("1D hit ignored — QR in view, no bar structure ({format})"),
+            );
+            return (None, None);
+        }
         if !st.oned.active() {
             st.oned.held_since = Some(now);
             st.oned.retries = 0;
@@ -698,6 +741,7 @@ pub fn submit_frame(
     crop: (i32, i32, i32, i32),
     exact: bool,
     manual_tap: bool,
+    rotation_degrees: i32,
 ) -> (Option<FinishedScan>, Option<(f32, f32)>) {
     let sh = engine();
     let now = Instant::now();
@@ -748,9 +792,6 @@ pub fn submit_frame(
     }
     st.prev_score = score;
 
-    // Scene-relative reference: rises instantly to the sharpest recent frame,
-    // decays within ~a second — every scene uniquely calibrates the bar.
-    st.scene_max = (st.scene_max * SCENE_MAX_DECAY).max(score);
     let bar = st.gate_bar();
 
     let is_better = st.best.as_ref().map(|b| score > b.score).unwrap_or(true);
@@ -771,6 +812,9 @@ pub fn submit_frame(
             h: h as u32,
             score,
             crop,
+            qr_sighted: fa.qr.is_some(),
+            oned_sighted: fa.oned.is_some(),
+            rotation: rotation_degrees,
         });
         st.copied += 1;
     }
@@ -781,7 +825,7 @@ pub fn submit_frame(
     let hold_active = st.qr.content.is_some() || st.oned.active();
     let mut detected = false;
     if !hold_active {
-        if let Some((cx, cy)) = fa.qr {
+        if let Some((cx, cy, _)) = fa.qr {
             detected = true;
             st.qr_detections += 1;
             if st.aim_lock.is_none() {
@@ -892,38 +936,39 @@ pub fn submit_frame(
     let wait_cap = if steady { PLATEAU_GATE_WAIT } else { MAX_GATE_WAIT };
     let mut fire = false;
     let mut fire_current = false;
-    let mut is_insurance = false;
     let mut is_preempt = false;
-    // With a moving scene-relative bar, a dispatch that was above-bar at
-    // launch can look retroactively sub-bar as the scene brightens — require
-    // it to be CLEARLY stale before overlapping (measured: without the margin
-    // overlaps fire chronically, 1-2 per window).
+    // A running decode launched on a near-structureless frame shouldn't block
+    // a fresh dispatch — but require it to be CLEARLY below the floor before
+    // overlapping (measured: without the margin overlaps fire chronically,
+    // 1-2 per window).
     let stale_running = st.last_dispatch_score < bar * 0.8;
     if detected {
-        // Detection-driven dispatch of the current frame.
-        if st.active == 0 {
+        // Detection-driven dispatch of the current frame: a sighted code gets
+        // a decode slot IMMEDIATELY whenever one is free. (2026-08-21: with
+        // continuous decoding a worker is usually mid-miss when the code
+        // appears; gating detections on idle-or-stale added most of a decode's
+        // ~500ms to indoor aim-lock. The 2-concurrent cap still binds — that
+        // one protects camera AF, not battery.)
+        if st.active <= 1 {
             fire = true;
             fire_current = true;
-        } else if st.active == 1 && stale_running {
-            fire = true;
-            fire_current = true;
-            is_preempt = true;
+            is_preempt = st.active == 1;
         }
     }
-    // Detector-empty laziness: a sharp scene the detectors call empty stops
-    // getting eager back-to-back decodes and drops to the paced cadence
-    // (full decodes, never lite while above bar).
-    let eager = st.empty_streak < EMPTY_STREAK_LAZY;
+    // Reliability over battery (2026-08-21): above the blur floor, decode
+    // continuously — the detector-empty laziness that paced sharp scenes to
+    // the insurance cadence starved exactly the scenes where the cheap
+    // detectors go blind (sunlight glare/shadow splits, washed contrast).
+    // Sub-floor (blur/blank) frames still ride the paced insurance cadence.
     if !fire && st.best.is_some() {
         if st.active == 0 {
-            if above_bar && eager {
+            if above_bar {
                 fire = true;
             } else if waited >= wait_cap {
                 if !above_bar && st.rising >= 2 && waited < HARD_GATE_WAIT {
                     st.deferred += 1;
                 } else {
                     fire = true;
-                    is_insurance = !above_bar && !steady;
                 }
             }
         } else if st.active == 1 && above_bar {
@@ -953,6 +998,9 @@ pub fn submit_frame(
                 h: h as u32,
                 score,
                 crop,
+                qr_sighted: fa.qr.is_some(),
+                oned_sighted: fa.oned.is_some(),
+                rotation: rotation_degrees,
             }
         } else if fire_current {
             // The best slot holds THIS frame (it was just admitted) — reuse
@@ -968,7 +1016,6 @@ pub fn submit_frame(
             st.overlaps += 1;
         }
         let binarizer = (st.dispatch_counter % 2) as i32;
-        let cycle = st.dispatch_counter % 4;
         st.dispatch_counter += 1;
         let format_filter = if st.qr.content.is_some() {
             let r = st.qr.retries;
@@ -978,15 +1025,39 @@ pub fn submit_frame(
             let r = st.oned.retries;
             st.oned.retries += 1;
             if r % 3 != 2 { 2 } else { 0 }
+        } else if fire_current {
+            // Detection-typed dispatch (2026-08-21): the cheap sighting names
+            // the family, so skip every other reader's machinery — an
+            // all-formats miss measured 1.7-3.2s on the Kompakt; a typed one
+            // is a fraction of that. Frames where BOTH detectors fired (rare)
+            // and all fallback-cadence dispatches stay unfiltered, so the
+            // detector-blind classes keep full coverage.
+            match (fa.qr.is_some(), fa.oned.is_some()) {
+                (true, false) => 1,
+                (false, true) => 2,
+                _ => 0,
+            }
         } else {
             0
         };
-        let try_inverted = format_filter != 0 || cycle == 1 || cycle == 2;
-        let lite = is_insurance && format_filter == 0 && {
-            let i = st.insurance_counter;
-            st.insurance_counter += 1;
-            i % 3 != 0
+        // Polarity-first: the QR detector knows when the sighting came from
+        // the flipped pass; pre-flipping the luma lets an inverted code decode
+        // on the FIRST reader pass instead of after a full normal sweep.
+        // AlsoInverted stays on as the safety net for a wrong guess.
+        let invert_first = if st.qr.content.is_some() {
+            st.qr.inverted
+        } else if fire_current {
+            fa.qr.map(|(_, _, inv)| inv).unwrap_or(false)
+        } else {
+            false
         };
+        // Reliability over throughput (2026-08-21): AlsoInverted on EVERY
+        // dispatch. The old 4-cycle alternation halved miss cost but left
+        // inverted codes decodable on only half the attempts (and paired with
+        // the robust binarizer on only a quarter) — field-tested in sunlight,
+        // inverted QRs basically never scanned. The pre-engine path always
+        // forced AlsoInverted; restore that guarantee.
+        let try_inverted = true;
         st.active += 1;
         let item = WorkItem {
             luma: Arc::clone(&frame.luma),
@@ -998,7 +1069,15 @@ pub fn submit_frame(
             try_rotate: format_filter != 1,
             format_filter,
             try_inverted,
-            lite,
+            // Reliability over battery (2026-08-21): every dispatch is a
+            // full-strength decode. Lite (downscale-only) insurance decodes
+            // saved cost on sub-floor frames but a faster scan drives the
+            // camera for less total time — full attempts everywhere.
+            lite: false,
+            invert_first,
+            qr_sighted: frame.qr_sighted,
+            oned_sighted: frame.oned_sighted,
+            rotation: frame.rotation,
         };
         sh.queue.lock().unwrap().push_back(item);
         sh.cv.notify_one();
@@ -1065,6 +1144,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_engineSubmitF
     crop_height: jint,
     exact_match: jboolean,
     manual_tap: jboolean,
+    rotation_degrees: jint,
 ) -> JObject<'local> {
     let w = width.max(0) as usize;
     let h = height.max(0) as usize;
@@ -1094,6 +1174,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_engineSubmitF
         (crop_left, crop_top, crop_width, crop_height),
         exact_match != 0,
         manual_tap != 0,
+        rotation_degrees,
     );
 
     if finished.is_none() && nudge.is_none() {

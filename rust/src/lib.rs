@@ -7,14 +7,34 @@ use std::thread;
 
 mod engine;
 
-/// Minimal logcat writer (no logging-crate dependency).
+/// Minimal logcat writer (no logging-crate dependency) for the scan
+/// telemetry (ScanPerf / GridExtract). OFF in shipped builds: it only writes
+/// when the device property `debug.calmqr.scanlog` is `1` — a developer
+/// enables field tracking with `adb shell setprop debug.calmqr.scanlog 1`
+/// and relaunches the app (the property is read once per process).
 #[cfg(target_os = "android")]
 pub(crate) fn alog(tag: &str, msg: &str) {
     use std::ffi::CString;
     use std::os::raw::{c_char, c_int};
+    use std::sync::OnceLock;
     #[link(name = "log")]
     extern "C" {
         fn __android_log_write(prio: c_int, tag: *const c_char, text: *const c_char) -> c_int;
+    }
+    extern "C" {
+        fn __system_property_get(name: *const c_char, value: *mut c_char) -> c_int;
+    }
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+    let enabled = *ENABLED.get_or_init(|| {
+        let Ok(name) = CString::new("debug.calmqr.scanlog") else {
+            return false;
+        };
+        let mut value = [0 as c_char; 92]; // PROP_VALUE_MAX
+        let n = unsafe { __system_property_get(name.as_ptr(), value.as_mut_ptr()) };
+        n > 0 && value[0] as u8 == b'1'
+    });
+    if !enabled {
+        return;
     }
     if let (Ok(tag), Ok(text)) = (CString::new(tag), CString::new(msg)) {
         // 4 = ANDROID_LOG_INFO
@@ -61,7 +81,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_locateQr<'loc
     // SAFETY: direct buffer stays valid for the duration of this call.
     let data = unsafe { std::slice::from_raw_parts(ptr, cap) };
 
-    let Some((cx, cy)) = locate_qr_core(data, stride, w, h) else {
+    let Some((cx, cy, _)) = locate_qr_core(data, stride, w, h) else {
         return JFloatArray::from(JObject::null());
     };
 
@@ -81,7 +101,8 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_locateQr<'loc
 /// results for one buffer traversal.
 pub(crate) struct FrameAnalysis {
     pub score: f32,
-    pub qr: Option<(f32, f32)>,
+    /// (center x, center y, inverted-polarity) of a sighted QR finder triple.
+    pub qr: Option<(f32, f32, bool)>,
     pub oned: Option<(f32, f32)>,
 }
 
@@ -106,7 +127,7 @@ pub(crate) fn analyze_frame(data: &[u8], stride: usize, w: usize, h: usize) -> F
 
     // Sharpness score over the central 50% of the subsample. Adjacent pixels
     // here are exactly the old 4-pixel lattice of `score_luma`, so the values
-    // are identical — calibration (baseline, ratios) carries over unchanged.
+    // are identical — the baseline blur floor carries over unchanged.
     let (cx0, cx1) = (sw / 4, (sw * 3) / 4);
     let (cy0, cy1) = (sh / 4, (sh * 3) / 4);
     let mut acc: u64 = 0;
@@ -191,7 +212,12 @@ pub(crate) fn analyze_frame(data: &[u8], stride: usize, w: usize, h: usize) -> F
 
 /// Core of the QR localization: finder-pattern triple on a 4x subsample.
 /// Returns the normalized code center, or None.
-pub(crate) fn locate_qr_core(data: &[u8], stride: usize, w: usize, h: usize) -> Option<(f32, f32)> {
+pub(crate) fn locate_qr_core(
+    data: &[u8],
+    stride: usize,
+    w: usize,
+    h: usize,
+) -> Option<(f32, f32, bool)> {
     const STEP: usize = 4;
     if w < 64 || h < 64 || data.len() < (h - 1) * stride + w {
         return None;
@@ -215,8 +241,8 @@ fn locate_qr_from_small(
     step: usize,
     w: usize,
     h: usize,
-) -> Option<(f32, f32)> {
-    let source = Luma8LuminanceSource::new(small, sw as u32, sh as u32);
+) -> Option<(f32, f32, bool)> {
+    let source = Luma8LuminanceSource::new(small, sw as u32, sh as u32).ok()?;
     let mut bb = BinaryBitmap::new(GlobalHistogramBinarizer::new(source));
     let hints = DecodeHints::default();
     let normal = {
@@ -225,14 +251,15 @@ fn locate_qr_from_small(
     };
     // White-on-dark codes: the expensive decode catches them via AlsoInverted,
     // so the cheap detector must too — retry on the flipped matrix (only on
-    // misses; ~2ms at this scale).
-    let info = match normal {
-        Some(i) => i,
+    // misses; ~2ms at this scale). The polarity that matched travels with the
+    // sighting so the dispatch can decode inverted-first.
+    let (info, inverted) = match normal {
+        Some(i) => (i, false),
         None => {
             let m = bb.get_black_matrix_mut();
             m.flip_self();
             let mut finder = FinderPatternFinder::new(m);
-            finder.find(&hints).ok()?
+            (finder.find(&hints).ok()?, true)
         }
     };
     let tl: Point = info.getTopLeft().into();
@@ -241,6 +268,7 @@ fn locate_qr_from_small(
     Some((
         (tl.x + tr.x + bl.x) / 3.0 * step as f32 / w as f32,
         (tl.y + tr.y + bl.y) / 3.0 * step as f32 / h as f32,
+        inverted,
     ))
 }
 
@@ -317,12 +345,19 @@ use rxing::common::reedsolomon::{
 };
 use rxing::common::{BitArray, BitMatrix, DetectorRXingResult, GlobalHistogramBinarizer, HybridBinarizer};
 use rxing::qrcode::decoder::{BitMatrixParser, DataBlock};
+use rxing::qrcode::cpp_port::detector::{FindFinderPatterns, GenerateFinderPatternSets, SampleQR};
 use rxing::qrcode::detector::{Detector, FinderPatternFinder};
 use rxing::Point;
-use rxing::qrcode::encoder::{matrix_util, ByteMatrix};
+use rxing::common::cpp_essentials::ByteMatrix;
+use rxing::qrcode::encoder::matrix_util;
+use rxing::aztec::AztecReader;
+use rxing::datamatrix::DataMatrixReader;
+use rxing::oned::MultiFormatOneDReader;
+use rxing::pdf417::PDF417Reader;
+use rxing::qrcode::cpp_port::QrReader;
 use rxing::{
     BarcodeFormat, Binarizer, BinaryBitmap, DecodeHints, Luma8LuminanceSource, LuminanceSource,
-    MultiFormatReader, MultiFormatWriter, Reader, Writer,
+    MultiFormatWriter, Reader, Writer,
 };
 
 /// JNI entry point: `com.caravanfire.calmqr.rust.RustBridge.decodeBarcode`
@@ -426,9 +461,10 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_decodeBarcode
         format_filter,
         try_inverted != 0,
         lite != 0,
+        false,
     );
 
-    let Some((rxing_result, qr_grid, variant)) = rxing_result else {
+    let Some((rxing_result, qr_grid, variant, _inverted, _orientation)) = rxing_result else {
         return JObject::null();
     };
 
@@ -505,11 +541,34 @@ pub(crate) fn decode_luma(
     format_filter: jint,
     try_inverted: bool,
     lite: bool,
-) -> Option<(rxing::RXingResult, Option<String>, usize)> {
+    invert_first: bool,
+) -> Option<(rxing::RXingResult, Option<String>, usize, bool, u8)> {
     // Third tuple element: the winning variant's priority (0 full, 1 downscaled,
     // 2 rotated, 3 rotated+downscaled) so the caller can map result points
-    // back into full-frame coordinates.
-    let source = Luma8LuminanceSource::new(luma, width, height);
+    // back into full-frame coordinates. Fourth: the symbol's physical polarity
+    // (true = white-on-dark); its exact grid, when present, carries the same
+    // fact as an "inv:" prefix so renderers keep the scanned look. Fifth: the
+    // symbol's presentation orientation in the (unrotated) input frame — see
+    // [`orientation_code`]; the caller composes the camera rotation onto it.
+    //
+    // `invert_first`: the cheap detector sighted this code on the flipped
+    // pass — pre-flip the luma so the inverted symbol decodes on the FIRST
+    // reader pass. AlsoInverted still covers a wrong polarity guess.
+    let luma: Vec<u8> = if invert_first {
+        luma.into_iter().map(|p| 255 - p).collect()
+    } else {
+        luma
+    };
+    let source = Luma8LuminanceSource::new(luma, width, height).ok()?;
+    let finish = |(r, g, inv, o): (rxing::RXingResult, Option<String>, bool, u8), prio: usize| {
+        let inverted = invert_first ^ inv;
+        let g = g.map(|g| if inverted { format!("inv:{g}") } else { g });
+        // The rotated variants decode a 90° counter-clockwise-turned copy of
+        // the frame; a symbol's appearance there is one clockwise quarter
+        // turn away from its appearance in the frame itself.
+        let o = if prio >= 2 { rotate_orientation(o, 1) } else { o };
+        (r, g, prio, inverted, o)
+    };
 
     let source = if crop_width > 0 && crop_height > 0 {
         let cl = crop_left.max(0) as usize;
@@ -555,12 +614,36 @@ pub(crate) fn decode_luma(
                 BarcodeFormat::TELEPEN,
             ]))
         }
-        _ => {}
+        // Unfiltered frames: EXACTLY the formats this app supports — an
+        // explicit list keeps every reader (and the cpp QR pipeline's
+        // qr/mqr/rmqr gating) from spending time on formats the app cannot
+        // save. rMQR stays out; Micro QR is in (tiny labels are a real
+        // Kompakt use case).
+        _ => {
+            hints.PossibleFormats = Some(HashSet::from([
+                BarcodeFormat::QR_CODE,
+                BarcodeFormat::MICRO_QR_CODE,
+                BarcodeFormat::DATA_MATRIX,
+                BarcodeFormat::AZTEC,
+                BarcodeFormat::PDF_417,
+                BarcodeFormat::CODE_128,
+                BarcodeFormat::CODE_39,
+                BarcodeFormat::CODE_93,
+                BarcodeFormat::EAN_13,
+                BarcodeFormat::EAN_8,
+                BarcodeFormat::UPC_A,
+                BarcodeFormat::UPC_E,
+                BarcodeFormat::ITF,
+                BarcodeFormat::CODABAR,
+                BarcodeFormat::TELEPEN,
+            ]))
+        }
     }
 
     // Fast path: no retries → consume the source on a single attempt, no clone.
     if !try_rotate && !can_downscale {
-        return decode_with_binarizer(source, binarizer, &hints).map(|(r, g)| (r, g, 0));
+        return decode_with_binarizer(source, binarizer, &hints, format_filter)
+            .map(|t| finish(t, 0));
     }
 
     // Multi-attempt path: priority join.
@@ -623,12 +706,14 @@ pub(crate) fn decode_luma(
         planned.push(0);
     } else if chunks.is_empty() {
         // lite with no viable downscale variants — decode the source directly.
-        return decode_with_binarizer(source, binarizer, &hints).map(|(r, g)| (r, g, 0));
+        return decode_with_binarizer(source, binarizer, &hints, format_filter)
+            .map(|t| finish(t, 0));
     }
 
     if planned.len() == 1 {
         let (prio, only) = chunks.pop().unwrap().pop().unwrap();
-        return decode_with_binarizer(only, binarizer, &hints).map(|(r, g)| (r, g, prio));
+        return decode_with_binarizer(only, binarizer, &hints, format_filter)
+            .map(|t| finish(t, prio));
     }
 
     let (tx, rx) = mpsc::channel();
@@ -637,7 +722,7 @@ pub(crate) fn decode_luma(
         let hints = hints.clone();
         thread::spawn(move || {
             for (priority, variant) in chunk {
-                let result = decode_with_binarizer(variant, binarizer, &hints);
+                let result = decode_with_binarizer(variant, binarizer, &hints, format_filter);
                 if tx.send((priority, result)).is_err() {
                     // Receiver returned early (a decisive hit); stop working.
                     return;
@@ -650,7 +735,7 @@ pub(crate) fn decode_luma(
     // States per planned priority: None = pending, Some(None) = miss,
     // Some(Some(hit)) = hit awaiting its turn.
     let max_priority = *planned.iter().max().unwrap();
-    let mut states: Vec<Option<Option<(rxing::RXingResult, Option<String>)>>> =
+    let mut states: Vec<Option<Option<(rxing::RXingResult, Option<String>, bool, u8)>>> =
         (0..=max_priority).map(|_| None).collect();
     for p in 0..=max_priority {
         if !planned.contains(&p) {
@@ -661,7 +746,7 @@ pub(crate) fn decode_luma(
     while let Ok((priority, result)) = rx.recv() {
         if let Some(hit) = &result {
             if *hit.0.getBarcodeFormat() != BarcodeFormat::QR_CODE {
-                return result.map(|(r, g)| (r, g, priority)); // no grid semantics → first hit wins
+                return result.map(|t| finish(t, priority)); // no grid semantics → first hit wins
             }
         }
         states[priority] = Some(result);
@@ -673,7 +758,7 @@ pub(crate) fn decode_luma(
                 None => break,
                 Some(None) => continue,
                 Some(Some(_)) => {
-                    return states[p].take().unwrap().map(|(r, g)| (r, g, p));
+                    return states[p].take().unwrap().map(|t| finish(t, p));
                 }
             }
         }
@@ -707,41 +792,100 @@ fn downscale_2x(source: &Luma8LuminanceSource) -> Option<Luma8LuminanceSource> {
             new_buf.push(avg as u8);
         }
     }
-    Some(Luma8LuminanceSource::new(
-        new_buf,
-        new_w as u32,
-        new_h as u32,
-    ))
+    Luma8LuminanceSource::new(new_buf, new_w as u32, new_h as u32).ok()
 }
 
 fn decode_with_binarizer(
     source: Luma8LuminanceSource,
     binarizer: jint,
     hints: &DecodeHints,
-) -> Option<(rxing::RXingResult, Option<String>)> {
+    format_filter: jint,
+) -> Option<(rxing::RXingResult, Option<String>, bool, u8)> {
     if binarizer == 1 {
-        decode_bitmap(BinaryBitmap::new(GlobalHistogramBinarizer::new(source)), hints)
+        decode_bitmap(
+            BinaryBitmap::new(GlobalHistogramBinarizer::new(source)),
+            hints,
+            format_filter,
+        )
     } else {
-        decode_bitmap(BinaryBitmap::new(HybridBinarizer::new(source)), hints)
+        decode_bitmap(
+            BinaryBitmap::new(HybridBinarizer::new(source)),
+            hints,
+            format_filter,
+        )
     }
 }
 
-/// Decode one binarized frame. For QR hits, also extract the exact module grid
-/// of the scanned symbol (see [`qr_exact_grid`]) so the app can re-render a
-/// pixel-identical copy instead of re-encoding (which may pick a different
-/// mask/segmentation and change the visual pattern).
+/// Decode one binarized frame: the normal polarity first, then (when
+/// `AlsoInverted`) the flipped matrix. Runs exactly this app's readers
+/// directly — MultiFormatReader on every miss also paid the redundant
+/// java-port QR reader, MaxiCode, DXFilmEdge, and Micro-QR/rMQR sweeps, all
+/// twice with AlsoInverted (measured 1.7-3.2s per miss on the Kompakt).
+///
+/// For QR hits, also extracts the exact module grid of the scanned symbol
+/// (see [`qr_exact_grid`]) so the app can re-render a pixel-identical copy
+/// instead of re-encoding (which may pick a different mask/segmentation and
+/// change the visual pattern). The returned bool is the polarity that
+/// decoded: true = the symbol was white-on-dark in this luma. The u8 is the
+/// symbol's presentation orientation in this luma (see [`orientation_code`]),
+/// 0 when no grid was reconstructed.
 fn decode_bitmap<B: Binarizer>(
     mut bb: BinaryBitmap<B>,
     hints: &DecodeHints,
-) -> Option<(rxing::RXingResult, Option<String>)> {
-    let mut reader = MultiFormatReader::default();
-    let result = reader.decode_with_hints(&mut bb, hints).ok()?;
-    let grid = if *result.getBarcodeFormat() == BarcodeFormat::QR_CODE {
-        qr_exact_grid(bb.get_black_matrix(), hints)
-    } else {
-        None
-    };
-    Some((result, grid))
+    format_filter: jint,
+) -> Option<(rxing::RXingResult, Option<String>, bool, u8)> {
+    let also_inverted = matches!(hints.AlsoInverted, Some(true));
+    let mut inverted = false;
+    loop {
+        if let Some(result) = decode_readers(&mut bb, hints, format_filter) {
+            let (grid, orientation) = if *result.getBarcodeFormat() == BarcodeFormat::QR_CODE {
+                match qr_exact_grid(bb.get_black_matrix(), hints) {
+                    Some((g, o)) => (Some(g), o),
+                    None => (None, 0),
+                }
+            } else {
+                (None, 0)
+            };
+            return Some((result, grid, inverted, orientation));
+        }
+        if inverted || !also_inverted {
+            return None;
+        }
+        bb.get_black_matrix_mut().flip_self();
+        inverted = true;
+    }
+}
+
+/// The app's reader battery, priority-ordered: QR via the zxing-cpp-ported
+/// pipeline (the reader that wins in practice), the 1D family, then the
+/// remaining 2D formats.
+fn decode_readers<B: Binarizer>(
+    bb: &mut BinaryBitmap<B>,
+    hints: &DecodeHints,
+    format_filter: jint,
+) -> Option<rxing::RXingResult> {
+    if format_filter != 2 {
+        if let Ok(r) = QrReader.decode_with_hints(bb, hints) {
+            return Some(r);
+        }
+    }
+    if format_filter != 1 {
+        if let Ok(r) = MultiFormatOneDReader::new(hints).decode_with_hints(bb, hints) {
+            return Some(r);
+        }
+    }
+    if format_filter == 0 {
+        if let Ok(r) = DataMatrixReader.decode_with_hints(bb, hints) {
+            return Some(r);
+        }
+        if let Ok(r) = AztecReader.decode_with_hints(bb, hints) {
+            return Some(r);
+        }
+        if let Ok(r) = PDF417Reader.decode_with_hints(bb, hints) {
+            return Some(r);
+        }
+    }
+    None
 }
 
 /// Reconstruct the exact module grid of a scanned QR symbol, serialized as
@@ -754,9 +898,42 @@ fn decode_bitmap<B: Binarizer>(
 /// encoder's segmentation choices, which a plain re-encode cannot reproduce —
 /// minus any scanning damage. Returns None on any failure (caller falls back
 /// to regular re-encoding).
-// ponytail: mirrored symbols fall out at readVersion/RS and fall back to re-encode;
-// transpose the sampled grid first if that ever matters.
-fn qr_exact_grid(image: &BitMatrix, hints: &DecodeHints) -> Option<String> {
+/// Presentation orientation of a sampled symbol within its luma frame, as a
+/// D4 code `k = mirror*4 + rot/90` meaning: the symbol appears as
+/// `rotate_cw(rot)(flip_left_right_if(mirror)(canonical))`. `ex`/`ey` are the
+/// sample grid's x/y axis directions in image coordinates (finder centers
+/// tl→tr and tl→bl); `mirrored` says the parse needed the mirrored retry, i.e.
+/// the sampled grid was the canonical's transpose, so the canonical axes are
+/// the swapped pair. Angles snap to the nearest quarter turn.
+pub(crate) fn orientation_code(ex: (f32, f32), ey: (f32, f32), mirrored: bool) -> u8 {
+    let (ex, ey) = if mirrored { (ey, ex) } else { (ex, ey) };
+    let quant = |(dx, dy): (f32, f32)| -> (i32, i32) {
+        if dx.abs() > dy.abs() {
+            (if dx >= 0.0 { 1 } else { -1 }, 0)
+        } else {
+            (0, if dy >= 0.0 { 1 } else { -1 })
+        }
+    };
+    let (qx, qy) = (quant(ex), quant(ey));
+    let mirror = qx.0 * qy.1 - qx.1 * qy.0 < 0;
+    // Where the canonical y axis points after the presentation rotation:
+    // down → 0°, left → 90°, up → 180°, right → 270°.
+    let rot = match qy {
+        (0, 1) => 0,
+        (-1, 0) => 1,
+        (0, -1) => 2,
+        (1, 0) => 3,
+        _ => 0,
+    };
+    (if mirror { 4 } else { 0 }) + rot
+}
+
+/// Compose extra clockwise quarter turns onto an orientation code.
+pub(crate) fn rotate_orientation(code: u8, quarter_turns_cw: i32) -> u8 {
+    (code & 4) | ((code as i32 % 4 + quarter_turns_cw).rem_euclid(4) as u8)
+}
+
+fn qr_exact_grid(image: &BitMatrix, hints: &DecodeHints) -> Option<(String, u8)> {
     match qr_exact_grid_stages(image, hints) {
         Ok(grid) => Some(grid),
         Err(stage) => {
@@ -770,13 +947,85 @@ fn qr_exact_grid(image: &BitMatrix, hints: &DecodeHints) -> Option<String> {
 
 /// The fallible pipeline behind [`qr_exact_grid`], with each exit labeled so
 /// logcat shows WHERE extraction failed instead of just that it did.
-fn qr_exact_grid_stages(image: &BitMatrix, hints: &DecodeHints) -> Result<String, &'static str> {
-    let detected = Detector::new(image)
-        .detect_with_hints(hints)
-        .map_err(|_| "detect")?;
-    let bits = detected.getBits();
+///
+/// Detection mirrors the decode path that actually wins: MultiFormatReader
+/// tries the zxing-cpp-ported QR pipeline FIRST, and its detector cleanly
+/// samples symbols the older java-port `Detector` mis-samples. Measured on
+/// device (2026-08-21): re-detecting with the java Detector RS-failed 98% of
+/// grids (1049/1065, only 6/430 hits kept their grid) on frames the cpp
+/// reader was decoding fine. So: cpp finder-pattern sets first, java
+/// Detector kept as a coverage fallback.
+fn qr_exact_grid_stages(
+    image: &BitMatrix,
+    hints: &DecodeHints,
+) -> Result<(String, u8), &'static str> {
+    let mut stage: &'static str = "detect";
+    let mut fps = FindFinderPatterns(image, true, 1);
+    for set in GenerateFinderPatternSets(&mut fps) {
+        let Ok(det) = SampleQR(image, &set) else {
+            continue;
+        };
+        match grid_from_bits(det.getBits()) {
+            Ok((g, mirrored)) => {
+                let (tl, tr, bl) = (set.tl.p, set.tr.p, set.bl.p);
+                let o = orientation_code(
+                    (tr.x - tl.x, tr.y - tl.y),
+                    (bl.x - tl.x, bl.y - tl.y),
+                    mirrored,
+                );
+                return Ok((g, o));
+            }
+            Err(s) => stage = s,
+        }
+    }
+    if let Ok(det) = Detector::new(image).detect_with_hints(hints) {
+        match grid_from_bits(det.getBits()) {
+            Ok((g, mirrored)) => {
+                // Java-port detector points are [bottom_left, top_left, top_right, ..].
+                let pts: &[Point] = det.getPoints();
+                let o = if pts.len() >= 3 {
+                    let (bl, tl, tr) = (pts[0], pts[1], pts[2]);
+                    orientation_code(
+                        (tr.x - tl.x, tr.y - tl.y),
+                        (bl.x - tl.x, bl.y - tl.y),
+                        mirrored,
+                    )
+                } else {
+                    0
+                };
+                return Ok((g, o));
+            }
+            Err(s) => stage = s,
+        }
+    }
+    Err(stage)
+}
 
+/// RS-repair + canonical rebuild from one detector's sampled bits, with the
+/// main decoder's mirrored-symbol retry (remask → mirrored version/format →
+/// transpose → reparse) so through-glass scans keep their exact grid too.
+/// The bool reports whether the mirrored retry is what succeeded.
+fn grid_from_bits(bits: &BitMatrix) -> Result<(String, bool), &'static str> {
     let mut parser = BitMatrixParser::new(bits.clone()).map_err(|_| "parser-init")?;
+    match grid_parse(&mut parser) {
+        Ok(g) => Ok((g, false)),
+        Err(stage) => {
+            if parser.remask().is_err() {
+                return Err(stage);
+            }
+            parser.setMirror(true);
+            if parser.readVersion().is_err() || parser.readFormatInformation().is_err() {
+                return Err(stage);
+            }
+            parser.mirror();
+            // On failure report the ORIGINAL stage — the mirror retry losing
+            // is the expected outcome for a non-mirrored symbol.
+            grid_parse(&mut parser).map(|g| (g, true)).map_err(|_| stage)
+        }
+    }
+}
+
+fn grid_parse(parser: &mut BitMatrixParser) -> Result<String, &'static str> {
     // Read format info before readCodewords, which unmasks the matrix in place
     let format_info = parser.readFormatInformation().map_err(|_| "format-info")?;
     let ec = format_info.getErrorCorrectionLevel();
@@ -862,6 +1111,7 @@ pub(crate) fn format_to_string(fmt: BarcodeFormat) -> String {
         BarcodeFormat::AZTEC => "AZTEC".to_string(),
         BarcodeFormat::DATA_MATRIX => "DATA_MATRIX".to_string(),
         BarcodeFormat::TELEPEN => "TELEPEN".to_string(),
+        BarcodeFormat::MICRO_QR_CODE => "MICRO_QR_CODE".to_string(),
         other => format!("{}", other),
     }
 }
@@ -984,3 +1234,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_generateBarco
         Err(_) => JByteArray::from(JObject::null()),
     }
 }
+
+
+
+

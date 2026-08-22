@@ -103,7 +103,8 @@ object RustBridge {
         cropWidth: Int,
         cropHeight: Int,
         exactMatch: Boolean,
-        manualTap: Boolean
+        manualTap: Boolean,
+        rotationDegrees: Int
     ): EngineOutput?
 
     /** Generate a barcode/QR code image from content. Returns raw pixel data or null on failure. */
