@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Aktiver søkerbeskjæring</string>
     <string name="disable_viewfinder">Deaktiver søkerbeskjæring</string>
     <string name="initializing_camera">Initialiserer kamera</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Skann bilde</string>
+    <string name="upload_image">Skann bilde</string>
+    <string name="back_to_camera">Tilbake til kameraet</string>
+    <string name="no_code_detected">Ingen kode funnet</string>
+    <string name="dismiss">Lukk</string>
+    <string name="photo_permission_required">Bildetilgang er nødvendig for å skanne koder fra bilder.</string>
+    <string name="open_settings">Åpne innstillinger</string>
+    <string name="no_images_found">Ingen bilder funnet</string>
+    <string name="loading_image">Laster inn bilde</string>
+    <string name="scanning_image">Skanner bilde</string>
+    <string name="image_thumbnail">Bilde</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Kontroller at strekkodmønsteret stemmer, ellers skann på nytt</string>

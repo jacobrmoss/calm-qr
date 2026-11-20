@@ -11,3 +11,6 @@
 -keep class com.caravanfire.calmqr.rust.EngineOutput {
     <init>(com.caravanfire.calmqr.rust.DecodeResult, float, float);
 }
+-keep class com.caravanfire.calmqr.rust.ImageScanResult {
+    <init>(int, com.caravanfire.calmqr.rust.DecodeResult);
+}

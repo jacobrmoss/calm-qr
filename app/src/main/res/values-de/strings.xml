@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Sucher-Zuschnitt aktivieren</string>
     <string name="disable_viewfinder">Sucher-Zuschnitt deaktivieren</string>
     <string name="initializing_camera">Kamera wird initialisiert</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Bild scannen</string>
+    <string name="upload_image">Bild scannen</string>
+    <string name="back_to_camera">Zurück zur Kamera</string>
+    <string name="no_code_detected">Kein Code erkannt</string>
+    <string name="dismiss">Schließen</string>
+    <string name="photo_permission_required">Fotozugriff ist zum Scannen von Codes aus Bildern erforderlich.</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+    <string name="no_images_found">Keine Bilder gefunden</string>
+    <string name="loading_image">Bild wird geladen</string>
+    <string name="scanning_image">Bild wird gescannt</string>
+    <string name="image_thumbnail">Bild</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Bitte überprüfen Sie, ob das Barcode-Muster übereinstimmt, andernfalls erneut scannen</string>

@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">تفعيل إطار الاقتصاص</string>
     <string name="disable_viewfinder">تعطيل إطار الاقتصاص</string>
     <string name="initializing_camera">جارٍ تهيئة الكاميرا</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">مسح من صورة</string>
+    <string name="upload_image">مسح من صورة</string>
+    <string name="back_to_camera">العودة إلى الكاميرا</string>
+    <string name="no_code_detected">لم يتم اكتشاف أي رمز</string>
+    <string name="dismiss">إغلاق</string>
+    <string name="photo_permission_required">إذن الوصول إلى الصور مطلوب لمسح الرموز منها.</string>
+    <string name="open_settings">فتح الإعدادات</string>
+    <string name="no_images_found">لم يتم العثور على صور</string>
+    <string name="loading_image">جارٍ تحميل الصورة</string>
+    <string name="scanning_image">جارٍ مسح الصورة ضوئيًا</string>
+    <string name="image_thumbnail">صورة</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">يرجى التحقق من تطابق نمط الباركود، وإلا أعد المسح</string>

@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">뷰파인더 자르기 활성화</string>
     <string name="disable_viewfinder">뷰파인더 자르기 비활성화</string>
     <string name="initializing_camera">카메라 초기화 중</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">이미지 스캔</string>
+    <string name="upload_image">이미지 스캔</string>
+    <string name="back_to_camera">카메라로 돌아가기</string>
+    <string name="no_code_detected">코드가 감지되지 않았습니다</string>
+    <string name="dismiss">닫기</string>
+    <string name="photo_permission_required">이미지에서 코드를 스캔하려면 사진 접근 권한이 필요합니다.</string>
+    <string name="open_settings">설정 열기</string>
+    <string name="no_images_found">이미지가 없습니다</string>
+    <string name="loading_image">이미지 불러오는 중</string>
+    <string name="scanning_image">이미지 스캔 중</string>
+    <string name="image_thumbnail">이미지</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">바코드 패턴이 일치하는지 확인하세요. 그렇지 않으면 다시 스캔하세요</string>

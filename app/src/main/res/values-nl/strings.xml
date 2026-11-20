@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Zoekeruitsnede inschakelen</string>
     <string name="disable_viewfinder">Zoekeruitsnede uitschakelen</string>
     <string name="initializing_camera">Camera initialiseren</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Foto scannen</string>
+    <string name="upload_image">Foto scannen</string>
+    <string name="back_to_camera">Terug naar camera</string>
+    <string name="no_code_detected">Geen code gevonden</string>
+    <string name="dismiss">Sluiten</string>
+    <string name="photo_permission_required">Toegang tot foto\'s is vereist om er codes uit te scannen.</string>
+    <string name="open_settings">Instellingen openen</string>
+    <string name="no_images_found">Geen foto\'s gevonden</string>
+    <string name="loading_image">Foto wordt geladen</string>
+    <string name="scanning_image">Foto wordt gescand</string>
+    <string name="image_thumbnail">Foto</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Controleer of het streepjescodepatroon overeenkomt, anders opnieuw scannen</string>

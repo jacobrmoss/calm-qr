@@ -19,7 +19,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,12 +29,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CropFree
-import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.FlashlightOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -40,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -47,18 +54,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -69,16 +80,31 @@ import com.caravanfire.calmqr.rust.RustBridge
 import com.caravanfire.calmqr.ui.Dimens
 import com.mudita.mmd.components.buttons.ButtonMMD
 import com.mudita.mmd.components.progress_indicator.CircularProgressIndicatorMMD
+import com.mudita.mmd.components.snackbar.SnackbarDataMMD
+import com.mudita.mmd.components.snackbar.SnackbarDefaultsMMD
+import com.mudita.mmd.components.snackbar.SnackbarDurationMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostMMD
+import com.mudita.mmd.components.snackbar.SnackbarHostStateMMD
+import com.mudita.mmd.components.snackbar.SnackbarMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.Executors
 
+/**
+ * @param startInUpload open in Image Upload mode (Re-Scan after a scan that
+ *        came from a gallery image) instead of the camera.
+ * @param onCodeScanned a finished scan; `fromUpload` says which mode found it.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScannerScreen(
-    onCodeScanned: (content: String, format: String, qrGrid: String?) -> Unit,
+    startInUpload: Boolean = false,
+    onCodeScanned: (content: String, format: String, qrGrid: String?, fromUpload: Boolean) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -91,6 +117,9 @@ fun ScannerScreen(
     var flashlightOn by remember { mutableStateOf(false) }
     var viewfinderEnabled by rememberSaveable { mutableStateOf(false) }
     var exactMatchEnabled by rememberSaveable { mutableStateOf(false) }
+    // Image Upload: scan a photo from the gallery instead of the camera. The
+    // camera preview leaves composition (and unbinds) while this is on.
+    var uploadMode by rememberSaveable { mutableStateOf(startInUpload) }
     var camera by remember { mutableStateOf<Camera?>(null) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -99,35 +128,165 @@ fun ScannerScreen(
         hasCameraPermission = granted
     }
 
-    LaunchedEffect(Unit) {
-        if (!hasCameraPermission) {
+    LaunchedEffect(uploadMode) {
+        if (!uploadMode && !hasCameraPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
+    // "No code detected" after an Image Upload miss: the MMD snackbar with its
+    // dismiss (x) action, up for 15 s. SnackbarDurationMMD tops out at 10 s
+    // (Long), so it is shown Indefinite and the timeout cancels it.
+    val snackbarHostState = remember { SnackbarHostStateMMD() }
+    val snackbarScope = rememberCoroutineScope()
+    var snackbarJob by remember { mutableStateOf<Job?>(null) }
+    val noCodeMessage = stringResource(R.string.no_code_detected)
+
+    fun hideNoCode() {
+        snackbarJob?.cancel()
+        snackbarHostState.currentSnackbarData?.dismiss()
+    }
+
+    fun showNoCode() {
+        hideNoCode()
+        snackbarJob = snackbarScope.launch {
+            withTimeoutOrNull(NO_CODE_SNACKBAR_MILLIS) {
+                snackbarHostState.showSnackbar(
+                    message = noCodeMessage,
+                    withDismissAction = true,
+                    duration = SnackbarDurationMMD.Indefinite,
+                )
+            }
+        }
+    }
+
+    fun setUploadMode(on: Boolean) {
+        if (on) {
+            // The camera unbinds with its preview, which drops the torch.
+            flashlightOn = false
+            camera = null
+        } else {
+            hideNoCode()
+        }
+        uploadMode = on
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHostMMD(hostState = snackbarHostState) { data -> NoCodeSnackbar(data) }
+        },
         topBar = {
             Column {
             TopAppBarMMD(
                 showDivider = false,
                 title = {
-                    TextFieldMMD(
-                        value = stringResource(R.string.scanner_title),
-                        onValueChange = {},
-                        readOnly = true,
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
-                        colors = TextFieldDefaultsMMD.colors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset(x = Dimens.titleOffset)
+                    val titleText = stringResource(
+                        if (uploadMode) R.string.image_upload_title else R.string.scanner_title
                     )
+                    val titleStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+                    BoxWithConstraints(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        TextFieldMMD(
+                            value = titleText,
+                            onValueChange = {},
+                            readOnly = true,
+                            singleLine = true,
+                            textStyle = titleStyle,
+                            colors = TextFieldDefaultsMMD.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shiftStartKeepingEnd(Dimens.titleOffset)
+                        )
+                        // Three icon slots grouped close together at the end of the
+                        // title area, against the rule that sets off the mode
+                        // toggle (both in the actions slot; the toggle sits where
+                        // Home's "+" does). Camera mode: exact match, viewfinder,
+                        // flashlight. Image Upload: exact match alone, in the
+                        // flashlight's slot. 40dp buttons + 32dp icons, like every
+                        // other toolbar.
+                        fun slot(i: Int, nudge: Dp = 0.dp): Modifier {
+                            // Adjacent 40dp buttons, like Home's toolbar: 8dp between icons.
+                            val fromEnd = TOOLBAR_BUTTON * (3 - i)
+                            return Modifier
+                                .offset(x = (maxWidth - fromEnd).coerceAtLeast(0.dp) + nudge)
+                                .size(TOOLBAR_BUTTON)
+                        }
+                        run {
+                            IconButton(
+                                onClick = { exactMatchEnabled = !exactMatchEnabled },
+                                // In the flashlight's slot the ring is nudged so its
+                                // edge lands where the flashlight's does (see the
+                                // constant): same gap to the rule in both modes.
+                                modifier = if (uploadMode) slot(2, EQUALS_IN_FLASHLIGHT_SLOT_NUDGE)
+                                           else slot(0)
+                            ) {
+                                Icon(
+                                    painter = painterResource(
+                                        if (exactMatchEnabled) R.drawable.ic_equal_filled
+                                        else R.drawable.ic_equal_outlined
+                                    ),
+                                    contentDescription = if (exactMatchEnabled)
+                                        stringResource(R.string.disable_exact_match)
+                                    else
+                                        stringResource(R.string.enable_exact_match),
+                                    // Unspecified: the drawables are two-tone (knocked-out
+                                    // equals in the filled disc); tinting would flatten them
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                            // Viewfinder crop and torch only mean something to the camera.
+                            if (!uploadMode) {
+                                IconButton(
+                                    onClick = { viewfinderEnabled = !viewfinderEnabled },
+                                    modifier = slot(1)
+                                ) {
+                                    Icon(
+                                        imageVector = if (viewfinderEnabled)
+                                            Icons.Filled.CenterFocusStrong
+                                        else
+                                            Icons.Filled.CropFree,
+                                        contentDescription = if (viewfinderEnabled)
+                                            stringResource(R.string.disable_viewfinder)
+                                        else
+                                            stringResource(R.string.enable_viewfinder),
+                                        tint = if (viewfinderEnabled)
+                                            MaterialTheme.colorScheme.primary
+                                        else
+                                            LocalContentColor.current,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                                // Torch: outline glyph when off, solid when on
+                                // (fill is the state cue on e-ink).
+                                IconButton(
+                                    onClick = {
+                                        val newState = !flashlightOn
+                                        flashlightOn = newState
+                                        camera?.cameraControl?.enableTorch(newState)
+                                    },
+                                    modifier = slot(2)
+                                ) {
+                                    Icon(
+                                        imageVector = if (flashlightOn) Icons.Filled.FlashlightOn
+                                                      else Icons.Outlined.FlashlightOff,
+                                        contentDescription = if (flashlightOn) stringResource(R.string.disable_flashlight)
+                                                             else stringResource(R.string.enable_flashlight),
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 },
                 navigationIcon = {
                     Box(modifier = Modifier.padding(4.dp)) {
+                        // Back always leaves the Scanner, from either mode.
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -138,50 +297,27 @@ fun ScannerScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { exactMatchEnabled = !exactMatchEnabled }) {
-                        Icon(
+                    // A thin rule marks the toggle as different from the icons
+                    // beside it: it switches the whole screen's mode.
+                    Box(
+                        modifier = Modifier
+                            .padding(start = TOOLBAR_RULE_START_PADDING, end = TOOLBAR_RULE_END_PADDING)
+                            .size(width = TOOLBAR_RULE_WIDTH, height = TOOLBAR_RULE_HEIGHT)
+                            .background(Color.Black)
+                    )
+                    // Far right, pinned in the exact spot of Home's "+" and in its
+                    // look (black square, white lines): camera <-> Image Upload.
+                    IconButton(
+                        onClick = { setUploadMode(!uploadMode) },
+                        modifier = Modifier.size(TOOLBAR_BUTTON)
+                    ) {
+                        BlackSquareIcon(
                             painter = painterResource(
-                                if (exactMatchEnabled) R.drawable.ic_equal_filled
-                                else R.drawable.ic_equal_outlined
+                                if (uploadMode) R.drawable.ic_camera_glyph
+                                else R.drawable.ic_image_upload_glyph
                             ),
-                            contentDescription = if (exactMatchEnabled)
-                                stringResource(R.string.disable_exact_match)
-                            else
-                                stringResource(R.string.enable_exact_match),
-                            // Unspecified: the drawables are two-tone (knocked-out
-                            // equals in the filled disc); tinting would flatten them
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                    IconButton(onClick = { viewfinderEnabled = !viewfinderEnabled }) {
-                        Icon(
-                            imageVector = if (viewfinderEnabled)
-                                Icons.Filled.CenterFocusStrong
-                            else
-                                Icons.Filled.CropFree,
-                            contentDescription = if (viewfinderEnabled)
-                                stringResource(R.string.disable_viewfinder)
-                            else
-                                stringResource(R.string.enable_viewfinder),
-                            tint = if (viewfinderEnabled)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                LocalContentColor.current,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        val newState = !flashlightOn
-                        flashlightOn = newState
-                        camera?.cameraControl?.enableTorch(newState)
-                    }) {
-                        Icon(
-                            imageVector = if (flashlightOn) Icons.Filled.FlashlightOn
-                                          else Icons.Filled.FlashlightOff,
-                            contentDescription = if (flashlightOn) stringResource(R.string.disable_flashlight)
-                                                 else stringResource(R.string.enable_flashlight),
-                            modifier = Modifier.size(28.dp)
+                            contentDescription = if (uploadMode) stringResource(R.string.back_to_camera)
+                                                 else stringResource(R.string.upload_image)
                         )
                     }
                 }
@@ -195,11 +331,22 @@ fun ScannerScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (hasCameraPermission) {
+            if (uploadMode) {
+                ImageUploadPane(
+                    exactMatchEnabled = exactMatchEnabled,
+                    onCodeScanned = { content, format, qrGrid ->
+                        onCodeScanned(content, format, qrGrid, true)
+                    },
+                    onNoCodeDetected = { showNoCode() },
+                    onScanStarted = { hideNoCode() },
+                )
+            } else if (hasCameraPermission) {
                 CameraPreview(
                     viewfinderEnabled = viewfinderEnabled,
                     exactMatchEnabled = exactMatchEnabled,
-                    onCodeScanned = onCodeScanned,
+                    onCodeScanned = { content, format, qrGrid ->
+                        onCodeScanned(content, format, qrGrid, false)
+                    },
                     onCameraBound = { camera = it }
                 )
             } else {
@@ -220,6 +367,123 @@ fun ScannerScreen(
                 }
             }
         }
+    }
+}
+
+private const val NO_CODE_SNACKBAR_MILLIS = 15_000L
+
+/** Toolbar button size on every screen (Home, detail pages, Scanner). */
+private val TOOLBAR_BUTTON = 40.dp
+/**
+ * Padding around the rule, set so it sits optically centred with ~13dp (17px
+ * on the Kompakt) of clear space to each neighbouring glyph:
+ * - before it: the flashlight glyph's own ~3.2dp inset in its 32dp box + the
+ *   button's 4dp margin + TopAppBarMMD's 4dp title-slot end padding (Material
+ *   3's TopAppBarHorizontalPadding) + this 2.25dp;
+ * - after it: this 8.25dp + the toggle button's 4dp margin (the black square
+ *   fills its box, so it has no inset).
+ * Both are multiples of 0.75dp (whole pixels on the Kompakt) and sum to the
+ * same 10.5dp, so moving the rule never shifts the toggle or the title slot.
+ * Measured on-device 2026-11-19: Image Upload gaps 16px / 18px with 1.5 / 9dp,
+ * so the rule moved one pixel right to 17px / 17px.
+ */
+private val TOOLBAR_RULE_START_PADDING = 2.25.dp
+private val TOOLBAR_RULE_END_PADDING = 8.25.dp
+/** Rule height: a little shorter than the 32dp icons it separates. */
+private val TOOLBAR_RULE_HEIGHT = 28.dp
+/**
+ * The exact-match ring fills more of its 32dp box than the flashlight glyph
+ * (insets ~1.3dp vs ~3.2dp), so centred in the flashlight's slot its edge
+ * would sit ~1.9dp nearer the rule. In Image Upload it is nudged LEFT by that
+ * difference: its edge lands where the flashlight's is, same gap to the rule.
+ */
+private val EQUALS_IN_FLASHLIGHT_SLOT_NUDGE = (-1.9).dp
+/**
+ * The rule's thickness: one pixel lighter than the toolbar's 3dp bottom border
+ * (4px) — 2.25dp is exactly 3 whole pixels on the Kompakt, so it stays crisp.
+ */
+private val TOOLBAR_RULE_WIDTH = 2.25.dp
+
+/**
+ * A toolbar icon in the Home screen's "+" frame: a black 32dp square with 4dp
+ * corners and a white glyph.
+ */
+@Composable
+private fun BlackSquareIcon(painter: Painter, contentDescription: String?) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(Color.Black, RoundedCornerShape(4.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = contentDescription,
+            tint = Color.White,
+            modifier = Modifier.size(SQUARE_GLYPH_SIZE)
+        )
+    }
+}
+
+/**
+ * Size the white glyph is drawn at inside the black square. 30dp draws the
+ * 24-unit photo and camera glyphs 1.25x larger than a standard 24dp icon (the
+ * size Home's "+" uses), so each picture fills about two thirds of the square
+ * instead of half; their line weight grows with them.
+ */
+private val SQUARE_GLYPH_SIZE = 30.dp
+
+/**
+ * "No code detected": MMD's SnackbarMMD with an error icon leading the
+ * message, laid out like MMD's own demo — a white band across the bottom
+ * under the library's top line. The band is backed opaque: SnackbarMMD pads
+ * its panel with see-through gaps (invisible on MMD's blank demo screen)
+ * that let the photo grid show between its line and its text.
+ */
+@Composable
+private fun NoCodeSnackbar(data: SnackbarDataMMD) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SnackbarDefaultsMMD.color)
+    ) {
+        SnackbarMMD(
+            modifier = Modifier.padding(vertical = 8.dp),
+            dismissAction = {
+                IconButton(onClick = { data.dismiss() }) {
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.dismiss))
+                }
+            },
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.ErrorOutline,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(text = data.visuals.message)
+            }
+        }
+    }
+}
+
+/**
+ * Moves the start edge by [shift] (negative = left) while keeping the end
+ * edge where it was: the element is widened by the same amount. The title
+ * uses this instead of a plain offset, which dragged the read-only title
+ * field's end in too and clipped "Scanner" once four toolbar icons left it
+ * less room.
+ */
+private fun Modifier.shiftStartKeepingEnd(shift: Dp): Modifier = layout { measurable, constraints ->
+    val extra = (-shift).roundToPx().coerceAtLeast(0)
+    val widened = constraints.copy(
+        minWidth = constraints.minWidth + extra,
+        maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth + extra else constraints.maxWidth,
+    )
+    val placeable = measurable.measure(widened)
+    layout((placeable.width - extra).coerceAtLeast(0), placeable.height) {
+        placeable.placeRelative(-extra, 0)
     }
 }
 
@@ -275,6 +539,12 @@ private fun CameraPreview(
     DisposableEffect(Unit) {
         onDispose {
             executor.shutdown()
+            // Leaving composition without leaving the screen (switching to
+            // Image Upload) must release the camera: it is bound to the
+            // screen's lifecycle, which stays alive.
+            if (cameraProviderFuture.isDone) {
+                runCatching { cameraProviderFuture.get().unbindAll() }
+            }
         }
     }
 

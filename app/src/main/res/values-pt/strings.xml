@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Ativar recorte do visor</string>
     <string name="disable_viewfinder">Desativar recorte do visor</string>
     <string name="initializing_camera">Inicializando câmera</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Escanear imagem</string>
+    <string name="upload_image">Escanear imagem</string>
+    <string name="back_to_camera">Voltar para a câmera</string>
+    <string name="no_code_detected">Nenhum código detectado</string>
+    <string name="dismiss">Fechar</string>
+    <string name="photo_permission_required">É necessário acesso às fotos para escanear códigos em imagens.</string>
+    <string name="open_settings">Abrir configurações</string>
+    <string name="no_images_found">Nenhuma imagem encontrada</string>
+    <string name="loading_image">Carregando imagem</string>
+    <string name="scanning_image">Escaneando imagem</string>
+    <string name="image_thumbnail">Imagem</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verifique se o padrão do código de barras corresponde, caso contrário escaneie novamente</string>

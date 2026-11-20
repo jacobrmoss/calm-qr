@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash-screen icon (values-v31/themes.xml): the launcher artwork as an
+     adaptive icon so the splash draws it at adaptive-icon size. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/white" />
+    <foreground android:drawable="@drawable/ic_splash_foreground" />
+</adaptive-icon>

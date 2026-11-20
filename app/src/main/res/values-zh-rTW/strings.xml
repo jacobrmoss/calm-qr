@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">開啟取景框裁切</string>
     <string name="disable_viewfinder">關閉取景框裁切</string>
     <string name="initializing_camera">正在初始化相機</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">掃描圖片</string>
+    <string name="upload_image">掃描圖片</string>
+    <string name="back_to_camera">返回相機</string>
+    <string name="no_code_detected">未偵測到碼</string>
+    <string name="dismiss">關閉</string>
+    <string name="photo_permission_required">從圖片中掃描碼需要相片存取權限。</string>
+    <string name="open_settings">開啟設定</string>
+    <string name="no_images_found">找不到圖片</string>
+    <string name="loading_image">正在載入圖片</string>
+    <string name="scanning_image">正在掃描圖片</string>
+    <string name="image_thumbnail">圖片</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">請驗證條碼圖案是否相符，否則請重新掃描</string>

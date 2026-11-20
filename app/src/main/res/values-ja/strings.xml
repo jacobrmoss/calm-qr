@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">ファインダーの切り抜きを有効にする</string>
     <string name="disable_viewfinder">ファインダーの切り抜きを無効にする</string>
     <string name="initializing_camera">カメラを初期化中</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">画像をスキャン</string>
+    <string name="upload_image">画像をスキャン</string>
+    <string name="back_to_camera">カメラに戻る</string>
+    <string name="no_code_detected">コードが検出されませんでした</string>
+    <string name="dismiss">閉じる</string>
+    <string name="photo_permission_required">画像からコードをスキャンするには写真へのアクセス許可が必要です。</string>
+    <string name="open_settings">設定を開く</string>
+    <string name="no_images_found">画像が見つかりません</string>
+    <string name="loading_image">画像を読み込み中</string>
+    <string name="scanning_image">画像をスキャン中</string>
+    <string name="image_thumbnail">画像</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">バーコードのパターンが一致することを確認してください。一致しない場合は再スキャンしてください</string>

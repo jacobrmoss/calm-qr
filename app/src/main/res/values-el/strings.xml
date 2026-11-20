@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Ενεργοποίηση περικοπής σκοπεύτρου</string>
     <string name="disable_viewfinder">Απενεργοποίηση περικοπής σκοπεύτρου</string>
     <string name="initializing_camera">Εκκίνηση κάμερας</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Σάρωση εικόνας</string>
+    <string name="upload_image">Σάρωση εικόνας</string>
+    <string name="back_to_camera">Επιστροφή στην κάμερα</string>
+    <string name="no_code_detected">Δεν εντοπίστηκε κωδικός</string>
+    <string name="dismiss">Κλείσιμο</string>
+    <string name="photo_permission_required">Απαιτείται πρόσβαση στις φωτογραφίες για τη σάρωση κωδικών από εικόνες.</string>
+    <string name="open_settings">Άνοιγμα ρυθμίσεων</string>
+    <string name="no_images_found">Δεν βρέθηκαν εικόνες</string>
+    <string name="loading_image">Γίνεται φόρτωση εικόνας</string>
+    <string name="scanning_image">Γίνεται σάρωση εικόνας</string>
+    <string name="image_thumbnail">Εικόνα</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Επαληθεύστε ότι το μοτίβο του barcode ταιριάζει, διαφορετικά σαρώστε ξανά</string>

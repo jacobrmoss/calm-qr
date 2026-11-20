@@ -50,7 +50,7 @@ const ONE_D_FORMATS: [&str; 10] = [
     "TELEPEN",
 ];
 
-fn is_1d(format: &str) -> bool {
+pub(crate) fn is_1d(format: &str) -> bool {
     ONE_D_FORMATS.contains(&format)
 }
 

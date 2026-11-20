@@ -226,7 +226,7 @@ fun ScanDetailScreen(
                         }
                     }
                 )
-                HorizontalDivider(thickness = 4.dp)
+                HorizontalDivider(thickness = 3.dp)
             }
         }
     ) { innerPadding ->

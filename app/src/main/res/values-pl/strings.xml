@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Włącz kadrowanie celownika</string>
     <string name="disable_viewfinder">Wyłącz kadrowanie celownika</string>
     <string name="initializing_camera">Inicjalizacja aparatu</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Skanuj obraz</string>
+    <string name="upload_image">Skanuj obraz</string>
+    <string name="back_to_camera">Wróć do aparatu</string>
+    <string name="no_code_detected">Nie wykryto kodu</string>
+    <string name="dismiss">Zamknij</string>
+    <string name="photo_permission_required">Do skanowania kodów z obrazów wymagany jest dostęp do zdjęć.</string>
+    <string name="open_settings">Otwórz ustawienia</string>
+    <string name="no_images_found">Nie znaleziono obrazów</string>
+    <string name="loading_image">Wczytywanie obrazu</string>
+    <string name="scanning_image">Skanowanie obrazu</string>
+    <string name="image_thumbnail">Obraz</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Sprawdź, czy wzór kodu kreskowego się zgadza, w przeciwnym razie zeskanuj ponownie</string>

@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Activează decuparea vizorului</string>
     <string name="disable_viewfinder">Dezactivează decuparea vizorului</string>
     <string name="initializing_camera">Inițializare cameră</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Scanare imagine</string>
+    <string name="upload_image">Scanează o imagine</string>
+    <string name="back_to_camera">Înapoi la cameră</string>
+    <string name="no_code_detected">Niciun cod detectat</string>
+    <string name="dismiss">Închide</string>
+    <string name="photo_permission_required">Accesul la fotografii este necesar pentru a scana coduri din imagini.</string>
+    <string name="open_settings">Deschide setările</string>
+    <string name="no_images_found">Nu s-au găsit imagini</string>
+    <string name="loading_image">Se încarcă imaginea</string>
+    <string name="scanning_image">Se scanează imaginea</string>
+    <string name="image_thumbnail">Imagine</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verificați dacă modelul codului de bare se potrivește, altfel scanați din nou</string>

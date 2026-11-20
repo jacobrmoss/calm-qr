@@ -107,6 +107,40 @@ object RustBridge {
         rotationDegrees: Int
     ): EngineOutput?
 
+    /**
+     * Scan one gallery image at full strength (Image Upload). [data] is the
+     * encoded file; JPEG and PNG decode in Rust straight to grayscale, then
+     * every decode variant runs (resolution pyramid × both binarizers ×
+     * normal/inverted) under the camera engine's acceptance rules.
+     *
+     * @param rotationDegrees clockwise turn that shows the image upright
+     *        (MediaStore ORIENTATION); composed into the exact QR grid's
+     *        presentation orientation.
+     * @return FOUND with its result, NOT_FOUND, or UNSUPPORTED (decode it with
+     *         Android and call [scanImagePixels]). Null only if the JNI result
+     *         object could not be built. Blocks for the whole scan — call off
+     *         the main thread.
+     */
+    external fun scanImageFile(
+        data: ByteArray,
+        rotationDegrees: Int,
+        exactMatch: Boolean
+    ): ImageScanResult?
+
+    /**
+     * [scanImageFile] for an image Android decoded: RGBA_8888 pixels
+     * (`Bitmap.Config.ARGB_8888` memory order) in a DIRECT buffer that stays
+     * valid for the call. Returns the found code or null.
+     */
+    external fun scanImagePixels(
+        rgba: java.nio.ByteBuffer,
+        width: Int,
+        height: Int,
+        rowStride: Int,
+        rotationDegrees: Int,
+        exactMatch: Boolean
+    ): DecodeResult?
+
     /** Generate a barcode/QR code image from content. Returns raw pixel data or null on failure. */
     external fun generateBarcode(content: String, format: String, width: Int, height: Int): ByteArray?
 }

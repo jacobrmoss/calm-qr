@@ -1,7 +1,11 @@
 package com.caravanfire.calmqr.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -34,6 +38,11 @@ fun AppNavigation(
 ) {
     val scope = rememberCoroutineScope()
     val untitled = stringResource(R.string.untitled)
+    // Which Scanner mode the next Scanner entry opens in: the camera from
+    // Home; from Re-Scan, the mode that found the code being re-scanned.
+    // Kept here (not in the route): routes carry only row ids (Screen.kt).
+    var scannerStartsInUpload by rememberSaveable { mutableStateOf(false) }
+    var lastScanFromUpload by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -43,6 +52,7 @@ fun AppNavigation(
             HomeScreen(
                 savedCodeDao = savedCodeDao,
                 onScanClick = {
+                    scannerStartsInUpload = false
                     navController.navigate(Screen.Scanner.route)
                 },
                 onCodeClick = { codeId ->
@@ -53,7 +63,9 @@ fun AppNavigation(
 
         composable(Screen.Scanner.route) {
             ScannerScreen(
-                onCodeScanned = { content, format, qrGrid ->
+                startInUpload = scannerStartsInUpload,
+                onCodeScanned = { content, format, qrGrid, fromUpload ->
+                    lastScanFromUpload = fromUpload
                     // Insert first, then navigate by row id. Scanned content never
                     // rides in a route (see Screen.kt).
                     scope.launch {
@@ -93,6 +105,7 @@ fun AppNavigation(
                     navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
                 onRescan = {
+                    scannerStartsInUpload = lastScanFromUpload
                     navController.navigate(Screen.Scanner.route) {
                         popUpTo(Screen.ScanDetail.route) { inclusive = true }
                     }

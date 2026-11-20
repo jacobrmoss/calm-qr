@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Включить обрезку видоискателя</string>
     <string name="disable_viewfinder">Отключить обрезку видоискателя</string>
     <string name="initializing_camera">Инициализация камеры</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Сканировать фото</string>
+    <string name="upload_image">Сканировать фото</string>
+    <string name="back_to_camera">Вернуться к камере</string>
+    <string name="no_code_detected">Код не обнаружен</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="photo_permission_required">Для сканирования кодов на изображениях требуется доступ к фото.</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="no_images_found">Изображения не найдены</string>
+    <string name="loading_image">Загрузка изображения</string>
+    <string name="scanning_image">Сканирование изображения</string>
+    <string name="image_thumbnail">Изображение</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Пожалуйста, убедитесь, что рисунок штрих-кода совпадает, иначе отсканируйте повторно</string>

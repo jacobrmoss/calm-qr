@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">व्यूफ़ाइंडर क्रॉप चालू करें</string>
     <string name="disable_viewfinder">व्यूफ़ाइंडर क्रॉप बंद करें</string>
     <string name="initializing_camera">कैमरा प्रारंभ हो रहा है</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">इमेज स्कैन</string>
+    <string name="upload_image">इमेज स्कैन करें</string>
+    <string name="back_to_camera">कैमरा पर वापस जाएं</string>
+    <string name="no_code_detected">कोई कोड नहीं मिला</string>
+    <string name="dismiss">बंद करें</string>
+    <string name="photo_permission_required">इमेज से कोड स्कैन करने के लिए फ़ोटो की अनुमति आवश्यक है।</string>
+    <string name="open_settings">सेटिंग खोलें</string>
+    <string name="no_images_found">कोई इमेज नहीं मिली</string>
+    <string name="loading_image">इमेज लोड हो रही है</string>
+    <string name="scanning_image">इमेज स्कैन हो रही है</string>
+    <string name="image_thumbnail">इमेज</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">कृपया सत्यापित करें कि बारकोड पैटर्न मेल खाता है, अन्यथा पुनः स्कैन करें</string>

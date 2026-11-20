@@ -1,0 +1,28 @@
+<!-- Scanner toolbar: back to the camera from Image Upload (same slot as
+     ic_image_upload_glyph). Drawn white on the black 32dp square, like the
+     Home screen's "+"; the group scales the picture to fill the 24-unit
+     viewport, which BlackSquareIcon then draws at 30dp (SQUARE_GLYPH_SIZE). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:pivotX="12"
+        android:pivotY="12.25"
+        android:scaleX="1.3"
+        android:scaleY="1.3"
+        android:translateY="-0.25">
+        <!-- Camera body with its top bump -->
+        <path
+            android:pathData="M7.75,9.25H9.5L10.5,7.75H13.5L14.5,9.25H16.25A1.25,1.25 0,0 1,17.5 10.5V15.5A1.25,1.25 0,0 1,16.25 16.75H7.75A1.25,1.25 0,0 1,6.5 15.5V10.5A1.25,1.25 0,0 1,7.75 9.25Z"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeLineJoin="round" />
+        <!-- Lens -->
+        <path
+            android:pathData="M12,13m-2.1,0a2.1,2.1 0 1,1 4.2,0a2.1,2.1 0 1,1 -4.2,0"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.5" />
+    </group>
+</vector>

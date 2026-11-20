@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Keresőkivágás bekapcsolása</string>
     <string name="disable_viewfinder">Keresőkivágás kikapcsolása</string>
     <string name="initializing_camera">Kamera inicializálása</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Kép beolvasása</string>
+    <string name="upload_image">Kép beolvasása</string>
+    <string name="back_to_camera">Vissza a kamerához</string>
+    <string name="no_code_detected">Nem található kód</string>
+    <string name="dismiss">Bezárás</string>
+    <string name="photo_permission_required">A képeken lévő kódok beolvasásához hozzáférés szükséges a fotókhoz.</string>
+    <string name="open_settings">Beállítások megnyitása</string>
+    <string name="no_images_found">Nem találhatók képek</string>
+    <string name="loading_image">Kép betöltése folyamatban</string>
+    <string name="scanning_image">Kép beolvasása folyamatban</string>
+    <string name="image_thumbnail">Kép</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Ellenőrizze, hogy a vonalkód mintája egyezik, különben olvassa be újra</string>

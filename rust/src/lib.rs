@@ -6,6 +6,7 @@ use std::sync::mpsc;
 use std::thread;
 
 mod engine;
+mod still;
 
 /// Minimal logcat writer (no logging-crate dependency) for the scan
 /// telemetry (ScanPerf / GridExtract). OFF in shipped builds: it only writes
@@ -591,6 +592,23 @@ pub(crate) fn decode_luma(
     let source_h = source.get_height() as u32;
     let can_downscale = source_w >= 480 && source_h >= 480;
 
+    let hints = app_hints(format_filter, try_inverted);
+
+    // Fast path: no retries → consume the source on a single attempt, no clone.
+    if !try_rotate && !can_downscale {
+        return decode_with_binarizer(source, binarizer, &hints, format_filter)
+            .map(|t| finish(t, 0));
+    }
+
+    decode_luma_variants(source, binarizer, &hints, format_filter, try_rotate, lite, can_downscale)
+        .map(|(t, prio)| finish(t, prio))
+}
+
+/// The reader hints every decode in the app uses: TryHarder always, the
+/// inverted (white-on-dark) pass on request, and an explicit PossibleFormats
+/// list per `format_filter` (0 = every format the app supports, 1 = QR only,
+/// 2 = the 1D family).
+pub(crate) fn app_hints(format_filter: jint, try_inverted: bool) -> DecodeHints {
     let mut hints = DecodeHints::default();
     hints.TryHarder = Some(true);
     hints.AlsoInverted = Some(try_inverted);
@@ -639,13 +657,24 @@ pub(crate) fn decode_luma(
             ]))
         }
     }
+    hints
+}
 
-    // Fast path: no retries → consume the source on a single attempt, no clone.
-    if !try_rotate && !can_downscale {
-        return decode_with_binarizer(source, binarizer, &hints, format_filter)
-            .map(|t| finish(t, 0));
-    }
+/// One decode hit: (result, exact QR grid without polarity prefix, decoded
+/// on the inverted pass, presentation orientation in the decoded luma).
+pub(crate) type DecodeHit = (rxing::RXingResult, Option<String>, bool, u8);
 
+/// [`decode_luma`]'s multi-attempt path. Returns the winning hit and its
+/// variant priority (0 full, 1 downscaled, 2 rotated, 3 rotated+downscaled).
+fn decode_luma_variants(
+    source: Luma8LuminanceSource,
+    binarizer: jint,
+    hints: &DecodeHints,
+    format_filter: jint,
+    try_rotate: bool,
+    lite: bool,
+    can_downscale: bool,
+) -> Option<(DecodeHit, usize)> {
     // Multi-attempt path: priority join.
     //
     // Priority mirrors the old sequential order: original(0) → downscaled(1) →
@@ -706,14 +735,12 @@ pub(crate) fn decode_luma(
         planned.push(0);
     } else if chunks.is_empty() {
         // lite with no viable downscale variants — decode the source directly.
-        return decode_with_binarizer(source, binarizer, &hints, format_filter)
-            .map(|t| finish(t, 0));
+        return decode_with_binarizer(source, binarizer, hints, format_filter).map(|t| (t, 0));
     }
 
     if planned.len() == 1 {
         let (prio, only) = chunks.pop().unwrap().pop().unwrap();
-        return decode_with_binarizer(only, binarizer, &hints, format_filter)
-            .map(|t| finish(t, prio));
+        return decode_with_binarizer(only, binarizer, hints, format_filter).map(|t| (t, prio));
     }
 
     let (tx, rx) = mpsc::channel();
@@ -735,7 +762,7 @@ pub(crate) fn decode_luma(
     // States per planned priority: None = pending, Some(None) = miss,
     // Some(Some(hit)) = hit awaiting its turn.
     let max_priority = *planned.iter().max().unwrap();
-    let mut states: Vec<Option<Option<(rxing::RXingResult, Option<String>, bool, u8)>>> =
+    let mut states: Vec<Option<Option<DecodeHit>>> =
         (0..=max_priority).map(|_| None).collect();
     for p in 0..=max_priority {
         if !planned.contains(&p) {
@@ -746,7 +773,7 @@ pub(crate) fn decode_luma(
     while let Ok((priority, result)) = rx.recv() {
         if let Some(hit) = &result {
             if *hit.0.getBarcodeFormat() != BarcodeFormat::QR_CODE {
-                return result.map(|t| finish(t, priority)); // no grid semantics → first hit wins
+                return result.map(|t| (t, priority)); // no grid semantics → first hit wins
             }
         }
         states[priority] = Some(result);
@@ -758,7 +785,7 @@ pub(crate) fn decode_luma(
                 None => break,
                 Some(None) => continue,
                 Some(Some(_)) => {
-                    return states[p].take().unwrap().map(|t| finish(t, p));
+                    return states[p].take().unwrap().map(|t| (t, p));
                 }
             }
         }
@@ -795,12 +822,12 @@ fn downscale_2x(source: &Luma8LuminanceSource) -> Option<Luma8LuminanceSource> {
     Luma8LuminanceSource::new(new_buf, new_w as u32, new_h as u32).ok()
 }
 
-fn decode_with_binarizer(
+pub(crate) fn decode_with_binarizer(
     source: Luma8LuminanceSource,
     binarizer: jint,
     hints: &DecodeHints,
     format_filter: jint,
-) -> Option<(rxing::RXingResult, Option<String>, bool, u8)> {
+) -> Option<DecodeHit> {
     if binarizer == 1 {
         decode_bitmap(
             BinaryBitmap::new(GlobalHistogramBinarizer::new(source)),

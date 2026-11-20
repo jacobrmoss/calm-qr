@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Zapnout ořez hledáčku</string>
     <string name="disable_viewfinder">Vypnout ořez hledáčku</string>
     <string name="initializing_camera">Inicializace fotoaparátu</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Skenovat obrázek</string>
+    <string name="upload_image">Skenovat obrázek</string>
+    <string name="back_to_camera">Zpět k fotoaparátu</string>
+    <string name="no_code_detected">Nebyl nalezen žádný kód</string>
+    <string name="dismiss">Zavřít</string>
+    <string name="photo_permission_required">Pro skenování kódů z obrázků je vyžadován přístup k fotkám.</string>
+    <string name="open_settings">Otevřít nastavení</string>
+    <string name="no_images_found">Nebyly nalezeny žádné obrázky</string>
+    <string name="loading_image">Načítání obrázku</string>
+    <string name="scanning_image">Skenování obrázku</string>
+    <string name="image_thumbnail">Obrázek</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Ověřte, zda vzor čárového kódu odpovídá, jinak naskenujte znovu</string>

@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Attiva ritaglio mirino</string>
     <string name="disable_viewfinder">Disattiva ritaglio mirino</string>
     <string name="initializing_camera">Inizializzazione fotocamera</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Carica immagine</string>
+    <string name="upload_image">Carica immagine</string>
+    <string name="back_to_camera">Torna alla fotocamera</string>
+    <string name="no_code_detected">Nessun codice rilevato</string>
+    <string name="dismiss">Chiudi</string>
+    <string name="photo_permission_required">Per scansionare i codici dalle immagini è necessario l\'accesso alle foto.</string>
+    <string name="open_settings">Apri impostazioni</string>
+    <string name="no_images_found">Nessuna immagine trovata</string>
+    <string name="loading_image">Caricamento immagine</string>
+    <string name="scanning_image">Scansione immagine</string>
+    <string name="image_thumbnail">Immagine</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Verificare che il modello del codice a barre corrisponda, altrimenti ripetere la scansione</string>

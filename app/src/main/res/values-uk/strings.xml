@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Увімкнути обрізку видошукача</string>
     <string name="disable_viewfinder">Вимкнути обрізку видошукача</string>
     <string name="initializing_camera">Ініціалізація камери</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Сканувати фото</string>
+    <string name="upload_image">Сканувати фото</string>
+    <string name="back_to_camera">Повернутися до камери</string>
+    <string name="no_code_detected">Код не виявлено</string>
+    <string name="dismiss">Закрити</string>
+    <string name="photo_permission_required">Для сканування кодів на зображеннях потрібен доступ до фото.</string>
+    <string name="open_settings">Відкрити налаштування</string>
+    <string name="no_images_found">Зображень не знайдено</string>
+    <string name="loading_image">Завантаження зображення</string>
+    <string name="scanning_image">Сканування зображення</string>
+    <string name="image_thumbnail">Зображення</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Будь ласка, перевірте, чи збігається малюнок штрих-коду, інакше відскануйте повторно</string>

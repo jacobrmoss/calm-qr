@@ -11,6 +11,18 @@
     <string name="enable_viewfinder">Activer le recadrage du viseur</string>
     <string name="disable_viewfinder">Désactiver le recadrage du viseur</string>
     <string name="initializing_camera">Initialisation de la caméra</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Scanner une image</string>
+    <string name="upload_image">Scanner une image</string>
+    <string name="back_to_camera">Retour à la caméra</string>
+    <string name="no_code_detected">Aucun code détecté</string>
+    <string name="dismiss">Fermer</string>
+    <string name="photo_permission_required">L\'accès aux photos est requis pour scanner les codes des images.</string>
+    <string name="open_settings">Ouvrir les paramètres</string>
+    <string name="no_images_found">Aucune image trouvée</string>
+    <string name="loading_image">Chargement de l\'image</string>
+    <string name="scanning_image">Scan de l\'image</string>
+    <string name="image_thumbnail">Image</string>
 
     <!-- ScanDetailScreen -->
     <string name="barcode_verify_warning">Veuillez vérifier que le motif du code-barres correspond, sinon re-scannez</string>

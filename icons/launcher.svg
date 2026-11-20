@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="81" height="81" viewBox="0 0 81 81">
+  <!-- Calm QR launcher icon (source of app/src/main/res/drawable/ic_launcher_mmd.xml). -->
+  <!-- Built like the stock Mudita Kompakt icons (read from the on-device Calculator / Camera / Notes
+       vectors, 2026-11): 81x81 canvas, ring border flush to the edge with outer corner radius 19.25,
+       no background fill, round caps and joins. Ships as a plain vector drawable, not an adaptive
+       icon: the launcher draws it edge to edge with no raster resampling and no system icon mask. -->
+  <!-- One line weight for border and symbol: 2.5, the stock weight of both the border and the symbol
+       lines on Calculator / Camera / Notes (InkApps measures the same on screen). The border is
+       Mudita's exact ring: 2.5 thick, outer corner radius 19.25, even-odd fill. -->
+  <path fill="#000000" fill-rule="evenodd" d="M19.25,2.5C9.999,2.5 2.5,9.999 2.5,19.25V61.75C2.5,71.001 9.999,78.5 19.25,78.5H61.75C71.001,78.5 78.5,71.001 78.5,61.75V19.25C78.5,9.999 71.001,2.5 61.75,2.5H19.25ZM0,19.25C0,8.619 8.619,0 19.25,0H61.75C72.382,0 81,8.619 81,19.25V61.75C81,72.382 72.382,81 61.75,81H19.25C8.619,81 0,72.382 0,61.75V19.25Z"/>
+  <!-- Symbol: scan brackets on a 33.5-unit centerline square (23.75..57.25), corner radius 4, arms 10
+       from the corner line, full-width scan line. Outer extent 22.5..58.5 = 48px on the launcher:
+       the size of the stock Calculator and Notes symbols (36.5 units, 30..79px on screen). -->
+  <!-- Pixel-snapped for the Kompakt launcher, which draws icons at exactly 108px (4/3 px per unit;
+       whole pixels at multiples of 0.75 units): every stroke's outer edge sits on a whole pixel, so
+       each line renders like the border (3 solid px + 1 light edge px) rather than straddling
+       pixels as 2 solid + 2 gray, which reads thinner on e-ink (measured on-device 2026-11-19).
+       The scan line's top edge is snapped too (39.0 = 52px), 1/3px above true center. -->
+  <g fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23.75,33.75 V27.75 A4,4 0 0 1 27.75,23.75 H33.75"/>
+    <path d="M47.25,23.75 H53.25 A4,4 0 0 1 57.25,27.75 V33.75"/>
+    <path d="M57.25,47.25 V53.25 A4,4 0 0 1 53.25,57.25 H47.25"/>
+    <path d="M33.75,57.25 H27.75 A4,4 0 0 1 23.75,53.25 V47.25"/>
+    <path d="M23.75,40.25 H57.25"/>
+  </g>
+</svg>

@@ -18,6 +18,18 @@
     <string name="enable_exact_match">Enable exact match mode</string>
     <string name="disable_exact_match">Disable exact match mode</string>
     <string name="initializing_camera">Initializing camera</string>
+    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
+    <string name="image_upload_title">Image Upload</string>
+    <string name="upload_image">Upload image</string>
+    <string name="back_to_camera">Back to camera</string>
+    <string name="no_code_detected">No code detected</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="photo_permission_required">Photo access is required to scan codes from images.</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="no_images_found">No images found</string>
+    <string name="loading_image">Loading image</string>
+    <string name="scanning_image">Scanning image</string>
+    <string name="image_thumbnail">Image</string>
     <string name="save_to_contacts">Save to Contacts</string>
     <string name="contact_save_failed">Could not save contact</string>
 
