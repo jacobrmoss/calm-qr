@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Stäng av ficklampa</string>
     <string name="enable_viewfinder">Aktivera sökarbeskärning</string>
     <string name="disable_viewfinder">Inaktivera sökarbeskärning</string>
+    <string name="enable_exact_match">Aktivera läge för exakt matchning</string>
+    <string name="disable_exact_match">Inaktivera läge för exakt matchning</string>
     <string name="initializing_camera">Initierar kamera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Skanna bild</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Kontaktkort</string>
     <string name="content_type_geo">Geografisk plats</string>
     <string name="content_type_plain_text">Vanlig text</string>
+
+    <string name="no_browser_available">Ingen webbläsarapp tillgänglig</string>
 </resources>

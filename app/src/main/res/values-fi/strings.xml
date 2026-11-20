@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Sammuta taskulamppu</string>
     <string name="enable_viewfinder">Ota etsimen rajaus käyttöön</string>
     <string name="disable_viewfinder">Poista etsimen rajaus käytöstä</string>
+    <string name="enable_exact_match">Ota tarkan vastaavuuden tila käyttöön</string>
+    <string name="disable_exact_match">Poista tarkan vastaavuuden tila käytöstä</string>
     <string name="initializing_camera">Alustetaan kameraa</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Skannaa kuva</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Yhteystietokortti</string>
     <string name="content_type_geo">Maantieteellinen sijainti</string>
     <string name="content_type_plain_text">Tavallinen teksti</string>
+
+    <string name="no_browser_available">Selainsovellusta ei ole saatavilla</string>
 </resources>

@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Выключить фонарик</string>
     <string name="enable_viewfinder">Включить обрезку видоискателя</string>
     <string name="disable_viewfinder">Отключить обрезку видоискателя</string>
+    <string name="enable_exact_match">Включить режим точного совпадения</string>
+    <string name="disable_exact_match">Отключить режим точного совпадения</string>
     <string name="initializing_camera">Инициализация камеры</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Сканировать фото</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Карточка контакта</string>
     <string name="content_type_geo">Географическое местоположение</string>
     <string name="content_type_plain_text">Обычный текст</string>
+
+    <string name="no_browser_available">Нет доступного браузера</string>
 </resources>

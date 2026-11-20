@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Вимкнути ліхтарик</string>
     <string name="enable_viewfinder">Увімкнути обрізку видошукача</string>
     <string name="disable_viewfinder">Вимкнути обрізку видошукача</string>
+    <string name="enable_exact_match">Увімкнути режим точного збігу</string>
+    <string name="disable_exact_match">Вимкнути режим точного збігу</string>
     <string name="initializing_camera">Ініціалізація камери</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Сканувати фото</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Картка контакту</string>
     <string name="content_type_geo">Географічне розташування</string>
     <string name="content_type_plain_text">Звичайний текст</string>
+
+    <string name="no_browser_available">Немає доступного браузера</string>
 </resources>

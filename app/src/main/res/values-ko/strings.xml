@@ -10,6 +10,8 @@
     <string name="disable_flashlight">손전등 끄기</string>
     <string name="enable_viewfinder">뷰파인더 자르기 활성화</string>
     <string name="disable_viewfinder">뷰파인더 자르기 비활성화</string>
+    <string name="enable_exact_match">완전 일치 모드 활성화</string>
+    <string name="disable_exact_match">완전 일치 모드 비활성화</string>
     <string name="initializing_camera">카메라 초기화 중</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">이미지 스캔</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">연락처 카드</string>
     <string name="content_type_geo">지리적 위치</string>
     <string name="content_type_plain_text">일반 텍스트</string>
+
+    <string name="no_browser_available">사용 가능한 브라우저 앱이 없습니다</string>
 </resources>

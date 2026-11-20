@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Zseblámpa kikapcsolása</string>
     <string name="enable_viewfinder">Keresőkivágás bekapcsolása</string>
     <string name="disable_viewfinder">Keresőkivágás kikapcsolása</string>
+    <string name="enable_exact_match">Pontos egyezés mód bekapcsolása</string>
+    <string name="disable_exact_match">Pontos egyezés mód kikapcsolása</string>
     <string name="initializing_camera">Kamera inicializálása</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Kép beolvasása</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Névjegykártya</string>
     <string name="content_type_geo">Földrajzi hely</string>
     <string name="content_type_plain_text">Egyszerű szöveg</string>
+
+    <string name="no_browser_available">Nincs elérhető böngészőalkalmazás</string>
 </resources>

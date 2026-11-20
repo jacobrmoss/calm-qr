@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Oprește lanterna</string>
     <string name="enable_viewfinder">Activează decuparea vizorului</string>
     <string name="disable_viewfinder">Dezactivează decuparea vizorului</string>
+    <string name="enable_exact_match">Activează modul de potrivire exactă</string>
+    <string name="disable_exact_match">Dezactivează modul de potrivire exactă</string>
     <string name="initializing_camera">Inițializare cameră</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Scanare imagine</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Card de contact</string>
     <string name="content_type_geo">Locație geografică</string>
     <string name="content_type_plain_text">Text simplu</string>
+
+    <string name="no_browser_available">Niciun browser disponibil</string>
 </resources>

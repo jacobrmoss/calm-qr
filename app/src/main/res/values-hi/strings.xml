@@ -10,6 +10,8 @@
     <string name="disable_flashlight">फ्लैशलाइट बंद करें</string>
     <string name="enable_viewfinder">व्यूफ़ाइंडर क्रॉप चालू करें</string>
     <string name="disable_viewfinder">व्यूफ़ाइंडर क्रॉप बंद करें</string>
+    <string name="enable_exact_match">सटीक मिलान मोड चालू करें</string>
+    <string name="disable_exact_match">सटीक मिलान मोड बंद करें</string>
     <string name="initializing_camera">कैमरा प्रारंभ हो रहा है</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">इमेज स्कैन</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">संपर्क कार्ड</string>
     <string name="content_type_geo">भौगोलिक स्थान</string>
     <string name="content_type_plain_text">सादा टेक्स्ट</string>
+
+    <string name="no_browser_available">कोई ब्राउज़र ऐप उपलब्ध नहीं है</string>
 </resources>

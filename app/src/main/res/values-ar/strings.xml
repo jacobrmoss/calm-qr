@@ -10,6 +10,8 @@
     <string name="disable_flashlight">إطفاء الفلاش</string>
     <string name="enable_viewfinder">تفعيل إطار الاقتصاص</string>
     <string name="disable_viewfinder">تعطيل إطار الاقتصاص</string>
+    <string name="enable_exact_match">تفعيل وضع المطابقة التامة</string>
+    <string name="disable_exact_match">تعطيل وضع المطابقة التامة</string>
     <string name="initializing_camera">جارٍ تهيئة الكاميرا</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">مسح من صورة</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">بطاقة جهة اتصال</string>
     <string name="content_type_geo">موقع جغرافي</string>
     <string name="content_type_plain_text">نص عادي</string>
+
+    <string name="no_browser_available">لا يتوفر تطبيق متصفح</string>
 </resources>

@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Spegni torcia</string>
     <string name="enable_viewfinder">Attiva ritaglio mirino</string>
     <string name="disable_viewfinder">Disattiva ritaglio mirino</string>
+    <string name="enable_exact_match">Attiva modalità corrispondenza esatta</string>
+    <string name="disable_exact_match">Disattiva modalità corrispondenza esatta</string>
     <string name="initializing_camera">Inizializzazione fotocamera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Carica immagine</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Biglietto da visita</string>
     <string name="content_type_geo">Posizione geografica</string>
     <string name="content_type_plain_text">Testo semplice</string>
+
+    <string name="no_browser_available">Nessun browser disponibile</string>
 </resources>

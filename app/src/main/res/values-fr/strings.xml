@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Éteindre la lampe torche</string>
     <string name="enable_viewfinder">Activer le recadrage du viseur</string>
     <string name="disable_viewfinder">Désactiver le recadrage du viseur</string>
+    <string name="enable_exact_match">Activer le mode correspondance exacte</string>
+    <string name="disable_exact_match">Désactiver le mode correspondance exacte</string>
     <string name="initializing_camera">Initialisation de la caméra</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Scanner une image</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Carte de contact</string>
     <string name="content_type_geo">Position géographique</string>
     <string name="content_type_plain_text">Texte brut</string>
+
+    <string name="no_browser_available">Aucun navigateur disponible</string>
 </resources>

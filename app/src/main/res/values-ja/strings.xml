@@ -10,6 +10,8 @@
     <string name="disable_flashlight">フラッシュライトをオフにする</string>
     <string name="enable_viewfinder">ファインダーの切り抜きを有効にする</string>
     <string name="disable_viewfinder">ファインダーの切り抜きを無効にする</string>
+    <string name="enable_exact_match">完全一致モードを有効にする</string>
+    <string name="disable_exact_match">完全一致モードを無効にする</string>
     <string name="initializing_camera">カメラを初期化中</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">画像をスキャン</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">連絡先カード</string>
     <string name="content_type_geo">位置情報</string>
     <string name="content_type_plain_text">プレーンテキスト</string>
+
+    <string name="no_browser_available">利用できるブラウザアプリがありません</string>
 </resources>

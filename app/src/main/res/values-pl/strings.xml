@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Wyłącz latarkę</string>
     <string name="enable_viewfinder">Włącz kadrowanie celownika</string>
     <string name="disable_viewfinder">Wyłącz kadrowanie celownika</string>
+    <string name="enable_exact_match">Włącz tryb dokładnego dopasowania</string>
+    <string name="disable_exact_match">Wyłącz tryb dokładnego dopasowania</string>
     <string name="initializing_camera">Inicjalizacja aparatu</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Skanuj obraz</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Wizytówka</string>
     <string name="content_type_geo">Lokalizacja geograficzna</string>
     <string name="content_type_plain_text">Zwykły tekst</string>
+
+    <string name="no_browser_available">Brak dostępnej przeglądarki</string>
 </resources>

@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Απενεργοποίηση φακού</string>
     <string name="enable_viewfinder">Ενεργοποίηση περικοπής σκοπεύτρου</string>
     <string name="disable_viewfinder">Απενεργοποίηση περικοπής σκοπεύτρου</string>
+    <string name="enable_exact_match">Ενεργοποίηση λειτουργίας ακριβούς αντιστοίχισης</string>
+    <string name="disable_exact_match">Απενεργοποίηση λειτουργίας ακριβούς αντιστοίχισης</string>
     <string name="initializing_camera">Εκκίνηση κάμερας</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Σάρωση εικόνας</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Κάρτα επαφής</string>
     <string name="content_type_geo">Γεωγραφική τοποθεσία</string>
     <string name="content_type_plain_text">Απλό κείμενο</string>
+
+    <string name="no_browser_available">Δεν υπάρχει διαθέσιμο πρόγραμμα περιήγησης</string>
 </resources>

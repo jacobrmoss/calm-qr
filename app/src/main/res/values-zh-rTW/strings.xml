@@ -10,6 +10,8 @@
     <string name="disable_flashlight">關閉手電筒</string>
     <string name="enable_viewfinder">開啟取景框裁切</string>
     <string name="disable_viewfinder">關閉取景框裁切</string>
+    <string name="enable_exact_match">開啟精確比對模式</string>
+    <string name="disable_exact_match">關閉精確比對模式</string>
     <string name="initializing_camera">正在初始化相機</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">掃描圖片</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">聯絡人卡片</string>
     <string name="content_type_geo">地理位置</string>
     <string name="content_type_plain_text">純文字</string>
+
+    <string name="no_browser_available">沒有可用的瀏覽器應用程式</string>
 </resources>

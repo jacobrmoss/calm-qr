@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Sluk lommelygte</string>
     <string name="enable_viewfinder">Aktiver søgerbeskæring</string>
     <string name="disable_viewfinder">Deaktiver søgerbeskæring</string>
+    <string name="enable_exact_match">Aktiver tilstand for nøjagtigt match</string>
+    <string name="disable_exact_match">Deaktiver tilstand for nøjagtigt match</string>
     <string name="initializing_camera">Initialiserer kamera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Scan billede</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Kontaktkort</string>
     <string name="content_type_geo">Geografisk placering</string>
     <string name="content_type_plain_text">Almindelig tekst</string>
+
+    <string name="no_browser_available">Ingen browserapp tilgængelig</string>
 </resources>

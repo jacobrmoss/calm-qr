@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">QR</string>
+    <string name="app_name" translatable="false">QR</string>
 
     <!-- App title — intentionally not translated -->
     <string name="app_title" translatable="false">Calm QR</string>

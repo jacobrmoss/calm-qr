@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Taschenlampe ausschalten</string>
     <string name="enable_viewfinder">Sucher-Zuschnitt aktivieren</string>
     <string name="disable_viewfinder">Sucher-Zuschnitt deaktivieren</string>
+    <string name="enable_exact_match">Modus für exakte Übereinstimmung aktivieren</string>
+    <string name="disable_exact_match">Modus für exakte Übereinstimmung deaktivieren</string>
     <string name="initializing_camera">Kamera wird initialisiert</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Bild scannen</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Kontaktkarte</string>
     <string name="content_type_geo">Geografischer Standort</string>
     <string name="content_type_plain_text">Klartext</string>
+
+    <string name="no_browser_available">Keine Browser-App verfügbar</string>
 </resources>

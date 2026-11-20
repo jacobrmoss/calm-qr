@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Zaklamp uitschakelen</string>
     <string name="enable_viewfinder">Zoekeruitsnede inschakelen</string>
     <string name="disable_viewfinder">Zoekeruitsnede uitschakelen</string>
+    <string name="enable_exact_match">Modus voor exacte overeenkomst inschakelen</string>
+    <string name="disable_exact_match">Modus voor exacte overeenkomst uitschakelen</string>
     <string name="initializing_camera">Camera initialiseren</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Foto scannen</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Contactkaart</string>
     <string name="content_type_geo">Geografische locatie</string>
     <string name="content_type_plain_text">Platte tekst</string>
+
+    <string name="no_browser_available">Geen browser-app beschikbaar</string>
 </resources>

@@ -10,6 +10,8 @@
     <string name="disable_flashlight">Vypnout svítilnu</string>
     <string name="enable_viewfinder">Zapnout ořez hledáčku</string>
     <string name="disable_viewfinder">Vypnout ořez hledáčku</string>
+    <string name="enable_exact_match">Zapnout režim přesné shody</string>
+    <string name="disable_exact_match">Vypnout režim přesné shody</string>
     <string name="initializing_camera">Inicializace fotoaparátu</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
     <string name="image_upload_title">Skenovat obrázek</string>
@@ -75,4 +77,6 @@
     <string name="content_type_vcard">Vizitka</string>
     <string name="content_type_geo">Zeměpisná poloha</string>
     <string name="content_type_plain_text">Prostý text</string>
+
+    <string name="no_browser_available">Není k dispozici žádný prohlížeč</string>
 </resources>
