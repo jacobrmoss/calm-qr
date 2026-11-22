@@ -80,6 +80,11 @@ I recommend tap to focus if you know where the code is. When left for the device
 
 ---
 
+## App Icon 
+Thank you @claytonevandavis for the new app icon!
+
+---
+
 ## License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
