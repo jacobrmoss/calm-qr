@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Foreground of ic_splash: ic_launcher_mmd's artwork (same paths) scaled
-     81 -> 72 units and centred in the 108-unit adaptive layer, i.e. filling the
-     72dp viewport exactly like Calm Chevy's adaptive foreground does. -->
+<!-- Artwork of ic_splash: ic_launcher_mmd's paths, laid out the way the
+     system draws a launch icon: as a 108-unit layer of which only the middle
+     72 units show (the icon box; the rest is cropped), so the icon fills the
+     box like Calm Chevy's.
+     The transform fits the artwork to that box exactly on the Kompakt. There
+     the box is 255px and the system draws this layer 382px wide, starting
+     64px outside the box (3.537px per unit). Scale 0.890052 with offset
+     18.09424 therefore puts the artwork's 81 units on 0..255px: the border's
+     outer edge lands on the box edge, nothing cropped and no gray fringe.
+     The round numbers (72/81 = 0.8889, offset 18) miss by a third of a pixel:
+     one side cropped, the other fringed.
+     The group's name is the animation target in ic_splash. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.8888889"
-        android:scaleY="0.8888889"
-        android:translateX="18"
-        android:translateY="18">
+        android:name="art"
+        android:scaleX="0.890052"
+        android:scaleY="0.890052"
+        android:translateX="18.09424"
+        android:translateY="18.09424">
         <path
             android:fillColor="#FF000000"
             android:fillType="evenOdd"
             android:pathData="M19.25,2.5C9.999,2.5 2.5,9.999 2.5,19.25V61.75C2.5,71.001 9.999,78.5 19.25,78.5H61.75C71.001,78.5 78.5,71.001 78.5,61.75V19.25C78.5,9.999 71.001,2.5 61.75,2.5H19.25ZM0,19.25C0,8.619 8.619,0 19.25,0H61.75C72.382,0 81,8.619 81,19.25V61.75C81,72.382 72.382,81 61.75,81H19.25C8.619,81 0,72.382 0,61.75V19.25Z" />
         <path
             android:fillColor="#00000000"
-            android:pathData="M23.75,33.75V27.75A4,4 0,0 1,27.75 23.75H33.75M47.25,23.75H53.25A4,4 0,0 1,57.25 27.75V33.75M57.25,47.25V53.25A4,4 0,0 1,53.25 57.25H47.25M33.75,57.25H27.75A4,4 0,0 1,23.75 53.25V47.25M23.75,40.25H57.25"
-            android:strokeWidth="2.5"
+            android:pathData="M21.6,33.82V26.1A4.5,4.5 0,0 1,26.1 21.6H32.93M48.23,21.6H54.9A4.5,4.5 0,0 1,59.4 26.1V33.29M59.4,48.68V54.9A4.5,4.5 0,0 1,54.9 59.4H46.81M35.29,59.4H26.1A4.5,4.5 0,0 1,21.6 54.9V48.5M21.6,40.35H59.4"
+            android:strokeWidth="2.7"
             android:strokeColor="#FF000000"
             android:strokeLineCap="round"
             android:strokeLineJoin="round" />

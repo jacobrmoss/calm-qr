@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Scanner</string>
+    <string name="scanner_title">Scan caméra</string>
     <string name="camera_permission_required">L\'autorisation de la caméra est requise pour scanner les codes.</string>
     <string name="grant_permission">Accorder l\'autorisation</string>
     <string name="disable_focus_mode">Désactiver le mode mise au point</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Désactiver le mode correspondance exacte</string>
     <string name="initializing_camera">Initialisation de la caméra</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Scanner une image</string>
+    <string name="image_upload_title">Scan image</string>
     <string name="upload_image">Scanner une image</string>
     <string name="back_to_camera">Retour à la caméra</string>
     <string name="no_code_detected">Aucun code détecté</string>
+    <string name="scan_cancelled">Scan annulé</string>
+    <string name="scan_cancelled_new_started">Scan annulé.\nNouveau scan lancé.</string>
     <string name="dismiss">Fermer</string>
     <string name="photo_permission_required">L\'accès aux photos est requis pour scanner les codes des images.</string>
     <string name="open_settings">Ouvrir les paramètres</string>

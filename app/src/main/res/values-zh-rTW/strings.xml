@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">掃描器</string>
+    <string name="scanner_title">相機掃描</string>
     <string name="camera_permission_required">掃描碼需要相機權限。</string>
     <string name="grant_permission">授予權限</string>
     <string name="disable_focus_mode">關閉對焦模式</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">關閉精確比對模式</string>
     <string name="initializing_camera">正在初始化相機</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">掃描圖片</string>
+    <string name="image_upload_title">圖片掃描</string>
     <string name="upload_image">掃描圖片</string>
     <string name="back_to_camera">返回相機</string>
     <string name="no_code_detected">未偵測到碼</string>
+    <string name="scan_cancelled">已取消掃描</string>
+    <string name="scan_cancelled_new_started">已取消掃描。\n已開始新的掃描。</string>
     <string name="dismiss">關閉</string>
     <string name="photo_permission_required">從圖片中掃描碼需要相片存取權限。</string>
     <string name="open_settings">開啟設定</string>

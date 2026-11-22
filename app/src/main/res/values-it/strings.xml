@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Scanner</string>
+    <string name="scanner_title">Scan fotocamera</string>
     <string name="camera_permission_required">Per scansionare i codici è necessaria l\'autorizzazione della fotocamera.</string>
     <string name="grant_permission">Concedi autorizzazione</string>
     <string name="disable_focus_mode">Disattiva modalità messa a fuoco</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Disattiva modalità corrispondenza esatta</string>
     <string name="initializing_camera">Inizializzazione fotocamera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Carica immagine</string>
-    <string name="upload_image">Carica immagine</string>
+    <string name="image_upload_title">Scan immagine</string>
+    <string name="upload_image">Scansiona immagine</string>
     <string name="back_to_camera">Torna alla fotocamera</string>
     <string name="no_code_detected">Nessun codice rilevato</string>
+    <string name="scan_cancelled">Scansione annullata</string>
+    <string name="scan_cancelled_new_started">Scansione annullata.\nNuova scansione avviata.</string>
     <string name="dismiss">Chiudi</string>
     <string name="photo_permission_required">Per scansionare i codici dalle immagini è necessario l\'accesso alle foto.</string>
     <string name="open_settings">Apri impostazioni</string>

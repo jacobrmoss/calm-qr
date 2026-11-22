@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Сканер</string>
+    <string name="scanner_title">Скан камерой</string>
     <string name="camera_permission_required">Для сканирования кодов требуется разрешение камеры.</string>
     <string name="grant_permission">Предоставить разрешение</string>
     <string name="disable_focus_mode">Отключить режим фокусировки</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Отключить режим точного совпадения</string>
     <string name="initializing_camera">Инициализация камеры</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Сканировать фото</string>
+    <string name="image_upload_title">Скан фото</string>
     <string name="upload_image">Сканировать фото</string>
     <string name="back_to_camera">Вернуться к камере</string>
     <string name="no_code_detected">Код не обнаружен</string>
+    <string name="scan_cancelled">Сканирование отменено</string>
+    <string name="scan_cancelled_new_started">Сканирование отменено.\nНачато новое сканирование.</string>
     <string name="dismiss">Закрыть</string>
     <string name="photo_permission_required">Для сканирования кодов на изображениях требуется доступ к фото.</string>
     <string name="open_settings">Открыть настройки</string>

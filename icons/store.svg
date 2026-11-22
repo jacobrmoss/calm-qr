@@ -1,17 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
   <!-- InkApps store upload: no border (the portal draws its own). Symbol 70/100 of the tile. -->
-  <!-- Same symbol as launcher.svg (round caps/joins), scaled to a 65-unit centerline square.
+  <!-- Same symbol as launcher.svg (the artist's brackets and scan line, round caps/joins), scaled
+       to a 65-unit centerline square. The arm ends are the artwork's, uneven as drawn (see
+       launcher.svg), each cap tip rounded to a whole pixel: the gaps between facing tips are
+       22 (top), 16 (bottom), 21 (left) and 22 (right). Do not even them out.
        Stroke 5 is deliberately heavier than the launcher's ratio: the portal resamples the upload
        to 40/70px and thins it; 5 lands near Mudita's measured 3.29px. Whole pixels only here, so
        the scan line sits at y=50.5 (48..53) like the previous store icon. -->
-  <!-- Export (store-100.png): pure black/white, no anti-aliasing, 8-bit truecolour.
-       1-bit PNGs upload but render blank. -->
+  <!-- Export (store-100.png): rsvg-convert at 100px, then a hard threshold at 128: pure
+       black/white, no anti-aliasing, 8-bit truecolour. 1-bit PNGs upload but render blank. -->
   <rect width="100" height="100" fill="#FFFFFF"/>
   <g fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M17.5,37 V25 A7.5,7.5 0 0 1 25,17.5 H37"/>
-    <path d="M63,17.5 H75 A7.5,7.5 0 0 1 82.5,25 V37"/>
-    <path d="M82.5,63 V75 A7.5,7.5 0 0 1 75,82.5 H63"/>
-    <path d="M37,82.5 H25 A7.5,7.5 0 0 1 17.5,75 V63"/>
+    <path d="M17.5,38.5 V25 A7.5,7.5 0 0 1 25,17.5 H36.5"/>
+    <path d="M63.5,17.5 H75 A7.5,7.5 0 0 1 82.5,25 V37.5"/>
+    <path d="M82.5,64.5 V75 A7.5,7.5 0 0 1 75,82.5 H61.5"/>
+    <path d="M40.5,82.5 H25 A7.5,7.5 0 0 1 17.5,75 V64.5"/>
     <path d="M17.5,50.5 H82.5"/>
   </g>
 </svg>

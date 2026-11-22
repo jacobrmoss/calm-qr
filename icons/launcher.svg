@@ -1,26 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="81" height="81" viewBox="0 0 81 81">
   <!-- Calm QR launcher icon (source of app/src/main/res/drawable/ic_launcher_mmd.xml). -->
+  <!-- Design: the artist's rendition received 2026-11-20 ("Mudita icons-22.png", a 338px raster),
+       measured and redrawn as a vector on the 81-unit grid. The border is the stock Mudita ring
+       (the artwork's own ring is 2.57 thick with outer radius 20.2). Everything inside it is the
+       artwork as drawn:
+       - line weight 2.7 (measured 2.67 to 2.71), a little heavier than the 2.5 border;
+       - bracket corner radius 4.5 on the centerline (measured 4.46 to 4.52);
+       - the eight arm ends where the artist put them. They are not symmetric: the gaps between
+         facing cap tips are 12.6 (top), 8.8 (bottom), 12.0 (left) and 12.7 (right), and no two
+         arms are the same length. Do not even them out;
+       - the scan line runs the full width of the brackets through the middle.
+       One liberty: the lines are nudged onto the launcher's pixel grid (see below). The brackets'
+       four outer edges move out 0.22 to 0.24 units (0.3px on the launcher), which takes the
+       symbol from the artwork's 40.04 units to 40.5, and the scan line moves up 0.16 (0.2px).
+       The arm ends keep the artwork's absolute positions, so the gaps are exactly as drawn. -->
+  <!-- Export (launcher-192.png, copied byte for byte to app/src/main/res/mipmap-xxxhdpi/ic_launcher.png):
+       rsvg-convert at 192px with a white rounded square slipped in under the ring
+       (x/y 1.25, 78.5 wide, rx 18, so its edge hides beneath the ring). Inside the ring comes out
+       opaque white, outside the corners transparent, and the ring's outer edge stays pure black. -->
   <!-- Built like the stock Mudita Kompakt icons (read from the on-device Calculator / Camera / Notes
        vectors, 2026-11): 81x81 canvas, ring border flush to the edge with outer corner radius 19.25,
        no background fill, round caps and joins. Ships as a plain vector drawable, not an adaptive
        icon: the launcher draws it edge to edge with no raster resampling and no system icon mask. -->
-  <!-- One line weight for border and symbol: 2.5, the stock weight of both the border and the symbol
-       lines on Calculator / Camera / Notes (InkApps measures the same on screen). The border is
-       Mudita's exact ring: 2.5 thick, outer corner radius 19.25, even-odd fill. -->
+  <!-- Border: Mudita's exact ring: 2.5 thick (the stock weight of the border and symbol lines on
+       Calculator / Camera / Notes; InkApps measures the same on screen), outer corner radius
+       19.25, even-odd fill. The symbol lines are the artwork's 2.7 instead of the stock 2.5: a
+       deliberate exception, to stay true to the drawing. -->
   <path fill="#000000" fill-rule="evenodd" d="M19.25,2.5C9.999,2.5 2.5,9.999 2.5,19.25V61.75C2.5,71.001 9.999,78.5 19.25,78.5H61.75C71.001,78.5 78.5,71.001 78.5,61.75V19.25C78.5,9.999 71.001,2.5 61.75,2.5H19.25ZM0,19.25C0,8.619 8.619,0 19.25,0H61.75C72.382,0 81,8.619 81,19.25V61.75C81,72.382 72.382,81 61.75,81H19.25C8.619,81 0,72.382 0,61.75V19.25Z"/>
-  <!-- Symbol: scan brackets on a 33.5-unit centerline square (23.75..57.25), corner radius 4, arms 10
-       from the corner line, full-width scan line. Outer extent 22.5..58.5 = 48px on the launcher:
-       the size of the stock Calculator and Notes symbols (36.5 units, 30..79px on screen). -->
+  <!-- Symbol: scan brackets on a 37.8-unit centerline square (21.6..59.4), corner radius 4.5,
+       stroke 2.7, outer extent 20.25..60.75 = 54px on the launcher. Each arm ends (cap center)
+       half a stroke short of the artwork's cap tip. Cap tips, clockwise from the top left
+       bracket's vertical arm: y 35.17, x 34.28 | x 46.88, y 34.64 | y 47.33, x 45.46 |
+       x 36.64, y 47.15. -->
   <!-- Pixel-snapped for the Kompakt launcher, which draws icons at exactly 108px (4/3 px per unit;
-       whole pixels at multiples of 0.75 units): every stroke's outer edge sits on a whole pixel, so
-       each line renders like the border (3 solid px + 1 light edge px) rather than straddling
-       pixels as 2 solid + 2 gray, which reads thinner on e-ink (measured on-device 2026-11-19).
-       The scan line's top edge is snapped too (39.0 = 52px), 1/3px above true center. -->
-  <g fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M23.75,33.75 V27.75 A4,4 0 0 1 27.75,23.75 H33.75"/>
-    <path d="M47.25,23.75 H53.25 A4,4 0 0 1 57.25,27.75 V33.75"/>
-    <path d="M57.25,47.25 V53.25 A4,4 0 0 1 53.25,57.25 H47.25"/>
-    <path d="M33.75,57.25 H27.75 A4,4 0 0 1 23.75,53.25 V47.25"/>
-    <path d="M23.75,40.25 H57.25"/>
+       whole pixels at multiples of 0.75 units): every straight line's outer edge sits on a whole
+       pixel, so it renders like the border, 3 solid px + 1 gray edge px (60% gray for the 2.7
+       symbol lines, 33% for the 2.5 border), rather than straddling pixels with gray on both
+       sides, which reads soft on e-ink. The scan line's top edge is the snapped one
+       (39.0 = 52px). -->
+  <g fill="none" stroke="#000000" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.6,33.82 V26.1 A4.5,4.5 0 0 1 26.1,21.6 H32.93"/>
+    <path d="M48.23,21.6 H54.9 A4.5,4.5 0 0 1 59.4,26.1 V33.29"/>
+    <path d="M59.4,48.68 V54.9 A4.5,4.5 0 0 1 54.9,59.4 H46.81"/>
+    <path d="M35.29,59.4 H26.1 A4.5,4.5 0 0 1 21.6,54.9 V48.5"/>
+    <path d="M21.6,40.35 H59.4"/>
   </g>
 </svg>

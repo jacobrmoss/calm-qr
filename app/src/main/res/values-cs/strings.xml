@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Skener</string>
+    <string name="scanner_title">Sken kamerou</string>
     <string name="camera_permission_required">Pro skenování kódů je vyžadováno oprávnění fotoaparátu.</string>
     <string name="grant_permission">Udělit oprávnění</string>
     <string name="disable_focus_mode">Vypnout režim zaostření</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Vypnout režim přesné shody</string>
     <string name="initializing_camera">Inicializace fotoaparátu</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Skenovat obrázek</string>
+    <string name="image_upload_title">Sken obrázku</string>
     <string name="upload_image">Skenovat obrázek</string>
     <string name="back_to_camera">Zpět k fotoaparátu</string>
     <string name="no_code_detected">Nebyl nalezen žádný kód</string>
+    <string name="scan_cancelled">Skenování zrušeno</string>
+    <string name="scan_cancelled_new_started">Skenování zrušeno.\nSpuštěno nové skenování.</string>
     <string name="dismiss">Zavřít</string>
     <string name="photo_permission_required">Pro skenování kódů z obrázků je vyžadován přístup k fotkám.</string>
     <string name="open_settings">Otevřít nastavení</string>

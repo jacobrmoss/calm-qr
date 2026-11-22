@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Skaner</string>
+    <string name="scanner_title">Skan aparatem</string>
     <string name="camera_permission_required">Do skanowania kodów wymagane jest uprawnienie do aparatu.</string>
     <string name="grant_permission">Przyznaj uprawnienie</string>
     <string name="disable_focus_mode">Wyłącz tryb ostrości</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Wyłącz tryb dokładnego dopasowania</string>
     <string name="initializing_camera">Inicjalizacja aparatu</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Skanuj obraz</string>
+    <string name="image_upload_title">Skan obrazu</string>
     <string name="upload_image">Skanuj obraz</string>
     <string name="back_to_camera">Wróć do aparatu</string>
     <string name="no_code_detected">Nie wykryto kodu</string>
+    <string name="scan_cancelled">Skanowanie anulowane</string>
+    <string name="scan_cancelled_new_started">Skanowanie anulowane.\nRozpoczęto nowe skanowanie.</string>
     <string name="dismiss">Zamknij</string>
     <string name="photo_permission_required">Do skanowania kodów z obrazów wymagany jest dostęp do zdjęć.</string>
     <string name="open_settings">Otwórz ustawienia</string>

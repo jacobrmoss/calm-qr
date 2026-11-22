@@ -2,10 +2,11 @@
 <resources>
     <!-- Android 12+ launch splash. The launcher icon is a plain vector (crisp
          on the Kompakt home screen, like the stock Mudita icons), and the
-         system draws non-adaptive icons small on the splash. This adaptive
-         copy lays the same artwork out like Calm Chevy's adaptive icon (the
-         icon filling the 72dp viewport of the 108dp layer), so the splash
-         shows it at the same size as Chevy's. -->
+         system draws non-adaptive icons small on the splash. ic_splash lays
+         the same artwork out to fill the splash's icon box, so it shows at
+         the same size as Calm Chevy's. It is an animated vector whose
+         animation changes nothing, because Android 12 draws every other kind
+         of launch icon at low resolution and stretches it (see ic_splash.xml). -->
     <style name="Theme.Calm" parent="Base.Theme.Calm">
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
     </style>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Scanner</string>
+    <string name="scanner_title">Scan da câmera</string>
     <string name="camera_permission_required">É necessária permissão da câmera para escanear códigos.</string>
     <string name="grant_permission">Conceder permissão</string>
     <string name="disable_focus_mode">Desativar modo de foco</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Desativar modo de correspondência exata</string>
     <string name="initializing_camera">Inicializando câmera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Escanear imagem</string>
+    <string name="image_upload_title">Scan da imagem</string>
     <string name="upload_image">Escanear imagem</string>
     <string name="back_to_camera">Voltar para a câmera</string>
     <string name="no_code_detected">Nenhum código detectado</string>
+    <string name="scan_cancelled">Escaneamento cancelado</string>
+    <string name="scan_cancelled_new_started">Escaneamento cancelado.\nNovo escaneamento iniciado.</string>
     <string name="dismiss">Fechar</string>
     <string name="photo_permission_required">É necessário acesso às fotos para escanear códigos em imagens.</string>
     <string name="open_settings">Abrir configurações</string>

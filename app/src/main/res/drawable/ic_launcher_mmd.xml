@@ -4,21 +4,31 @@
     (read from the on-device Calculator / Camera / Notes icons): a plain 81dp
     vector rather than an adaptive icon, so the launcher draws it edge to edge
     with no raster resampling and no system icon mask.
-    - One line weight for border and symbol: 2.5, the stock weight of both the
-      border and the symbol lines on Calculator / Camera / Notes (InkApps
-      measures the same on screen).
-    - Border: Mudita's exact ring: 2.5 thick, outer corner radius 19.25,
-      flush to the canvas edge (even-odd fill, no background fill).
-    - Symbol: scan brackets + scan line, round caps and joins, outer extent
-      22.5..58.5 (48px on the launcher): the size of the Calculator and
-      Notes symbols (36.5 units, 30..79px on screen).
+    - Design: the artist's rendition received 2026-11-20, redrawn as a vector.
+      The border is the stock Mudita ring; everything inside it is the artwork
+      as drawn: its line weight, its corner radius, and its eight arm ends
+      where the artist put them (they are not symmetric: the bottom gap is
+      narrower than the other three; do not even them out).
+      Measurements: icons/launcher.svg.
+    - Border: Mudita's exact ring: 2.5 thick (the stock weight of the border
+      and symbol lines on Calculator / Camera / Notes; InkApps measures the
+      same on screen), outer corner radius 19.25, flush to the canvas edge
+      (even-odd fill, no background fill).
+    - Symbol: scan brackets + scan line, round caps and joins, stroke 2.7
+      (the artwork's weight, a deliberate exception to the stock 2.5), on a
+      37.8-unit centerline square with corner radius 4.5; outer extent
+      20.25..60.75 (54px on the launcher).
     - Pixel-snapped for the Kompakt launcher, which draws icons at exactly
       108px (4/3 px per unit, whole pixels at multiples of 0.75 units):
-      every line's outer edge sits on a whole pixel, so each line
-      renders like the border (3 solid px + 1 light edge px) rather than
-      straddling pixels as 2 solid + 2 gray, which reads thinner on e-ink.
-      The scan line's top edge is snapped too (39.0 = 52px), 1/3px above
-      true center.
+      every straight line's outer edge sits on a whole pixel, so it renders
+      like the border, 3 solid px + 1 gray edge px, rather than straddling
+      pixels with gray on both sides, which reads soft on e-ink. This moves
+      each line a third of a pixel at most from where the artist drew it.
+      The scan line's top edge is the snapped one (39.0 = 52px).
+    - res/mipmap-xxxhdpi/ic_launcher.png is not used by the app. It is a 192px
+      render of this icon (a copy of icons/launcher-192.png) kept at the old
+      launcher path because pages outside the repo link to its
+      raw.githubusercontent.com URL. Re-export it whenever this icon changes.
     Source: icons/launcher.svg
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,8 +42,8 @@
         android:pathData="M19.25,2.5C9.999,2.5 2.5,9.999 2.5,19.25V61.75C2.5,71.001 9.999,78.5 19.25,78.5H61.75C71.001,78.5 78.5,71.001 78.5,61.75V19.25C78.5,9.999 71.001,2.5 61.75,2.5H19.25ZM0,19.25C0,8.619 8.619,0 19.25,0H61.75C72.382,0 81,8.619 81,19.25V61.75C81,72.382 72.382,81 61.75,81H19.25C8.619,81 0,72.382 0,61.75V19.25Z" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M23.75,33.75V27.75A4,4 0,0 1,27.75 23.75H33.75M47.25,23.75H53.25A4,4 0,0 1,57.25 27.75V33.75M57.25,47.25V53.25A4,4 0,0 1,53.25 57.25H47.25M33.75,57.25H27.75A4,4 0,0 1,23.75 53.25V47.25M23.75,40.25H57.25"
-        android:strokeWidth="2.5"
+        android:pathData="M21.6,33.82V26.1A4.5,4.5 0,0 1,26.1 21.6H32.93M48.23,21.6H54.9A4.5,4.5 0,0 1,59.4 26.1V33.29M59.4,48.68V54.9A4.5,4.5 0,0 1,54.9 59.4H46.81M35.29,59.4H26.1A4.5,4.5 0,0 1,21.6 54.9V48.5M21.6,40.35H59.4"
+        android:strokeWidth="2.7"
         android:strokeColor="#FF000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />

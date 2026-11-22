@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">スキャナー</string>
+    <string name="scanner_title">カメラスキャン</string>
     <string name="camera_permission_required">コードをスキャンするにはカメラの許可が必要です。</string>
     <string name="grant_permission">許可を付与</string>
     <string name="disable_focus_mode">フォーカスモードを無効にする</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">完全一致モードを無効にする</string>
     <string name="initializing_camera">カメラを初期化中</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">画像をスキャン</string>
+    <string name="image_upload_title">画像スキャン</string>
     <string name="upload_image">画像をスキャン</string>
     <string name="back_to_camera">カメラに戻る</string>
     <string name="no_code_detected">コードが検出されませんでした</string>
+    <string name="scan_cancelled">スキャンをキャンセルしました</string>
+    <string name="scan_cancelled_new_started">スキャンをキャンセルしました。\n新しいスキャンを開始しました。</string>
     <string name="dismiss">閉じる</string>
     <string name="photo_permission_required">画像からコードをスキャンするには写真へのアクセス許可が必要です。</string>
     <string name="open_settings">設定を開く</string>

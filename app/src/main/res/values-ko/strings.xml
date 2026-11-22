@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">스캐너</string>
+    <string name="scanner_title">카메라 스캔</string>
     <string name="camera_permission_required">코드를 스캔하려면 카메라 권한이 필요합니다.</string>
     <string name="grant_permission">권한 부여</string>
     <string name="disable_focus_mode">초점 모드 비활성화</string>
@@ -18,6 +18,8 @@
     <string name="upload_image">이미지 스캔</string>
     <string name="back_to_camera">카메라로 돌아가기</string>
     <string name="no_code_detected">코드가 감지되지 않았습니다</string>
+    <string name="scan_cancelled">스캔이 취소되었습니다</string>
+    <string name="scan_cancelled_new_started">스캔이 취소되었습니다.\n새 스캔을 시작했습니다.</string>
     <string name="dismiss">닫기</string>
     <string name="photo_permission_required">이미지에서 코드를 스캔하려면 사진 접근 권한이 필요합니다.</string>
     <string name="open_settings">설정 열기</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Scanner</string>
+    <string name="scanner_title">Camerascan</string>
     <string name="camera_permission_required">Cameramachtiging is vereist om codes te scannen.</string>
     <string name="grant_permission">Machtiging verlenen</string>
     <string name="disable_focus_mode">Focusmodus uitschakelen</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Modus voor exacte overeenkomst uitschakelen</string>
     <string name="initializing_camera">Camera initialiseren</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Foto scannen</string>
+    <string name="image_upload_title">Fotoscan</string>
     <string name="upload_image">Foto scannen</string>
     <string name="back_to_camera">Terug naar camera</string>
     <string name="no_code_detected">Geen code gevonden</string>
+    <string name="scan_cancelled">Scan geannuleerd</string>
+    <string name="scan_cancelled_new_started">Scan geannuleerd.\nNieuwe scan gestart.</string>
     <string name="dismiss">Sluiten</string>
     <string name="photo_permission_required">Toegang tot foto\'s is vereist om er codes uit te scannen.</string>
     <string name="open_settings">Instellingen openen</string>

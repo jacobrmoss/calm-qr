@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash-screen icon (values-v31/themes.xml): the launcher artwork as an
-     adaptive icon so the splash draws it at adaptive-icon size. -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/white" />
-    <foreground android:drawable="@drawable/ic_splash_foreground" />
-</adaptive-icon>
+<!-- Launch-screen icon (values-v31/themes.xml): ic_splash_foreground behind
+     an animated vector whose one animation changes nothing.
+     Why animated: Android 12 draws every still launch icon (vector, adaptive
+     or bitmap) into a 108dp bitmap, 144px on the Kompakt, and stretches that
+     to the 192dp icon box, 255px, which smears each edge over about four
+     pixels. Only an animated icon is drawn directly at full size. Read from
+     the Kompakt's SystemUI (SplashscreenIconDrawableFactory) and measured on
+     an Android 12 emulator at the Kompakt's screen size: edges are one pixel
+     wide this way.
+     Nothing moves: the animation turns the artwork from 0 to 0 degrees, so
+     the e-ink screen gets a still picture. Do not swap this back for a plain
+     vector or an adaptive icon. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_splash_foreground">
+    <target android:name="art">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="1"
+                android:propertyName="rotation"
+                android:valueFrom="0"
+                android:valueTo="0"
+                android:valueType="floatType" />
+        </aapt:attr>
+    </target>
+</animated-vector>

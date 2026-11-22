@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ScannerScreen -->
-    <string name="scanner_title">Skanner</string>
+    <string name="scanner_title">Kameraskanning</string>
     <string name="camera_permission_required">Kameratillatelse er nødvendig for å skanne koder.</string>
     <string name="grant_permission">Gi tillatelse</string>
     <string name="disable_focus_mode">Deaktiver fokusmodus</string>
@@ -14,10 +14,12 @@
     <string name="disable_exact_match">Deaktiver modus for eksakt samsvar</string>
     <string name="initializing_camera">Initialiserer kamera</string>
     <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Skann bilde</string>
+    <string name="image_upload_title">Bildeskanning</string>
     <string name="upload_image">Skann bilde</string>
     <string name="back_to_camera">Tilbake til kameraet</string>
     <string name="no_code_detected">Ingen kode funnet</string>
+    <string name="scan_cancelled">Skanning avbrutt</string>
+    <string name="scan_cancelled_new_started">Skanning avbrutt.\nNy skanning startet.</string>
     <string name="dismiss">Lukk</string>
     <string name="photo_permission_required">Bildetilgang er nødvendig for å skanne koder fra bilder.</string>
     <string name="open_settings">Åpne innstillinger</string>

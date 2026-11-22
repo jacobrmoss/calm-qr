@@ -6,7 +6,7 @@
     <string name="app_title" translatable="false">Calm QR</string>
 
     <!-- ScannerScreen -->
-    <string name="scanner_title">Scanner</string>
+    <string name="scanner_title">Camera Scan</string>
     <string name="camera_permission_required">Camera permission is required to scan codes.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="disable_focus_mode">Disable focus mode</string>
@@ -18,11 +18,14 @@
     <string name="enable_exact_match">Enable exact match mode</string>
     <string name="disable_exact_match">Disable exact match mode</string>
     <string name="initializing_camera">Initializing camera</string>
-    <!-- Image upload mode of the Scanner screen: pick a photo instead of using the camera -->
-    <string name="image_upload_title">Image Upload</string>
-    <string name="upload_image">Upload image</string>
+    <!-- Image Scan mode of the Scanner screen: pick a photo instead of using the camera.
+         (The names still say "upload", the mode's first name; nothing is uploaded.) -->
+    <string name="image_upload_title">Image Scan</string>
+    <string name="upload_image">Scan image</string>
     <string name="back_to_camera">Back to camera</string>
     <string name="no_code_detected">No code detected</string>
+    <string name="scan_cancelled">Scan cancelled</string>
+    <string name="scan_cancelled_new_started">Scan cancelled.\nNew scan started.</string>
     <string name="dismiss">Dismiss</string>
     <string name="photo_permission_required">Photo access is required to scan codes from images.</string>
     <string name="open_settings">Open Settings</string>

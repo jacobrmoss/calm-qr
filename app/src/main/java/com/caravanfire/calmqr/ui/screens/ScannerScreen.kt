@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.FlashlightOff
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,12 +63,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -86,6 +90,7 @@ import com.mudita.mmd.components.snackbar.SnackbarDurationMMD
 import com.mudita.mmd.components.snackbar.SnackbarHostMMD
 import com.mudita.mmd.components.snackbar.SnackbarHostStateMMD
 import com.mudita.mmd.components.snackbar.SnackbarMMD
+import com.mudita.mmd.components.snackbar.SnackbarVisualsMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldDefaultsMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
@@ -134,28 +139,28 @@ fun ScannerScreen(
         }
     }
 
-    // "No code detected" after an Image Upload miss: the MMD snackbar with its
-    // dismiss (x) action, up for 15 s. SnackbarDurationMMD tops out at 10 s
-    // (Long), so it is shown Indefinite and the timeout cancels it.
+    // Image Upload's notices, "No code detected" after a miss, "Scan
+    // cancelled" after a cancel and "Scan cancelled. New scan started." after
+    // a switch to another photo: the MMD snackbar with its dismiss (x) action,
+    // up for 15 s. SnackbarDurationMMD tops out at 10 s (Long), so a notice is
+    // shown Indefinite and the timeout cancels it.
     val snackbarHostState = remember { SnackbarHostStateMMD() }
     val snackbarScope = rememberCoroutineScope()
     var snackbarJob by remember { mutableStateOf<Job?>(null) }
-    val noCodeMessage = stringResource(R.string.no_code_detected)
+    val noCodeNotice = ScanNotice(stringResource(R.string.no_code_detected), Icons.Outlined.ErrorOutline)
+    val scanCancelledNotice = ScanNotice(stringResource(R.string.scan_cancelled), Icons.Outlined.Cancel)
+    val scanSwitchedNotice = ScanNotice(stringResource(R.string.scan_cancelled_new_started), Icons.Outlined.Cancel)
 
-    fun hideNoCode() {
+    fun hideScanNotice() {
         snackbarJob?.cancel()
         snackbarHostState.currentSnackbarData?.dismiss()
     }
 
-    fun showNoCode() {
-        hideNoCode()
+    fun showScanNotice(notice: ScanNotice) {
+        hideScanNotice()
         snackbarJob = snackbarScope.launch {
-            withTimeoutOrNull(NO_CODE_SNACKBAR_MILLIS) {
-                snackbarHostState.showSnackbar(
-                    message = noCodeMessage,
-                    withDismissAction = true,
-                    duration = SnackbarDurationMMD.Indefinite,
-                )
+            withTimeoutOrNull(SCAN_NOTICE_MILLIS) {
+                snackbarHostState.showSnackbar(notice)
             }
         }
     }
@@ -166,30 +171,50 @@ fun ScannerScreen(
             flashlightOn = false
             camera = null
         } else {
-            hideNoCode()
+            hideScanNotice()
         }
         uploadMode = on
     }
 
     Scaffold(
         snackbarHost = {
-            SnackbarHostMMD(hostState = snackbarHostState) { data -> NoCodeSnackbar(data) }
+            SnackbarHostMMD(hostState = snackbarHostState) { data -> ScanNoticeSnackbar(data) }
         },
         topBar = {
             Column {
             TopAppBarMMD(
                 showDivider = false,
                 title = {
-                    val titleText = stringResource(
-                        if (uploadMode) R.string.image_upload_title else R.string.scanner_title
-                    )
-                    val titleStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+                    val cameraTitle = stringResource(R.string.scanner_title)
+                    val imageTitle = stringResource(R.string.image_upload_title)
+                    val fullSizeStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+                    val textMeasurer = rememberTextMeasurer()
+                    val density = LocalDensity.current
                     BoxWithConstraints(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.CenterStart
                     ) {
+                        // The two titles are drawn at one size: the standard
+                        // title size if each clears the icon slots that share
+                        // its row (three in camera mode, one in Image Scan),
+                        // else as much smaller as the tighter one needs. So a
+                        // title never runs under an icon, whatever the
+                        // language, and does not change size with the mode.
+                        val titleStyle = remember(cameraTitle, imageTitle, fullSizeStyle, maxWidth, density) {
+                            fun fit(title: String, iconSlots: Int): TitleFit {
+                                val width = textMeasurer
+                                    .measure(title, fullSizeStyle, softWrap = false, maxLines = 1)
+                                    .size.width
+                                val room = with(density) {
+                                    (maxWidth - TOOLBAR_BUTTON * iconSlots - TITLE_ICON_GAP - TITLE_TEXT_START).toPx()
+                                }
+                                return TitleFit(width.toFloat(), room)
+                            }
+                            val scale = titleScale(listOf(fit(cameraTitle, 3), fit(imageTitle, 1)))
+                            fullSizeStyle.copy(fontSize = fullSizeStyle.fontSize * scale)
+                        }
                         TextFieldMMD(
-                            value = titleText,
+                            value = if (uploadMode) imageTitle else cameraTitle,
                             onValueChange = {},
                             readOnly = true,
                             singleLine = true,
@@ -337,8 +362,10 @@ fun ScannerScreen(
                     onCodeScanned = { content, format, qrGrid ->
                         onCodeScanned(content, format, qrGrid, true)
                     },
-                    onNoCodeDetected = { showNoCode() },
-                    onScanStarted = { hideNoCode() },
+                    onNoCodeDetected = { showScanNotice(noCodeNotice) },
+                    onScanCancelled = { showScanNotice(scanCancelledNotice) },
+                    onScanSwitched = { showScanNotice(scanSwitchedNotice) },
+                    onScanStarted = { hideScanNotice() },
                 )
             } else if (hasCameraPermission) {
                 CameraPreview(
@@ -370,7 +397,32 @@ fun ScannerScreen(
     }
 }
 
-private const val NO_CODE_SNACKBAR_MILLIS = 15_000L
+/**
+ * Where the title's text starts, measured from the start of the title slot:
+ * the title field is shifted by Dimens.titleOffset and then pads its text by
+ * 16dp (TextFieldMMD's own content padding).
+ */
+private val TITLE_TEXT_START = Dimens.titleOffset + 16.dp
+
+/** Clear space kept between the end of the title and the first icon's button. */
+private val TITLE_ICON_GAP = 4.dp
+
+/** One title: its width at the standard title size, and the room it has, in px. */
+internal data class TitleFit(val width: Float, val room: Float)
+
+/**
+ * The share of the standard title size at which every one of [fits] fits its
+ * room: 1 when they all fit, otherwise what the tightest needs, but never
+ * below [MIN_TITLE_SCALE] (smaller than that is not a title any more; the
+ * wording has to be shorter instead).
+ */
+internal fun titleScale(fits: List<TitleFit>): Float =
+    fits.minOf { it.room / it.width }.coerceIn(MIN_TITLE_SCALE, 1f)
+
+private const val MIN_TITLE_SCALE = 0.5f
+
+/** How long an Image Upload notice stays up unless dismissed or replaced. */
+private const val SCAN_NOTICE_MILLIS = 15_000L
 
 /** Toolbar button size on every screen (Home, detail pages, Scanner). */
 private val TOOLBAR_BUTTON = 40.dp
@@ -434,14 +486,28 @@ private fun BlackSquareIcon(painter: Painter, contentDescription: String?) {
 private val SQUARE_GLYPH_SIZE = 30.dp
 
 /**
- * "No code detected": MMD's SnackbarMMD with an error icon leading the
- * message, laid out like MMD's own demo — a white band across the bottom
- * under the library's top line. The band is backed opaque: SnackbarMMD pads
- * its panel with see-through gaps (invisible on MMD's blank demo screen)
- * that let the photo grid show between its line and its text.
+ * An Image Upload notice for the snackbar: its message and the icon that
+ * leads it. Always with the dismiss (x) action, and Indefinite because the
+ * screen times it out itself (SCAN_NOTICE_MILLIS).
+ */
+private class ScanNotice(override val message: String, val icon: ImageVector) : SnackbarVisualsMMD {
+    override val actionLabel: String? = null
+    override val withDismissAction: Boolean = true
+    override val duration: SnackbarDurationMMD = SnackbarDurationMMD.Indefinite
+}
+
+/**
+ * An Image Upload notice ("No code detected", "Scan cancelled", "Scan
+ * cancelled. New scan started."): MMD's
+ * SnackbarMMD with the notice's icon leading the message, laid out like
+ * MMD's own demo — a white band across the bottom under the library's top
+ * line. The band is backed opaque: SnackbarMMD pads its panel with
+ * see-through gaps (invisible on MMD's blank demo screen) that let the photo
+ * grid show between its line and its text.
  */
 @Composable
-private fun NoCodeSnackbar(data: SnackbarDataMMD) {
+private fun ScanNoticeSnackbar(data: SnackbarDataMMD) {
+    val icon = (data.visuals as? ScanNotice)?.icon ?: Icons.Outlined.ErrorOutline
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -457,7 +523,7 @@ private fun NoCodeSnackbar(data: SnackbarDataMMD) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Outlined.ErrorOutline,
+                    imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
                 )

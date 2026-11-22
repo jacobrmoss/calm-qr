@@ -116,21 +116,27 @@ object RustBridge {
      * @param rotationDegrees clockwise turn that shows the image upright
      *        (MediaStore ORIENTATION); composed into the exact QR grid's
      *        presentation orientation.
-     * @return FOUND with its result, NOT_FOUND, or UNSUPPORTED (decode it with
-     *         Android and call [scanImagePixels]). Null only if the JNI result
-     *         object could not be built. Blocks for the whole scan — call off
-     *         the main thread.
+     * @param ticket this scan's number for [cancelImageScans]: a positive
+     *        value from a counter that only ever grows (0 = cannot be
+     *        cancelled).
+     * @return FOUND with its result, NOT_FOUND (also when the scan was
+     *         cancelled), or UNSUPPORTED (decode it with Android and call
+     *         [scanImagePixels]). Null only if the JNI result object could
+     *         not be built. Blocks for the whole scan — call off the main
+     *         thread.
      */
     external fun scanImageFile(
         data: ByteArray,
         rotationDegrees: Int,
-        exactMatch: Boolean
+        exactMatch: Boolean,
+        ticket: Long
     ): ImageScanResult?
 
     /**
      * [scanImageFile] for an image Android decoded: RGBA_8888 pixels
      * (`Bitmap.Config.ARGB_8888` memory order) in a DIRECT buffer that stays
-     * valid for the call. Returns the found code or null.
+     * valid for the call. Returns the found code, or null (no code, or the
+     * scan was cancelled).
      */
     external fun scanImagePixels(
         rgba: java.nio.ByteBuffer,
@@ -138,8 +144,19 @@ object RustBridge {
         height: Int,
         rowStride: Int,
         rotationDegrees: Int,
-        exactMatch: Boolean
+        exactMatch: Boolean,
+        ticket: Long
     ): DecodeResult?
+
+    /**
+     * Cancel every gallery scan whose ticket is [upToTicket] or lower, whether
+     * it is running or has not reached Rust yet. Returns at once (safe on the
+     * main thread); the scan calls themselves then return "no code" within a
+     * few tens of milliseconds. A variant already being decoded cannot be
+     * interrupted: it finishes in the background and is thrown away, and no
+     * further variant starts.
+     */
+    external fun cancelImageScans(upToTicket: Long)
 
     /** Generate a barcode/QR code image from content. Returns raw pixel data or null on failure. */
     external fun generateBarcode(content: String, format: String, width: Int, height: Int): ByteArray?

@@ -16,6 +16,12 @@
 //!
 //! Acceptance mirrors the camera engine (engine.rs `apply_completion` /
 //! `apply_releases`), with "frames" replaced by "variants" — see [`Judge`].
+//!
+//! A scan can be cancelled (the user taps the photo again, or leaves the
+//! screen): see [`CancelLine`]. The scan call then returns "no code" within
+//! [`CANCEL_POLL`]; a variant already being decoded cannot be interrupted, so
+//! it finishes on its worker thread and is thrown away, and no further
+//! variant starts.
 
 use crate::engine::is_1d;
 use crate::{
@@ -23,13 +29,13 @@ use crate::{
     DecodeHit,
 };
 use jni::objects::{JByteArray, JByteBuffer, JClass, JObject, JValue};
-use jni::sys::{jboolean, jint};
+use jni::sys::{jboolean, jint, jlong};
 use jni::JNIEnv;
 use rxing::Luma8LuminanceSource;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
 use std::sync::{mpsc, Arc};
 use std::thread;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 /// Longest side the pyramid's full level may have; bigger images are box-
 /// downscaled first (a 50 MP panorama would otherwise cost ~50 MB per copy
@@ -43,6 +49,33 @@ const UPSCALE_MAX_SIDE: usize = 1024;
 /// Decode threads: one core stays free for the UI. The camera is off in
 /// image-upload mode, so the AF headroom the frame path keeps is not needed.
 const WORKERS: usize = 3;
+/// How often a scan that is waiting for its variants looks for a cancel.
+const CANCEL_POLL: Duration = Duration::from_millis(25);
+
+/// Which gallery scans have been cancelled. Kotlin numbers its scans with
+/// tickets that only ever grow and cancels by ticket: every scan up to and
+/// including the highest cancelled ticket is cancelled. So a cancel that
+/// lands before its scan has reached Rust still stops it, and a scan started
+/// afterwards (a higher ticket) is untouched. Tickets start at 1; zero or
+/// less means "cannot be cancelled".
+pub(crate) struct CancelLine(AtomicI64);
+
+impl CancelLine {
+    pub(crate) const fn new() -> Self {
+        CancelLine(AtomicI64::new(0))
+    }
+
+    pub(crate) fn cancel_up_to(&self, ticket: i64) {
+        self.0.fetch_max(ticket, Ordering::Relaxed);
+    }
+
+    pub(crate) fn is_cancelled(&self, ticket: i64) -> bool {
+        ticket > 0 && ticket <= self.0.load(Ordering::Relaxed)
+    }
+}
+
+/// The scans cancelled through `RustBridge.cancelImageScans`.
+static CANCELLED: CancelLine = CancelLine::new();
 
 /// `ImageScanResult.status` values (see ImageScanResult.kt).
 const STATUS_NOT_FOUND: jint = 0;
@@ -307,10 +340,47 @@ impl Judge {
 /// Scan one decoded image with every variant. `rotation_degrees` is the
 /// clockwise turn that displays the image upright (MediaStore ORIENTATION);
 /// it is composed into the exact grid's presentation orientation so the
-/// saved copy looks like the code did in the photo.
-pub(crate) fn scan_still(img: Luma, rotation_degrees: i32, exact: bool) -> Option<StillScan> {
+/// saved copy looks like the code did in the photo. `cancelled` is asked
+/// before the work starts and every [`CANCEL_POLL`] while it runs; once it
+/// says yes the scan returns None.
+pub(crate) fn scan_still(
+    img: Luma,
+    rotation_degrees: i32,
+    exact: bool,
+    cancelled: &dyn Fn() -> bool,
+) -> Option<StillScan> {
+    let hints = app_hints(0, true);
+    let decode = move |level: &Luma, binarizer: jint| {
+        Luma8LuminanceSource::new(level.data.clone(), level.w as u32, level.h as u32)
+            .ok()
+            .and_then(|src| decode_with_binarizer(src, binarizer, &hints, 0))
+    };
+    scan_still_with(img, rotation_degrees, exact, cancelled, Arc::new(decode))
+}
+
+/// One decode attempt: one pyramid level under one binarizer.
+type DecodeVariant = dyn Fn(&Luma, jint) -> Option<DecodeHit> + Send + Sync;
+
+/// [`scan_still`] with the per-variant decoder passed in.
+fn scan_still_with(
+    img: Luma,
+    rotation_degrees: i32,
+    exact: bool,
+    cancelled: &dyn Fn() -> bool,
+    decode: Arc<DecodeVariant>,
+) -> Option<StillScan> {
     let t0 = Instant::now();
+    let called_off = || {
+        let off = cancelled();
+        if off {
+            alog("ScanPerf", &format!("still scan cancelled after {}ms", t0.elapsed().as_millis()));
+        }
+        off
+    };
     if img.w < 8 || img.h < 8 || img.data.len() < img.w * img.h {
+        return None;
+    }
+    if called_off() {
         return None;
     }
     let long = img.w.max(img.h);
@@ -355,14 +425,17 @@ pub(crate) fn scan_still(img: Luma, rotation_degrees: i32, exact: bool) -> Optio
         ),
     );
 
+    // Building the pyramid of a large photo takes a while: look again.
+    if called_off() {
+        return None;
+    }
     let items = Arc::new(items);
     let next = Arc::new(AtomicUsize::new(0));
     let stop = Arc::new(AtomicBool::new(false));
-    let hints = Arc::new(app_hints(0, true));
     let (tx, rx) = mpsc::channel::<(usize, Option<DecodeHit>, u128)>();
     for _ in 0..WORKERS.min(items.len()) {
-        let (items, next, stop, hints, tx) =
-            (items.clone(), next.clone(), stop.clone(), hints.clone(), tx.clone());
+        let (items, next, stop, decode, tx) =
+            (items.clone(), next.clone(), stop.clone(), decode.clone(), tx.clone());
         thread::spawn(move || loop {
             if stop.load(Ordering::Relaxed) {
                 return;
@@ -372,9 +445,7 @@ pub(crate) fn scan_still(img: Luma, rotation_degrees: i32, exact: bool) -> Optio
                 return;
             };
             let t = Instant::now();
-            let hit = Luma8LuminanceSource::new(level.data.clone(), level.w as u32, level.h as u32)
-                .ok()
-                .and_then(|src| decode_with_binarizer(src, *binarizer, &hints, 0));
+            let hit = decode(level, *binarizer);
             // A send error means the scan already decided: stop.
             if tx.send((i, hit, t.elapsed().as_millis())).is_err() {
                 return;
@@ -385,7 +456,18 @@ pub(crate) fn scan_still(img: Luma, rotation_degrees: i32, exact: bool) -> Optio
 
     let quarter_turns = (rotation_degrees / 90).rem_euclid(4);
     let mut judge = Judge::new(exact, oned_gated);
-    while let Ok((i, hit, ms)) = rx.recv() {
+    loop {
+        // A cancel does not wait for the variants in flight: each of them
+        // finishes on its own thread, fails to send, and exits.
+        if called_off() {
+            stop.store(true, Ordering::Relaxed);
+            return None;
+        }
+        let (i, hit, ms) = match rx.recv_timeout(CANCEL_POLL) {
+            Ok(done) => done,
+            Err(mpsc::RecvTimeoutError::Timeout) => continue,
+            Err(mpsc::RecvTimeoutError::Disconnected) => break,
+        };
         let name = &items[i].0;
         let Some((result, grid, inverted, orientation)) = hit else {
             alog("ScanPerf", &format!("still {name}: miss in {ms}ms"));
@@ -465,12 +547,13 @@ fn new_image_scan_result<'local>(
     .unwrap_or_else(|_| JObject::null())
 }
 
-/// JNI entry point: `RustBridge.scanImageFile(data, rotationDegrees, exactMatch)`.
+/// JNI entry point: `RustBridge.scanImageFile(data, rotationDegrees, exactMatch, ticket)`.
 ///
 /// Decodes an encoded image file (JPEG/PNG) to luma and scans it at full
 /// strength. Returns an `ImageScanResult`: FOUND with its DecodeResult,
 /// NOT_FOUND, or UNSUPPORTED (not JPEG/PNG, or failed to decode here — the
-/// caller then decodes with Android and calls `scanImagePixels`).
+/// caller then decodes with Android and calls `scanImagePixels`). A scan
+/// cancelled through `cancelImageScans` reports NOT_FOUND.
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImageFile<'local>(
     mut env: JNIEnv<'local>,
@@ -478,7 +561,14 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImageFile
     data: JByteArray<'local>,
     rotation_degrees: jint,
     exact: jboolean,
+    ticket: jlong,
 ) -> JObject<'local> {
+    let cancelled = || CANCELLED.is_cancelled(ticket);
+    // Cancelled before it got here: skip copying and decoding the file.
+    if cancelled() {
+        alog("ScanPerf", "still: cancelled before decoding");
+        return new_image_scan_result(&mut env, STATUS_NOT_FOUND, None);
+    }
     let Ok(bytes) = env.convert_byte_array(&data) else {
         return new_image_scan_result(&mut env, STATUS_UNSUPPORTED, None);
     };
@@ -496,7 +586,7 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImageFile
     };
     drop(bytes);
     alog("ScanPerf", &format!("still decode {}x{} luma in {}ms", img.w, img.h, t.elapsed().as_millis()));
-    match scan_still(img, rotation_degrees, exact != 0) {
+    match scan_still(img, rotation_degrees, exact != 0, &cancelled) {
         Some(scan) => {
             let result = new_decode_result(&mut env, &scan);
             let status = if result.is_some() { STATUS_FOUND } else { STATUS_NOT_FOUND };
@@ -506,11 +596,11 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImageFile
     }
 }
 
-/// JNI entry point: `RustBridge.scanImagePixels(rgba, width, height, rowStride, rotationDegrees, exactMatch)`.
+/// JNI entry point: `RustBridge.scanImagePixels(rgba, width, height, rowStride, rotationDegrees, exactMatch, ticket)`.
 ///
 /// The fallback for formats Rust does not decode: RGBA_8888 pixels from an
 /// Android-decoded bitmap, in a DIRECT ByteBuffer valid for this call.
-/// Returns a DecodeResult or null.
+/// Returns a DecodeResult, or null (no code, or cancelled).
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImagePixels<'local>(
     mut env: JNIEnv<'local>,
@@ -521,7 +611,13 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImagePixe
     row_stride: jint,
     rotation_degrees: jint,
     exact: jboolean,
+    ticket: jlong,
 ) -> JObject<'local> {
+    let cancelled = || CANCELLED.is_cancelled(ticket);
+    if cancelled() {
+        alog("ScanPerf", "still: cancelled before converting the pixels");
+        return JObject::null();
+    }
     let (w, h) = (width.max(0) as usize, height.max(0) as usize);
     let stride = row_stride.max(width * 4).max(0) as usize;
     if w == 0 || h == 0 {
@@ -538,10 +634,25 @@ pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_scanImagePixe
     // the duration of this call.
     let px = unsafe { std::slice::from_raw_parts(ptr, cap) };
     let img = rgba_to_luma(px, w, h, stride);
-    match scan_still(img, rotation_degrees, exact != 0) {
+    match scan_still(img, rotation_degrees, exact != 0, &cancelled) {
         Some(scan) => new_decode_result(&mut env, &scan).unwrap_or_else(|| JObject::null()),
         None => JObject::null(),
     }
+}
+
+/// JNI entry point: `RustBridge.cancelImageScans(upToTicket)`.
+///
+/// Cancels every gallery scan whose ticket is `upToTicket` or lower, whether
+/// it is running or has not reached Rust yet. Returns at once; the scan calls
+/// themselves return within [`CANCEL_POLL`].
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_com_caravanfire_calmqr_rust_RustBridge_cancelImageScans<'local>(
+    _env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    up_to_ticket: jlong,
+) {
+    alog("ScanPerf", &format!("still: cancel requested up to ticket {up_to_ticket}"));
+    CANCELLED.cancel_up_to(up_to_ticket);
 }
 
 #[cfg(test)]
@@ -592,11 +703,65 @@ mod tests {
         Read { format: format.into(), text: text.into(), grid: grid.map(Into::into) }
     }
 
+    /// Nobody cancels.
+    fn never() -> bool {
+        false
+    }
+
+    /// A decoder that counts its calls, then hangs until `release` is dropped
+    /// (and then reports a miss).
+    struct Stuck {
+        decode: Arc<DecodeVariant>,
+        started: Arc<AtomicUsize>,
+        release: mpsc::Sender<()>,
+    }
+
+    fn stuck_decoder() -> Stuck {
+        let (release, gate) = mpsc::channel::<()>();
+        let gate = std::sync::Mutex::new(gate);
+        let started = Arc::new(AtomicUsize::new(0));
+        let decode: Arc<DecodeVariant> = {
+            let started = started.clone();
+            Arc::new(move |_: &Luma, _: jint| {
+                started.fetch_add(1, Ordering::SeqCst);
+                let _ = gate.lock().unwrap().recv();
+                None
+            })
+        };
+        Stuck { decode, started, release }
+    }
+
+    /// Scan a blank 2 MP photo on another thread with `stuck`'s decoder.
+    /// Returns the cancel switch, where the scan's result arrives, and the thread.
+    fn start_scan(
+        stuck: &Stuck,
+    ) -> (Arc<AtomicBool>, mpsc::Receiver<Option<StillScan>>, thread::JoinHandle<()>) {
+        let cancel = Arc::new(AtomicBool::new(false));
+        let (done, result) = mpsc::channel();
+        let scan = {
+            let (cancel, decode) = (cancel.clone(), stuck.decode.clone());
+            thread::spawn(move || {
+                let photo = Luma { data: vec![200u8; 1224 * 1632], w: 1224, h: 1632 };
+                let cancelled = || cancel.load(Ordering::SeqCst);
+                let _ = done.send(scan_still_with(photo, 0, false, &cancelled, decode));
+            })
+        };
+        (cancel, result, scan)
+    }
+
+    fn wait_until(what: &str, done: impl Fn() -> bool) {
+        let t = Instant::now();
+        while !done() {
+            assert!(t.elapsed() < Duration::from_secs(5), "timed out waiting until {what}");
+            thread::sleep(Duration::from_millis(1));
+        }
+    }
+
     #[test]
     fn small_qr_in_a_large_photo_is_found_with_its_exact_grid() {
         // 8 MP canvas (the Kompakt camera's size), symbol ~4% of the width.
         let img = qr_on_canvas("https://calm.example/photo", 4, 2448, 3264, 1700, 2600, false);
-        let s = scan_still(img, 0, true).expect("code found");
+        let s = scan_still(img, 0, true, &never).expect("code found");
         assert_eq!(s.format, "QR_CODE");
         assert_eq!(s.text, "https://calm.example/photo");
         let g = s.grid.expect("exact grid");
@@ -606,7 +771,7 @@ mod tests {
     #[test]
     fn screenshot_sized_qr_is_found() {
         let img = qr_on_canvas("WIFI:S:calm;T:WPA;P:secret;;", 3, 480, 800, 90, 200, false);
-        let s = scan_still(img, 0, false).expect("code found");
+        let s = scan_still(img, 0, false, &never).expect("code found");
         assert_eq!(s.text, "WIFI:S:calm;T:WPA;P:secret;;");
         assert!(s.grid.is_some());
     }
@@ -614,21 +779,89 @@ mod tests {
     #[test]
     fn inverted_qr_keeps_its_polarity_in_the_grid() {
         let img = qr_on_canvas("inverted", 6, 1200, 1600, 300, 400, true);
-        let s = scan_still(img, 0, false).expect("code found");
+        let s = scan_still(img, 0, false, &never).expect("code found");
         assert!(s.grid.unwrap().starts_with("inv:"));
     }
 
     #[test]
     fn photo_rotation_is_composed_into_the_grid_orientation() {
         let img = qr_on_canvas("turned", 6, 1200, 1600, 300, 400, false);
-        let s = scan_still(img, 90, false).expect("code found");
+        let s = scan_still(img, 90, false, &never).expect("code found");
         assert!(s.grid.unwrap().starts_with("o1:"));
     }
 
     #[test]
     fn blank_photo_has_no_code() {
         let img = Luma { data: vec![200u8; 1224 * 1632], w: 1224, h: 1632 };
-        assert_eq!(scan_still(img, 0, false), None);
+        assert_eq!(scan_still(img, 0, false, &never), None);
+    }
+
+    #[test]
+    fn a_scan_cancelled_before_it_starts_reports_no_code() {
+        // `screenshot_sized_qr_is_found` reads this very photo when nobody cancels.
+        let img = qr_on_canvas("WIFI:S:calm;T:WPA;P:secret;;", 3, 480, 800, 90, 200, false);
+        assert_eq!(scan_still(img, 0, false, &|| true), None);
+    }
+
+    #[test]
+    fn cancelling_returns_while_its_variants_are_still_running() {
+        let stuck = stuck_decoder();
+        let (cancel, result, scan) = start_scan(&stuck);
+        wait_until("a variant is running", || stuck.started.load(Ordering::SeqCst) > 0);
+        cancel.store(true, Ordering::SeqCst);
+        let out = result
+            .recv_timeout(Duration::from_secs(5))
+            .expect("the scan returns although its variants are still running");
+        assert_eq!(out, None);
+        drop(stuck.release);
+        scan.join().unwrap();
+    }
+
+    #[test]
+    fn after_a_cancel_no_further_variant_is_started() {
+        // The photo has six variants (three sizes, two binarizers) for three workers.
+        let stuck = stuck_decoder();
+        let (cancel, result, scan) = start_scan(&stuck);
+        wait_until("every worker is busy", || stuck.started.load(Ordering::SeqCst) == WORKERS);
+        cancel.store(true, Ordering::SeqCst);
+        result.recv_timeout(Duration::from_secs(5)).expect("the scan returns");
+        drop(stuck.release);
+        scan.join().unwrap();
+        // Each worker holds a handle on the decoder until it exits.
+        wait_until("the workers have gone", || Arc::strong_count(&stuck.decode) == 1);
+        assert_eq!(stuck.started.load(Ordering::SeqCst), WORKERS, "no variant beyond the three in flight may start");
+    }
+
+    #[test]
+    fn cancelling_a_ticket_cancels_it_and_the_ones_before_it() {
+        let line = CancelLine::new();
+        line.cancel_up_to(5);
+        assert!(line.is_cancelled(5));
+        assert!(line.is_cancelled(1));
+    }
+
+    #[test]
+    fn a_ticket_issued_after_a_cancel_is_untouched() {
+        let line = CancelLine::new();
+        assert!(!line.is_cancelled(1), "nothing is cancelled to begin with");
+        line.cancel_up_to(5);
+        assert!(!line.is_cancelled(6));
+    }
+
+    #[test]
+    fn an_older_cancel_does_not_undo_a_newer_one() {
+        let line = CancelLine::new();
+        line.cancel_up_to(5);
+        line.cancel_up_to(3);
+        assert!(line.is_cancelled(4));
+    }
+
+    #[test]
+    fn a_scan_without_a_ticket_cannot_be_cancelled() {
+        let line = CancelLine::new();
+        line.cancel_up_to(7);
+        assert!(!line.is_cancelled(0));
+        assert!(!line.is_cancelled(-1));
     }
 
     #[test]
@@ -637,7 +870,7 @@ mod tests {
         let bytes = png_bytes(&l.data, l.w, l.h, png::ColorType::Grayscale);
         let ImageDecode::Ok(img) = decode_image(&bytes) else { panic!("png decodes") };
         assert_eq!(img.data, l.data);
-        assert_eq!(scan_still(img, 0, false).unwrap().text, "from a png");
+        assert_eq!(scan_still(img, 0, false, &never).unwrap().text, "from a png");
     }
 
     #[test]
@@ -652,7 +885,7 @@ mod tests {
         let bytes = png_bytes(&rgba, l.w, l.h, png::ColorType::Rgba);
         let ImageDecode::Ok(img) = decode_image(&bytes) else { panic!("png decodes") };
         assert_eq!(img.data[0], 255, "transparent reads as white");
-        assert_eq!(scan_still(img, 0, false).unwrap().text, "transparent");
+        assert_eq!(scan_still(img, 0, false, &never).unwrap().text, "transparent");
     }
 
     #[test]
@@ -664,7 +897,7 @@ mod tests {
             .unwrap();
         let ImageDecode::Ok(img) = decode_image(&bytes) else { panic!("jpeg decodes") };
         assert_eq!((img.w, img.h), (800, 1000));
-        let s = scan_still(img, 0, false).expect("code found");
+        let s = scan_still(img, 0, false, &never).expect("code found");
         assert_eq!(s.text, "from a jpeg");
     }
 

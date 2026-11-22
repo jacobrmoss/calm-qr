@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -78,11 +80,15 @@ import com.mudita.mmd.components.progress_indicator.CircularProgressIndicatorMMD
 import com.mudita.mmd.components.text.TextMMD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicLong
 
 // With targetSdk <= 32 this is the gallery permission on every Android version.
 private const val PHOTO_PERMISSION = Manifest.permission.READ_EXTERNAL_STORAGE
@@ -96,8 +102,58 @@ private const val MAX_RUST_FILE_BYTES = 48L * 1024 * 1024
 /** Longest side handed to the scanner from Android's decoder (matches still.rs). */
 private const val MAX_SCAN_SIDE = 4096
 
+/**
+ * Numbers the scans for [RustBridge.cancelImageScans]. Rust remembers the
+ * highest ticket ever cancelled, so these only ever grow for the life of the
+ * process, across every visit to the screen.
+ */
+private val scanTickets = AtomicLong()
+
 /** One gallery image: MediaStore id/uri and the clockwise turn that shows it upright. */
 private data class GalleryImage(val id: Long, val uri: Uri, val orientation: Int)
+
+/**
+ * Where the gallery's one scan stands. FOUND is the moment between a hit and
+ * the detail page taking over: the photo keeps its spinner and nothing
+ * responds.
+ */
+internal enum class ScanPhase { IDLE, SCANNING, FOUND }
+
+/** What a tap on a gallery photo does. */
+internal enum class PhotoTap { SCAN, CANCEL_SCAN, SWITCH_SCAN, NOTHING }
+
+/**
+ * One scan at a time: a tap scans a photo. While that scan runs, a tap on the
+ * same photo cancels it, and a tap on another photo cancels it and scans that
+ * photo instead.
+ */
+internal fun photoTap(phase: ScanPhase, isSelectedPhoto: Boolean): PhotoTap = when (phase) {
+    ScanPhase.IDLE -> PhotoTap.SCAN
+    ScanPhase.SCANNING -> if (isSelectedPhoto) PhotoTap.CANCEL_SCAN else PhotoTap.SWITCH_SCAN
+    ScanPhase.FOUND -> PhotoTap.NOTHING
+}
+
+/** What is drawn over a gallery photo. */
+internal enum class PhotoMark { NONE, SCANNING, SELECTED, CANCELLED }
+
+/**
+ * The photo being scanned carries the spinner, and keeps it after a hit
+ * until the detail page takes over. A photo whose scan the user has just
+ * cancelled carries the cancelled mark; scanning it again swaps the mark for
+ * the spinner at once.
+ */
+internal fun photoMark(phase: ScanPhase, isSelectedPhoto: Boolean, isCancelledPhoto: Boolean): PhotoMark = when {
+    isSelectedPhoto && phase != ScanPhase.IDLE -> PhotoMark.SCANNING
+    isSelectedPhoto -> PhotoMark.SELECTED
+    isCancelledPhoto -> PhotoMark.CANCELLED
+    else -> PhotoMark.NONE
+}
+
+/** The scan in flight: its coroutine, and the ticket Rust knows it by. */
+private class RunningScan {
+    var job: Job? = null
+    var ticket = 0L
+}
 
 private sealed interface Thumb {
     data object Loading : Thumb
@@ -112,14 +168,23 @@ private sealed interface Thumb {
  * time. Tapping a photo selects it (exactly one) and immediately runs Rust's
  * full-strength still-image scan; a hit goes through [onCodeScanned] like a
  * camera scan, a miss clears the selection and calls [onNoCodeDetected] (the
- * screen shows its "No code detected" snackbar). [onScanStarted] fires as a
- * new scan begins, so a stale snackbar can go away.
+ * screen shows its "No code detected" snackbar). Tapping the photo again
+ * while it is being scanned cancels the scan: the selection clears, the
+ * photo carries a cancelled mark for a moment in place of its spinner (see
+ * [photoMark]) and [onScanCancelled] is called (the screen shows "Scan
+ * cancelled"). Tapping another photo instead cancels the scan the same way
+ * and scans the tapped photo; then [onScanSwitched] is called (the screen
+ * shows "Scan cancelled. New scan started."). See [photoTap]. [onScanStarted]
+ * fires as a new scan begins, so a stale snackbar can go away; on a switch
+ * it fires before [onScanSwitched].
  */
 @Composable
 fun ImageUploadPane(
     exactMatchEnabled: Boolean,
     onCodeScanned: (content: String, format: String, qrGrid: String?) -> Unit,
     onNoCodeDetected: () -> Unit,
+    onScanCancelled: () -> Unit,
+    onScanSwitched: () -> Unit,
     onScanStarted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -188,6 +253,8 @@ fun ImageUploadPane(
                 exactMatchEnabled = exactMatchEnabled,
                 onCodeScanned = onCodeScanned,
                 onNoCodeDetected = onNoCodeDetected,
+                onScanCancelled = onScanCancelled,
+                onScanSwitched = onScanSwitched,
                 onScanStarted = onScanStarted,
             )
         }
@@ -199,6 +266,8 @@ private fun Gallery(
     exactMatchEnabled: Boolean,
     onCodeScanned: (content: String, format: String, qrGrid: String?) -> Unit,
     onNoCodeDetected: () -> Unit,
+    onScanCancelled: () -> Unit,
+    onScanSwitched: () -> Unit,
     onScanStarted: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -206,29 +275,79 @@ private fun Gallery(
     val loader = remember { ThumbnailLoader(context.contentResolver) }
     var images by remember { mutableStateOf<List<GalleryImage>?>(null) }
     var selectedId by remember { mutableStateOf<Long?>(null) }
-    var scanning by remember { mutableStateOf(false) }
+    var phase by remember { mutableStateOf(ScanPhase.IDLE) }
+    val running = remember { RunningScan() }
+    // The photo whose scan the user just cancelled: it carries the cancelled
+    // mark for a moment. cancelCount restarts that moment when the same photo
+    // is cancelled twice in a row.
+    var cancelledId by remember { mutableStateOf<Long?>(null) }
+    var cancelCount by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         images = withContext(Dispatchers.IO) { queryImages(context.contentResolver) }
     }
 
+    LaunchedEffect(cancelCount) {
+        if (cancelledId != null) {
+            delay(CANCELLED_MARK_MILLIS)
+            cancelledId = null
+        }
+    }
+
+    // Leaving mid-scan (back to the camera, or off the screen) stops the Rust
+    // work as well; the scan's coroutine ends with the composition.
+    DisposableEffect(Unit) {
+        onDispose {
+            if (phase == ScanPhase.SCANNING) RustBridge.cancelImageScans(running.ticket)
+        }
+    }
+
     fun scan(image: GalleryImage) {
         selectedId = image.id
-        scanning = true
+        phase = ScanPhase.SCANNING
+        // Scanning the cancelled photo again ends its mark for good; a mark on
+        // any other photo lives out its moment.
+        if (cancelledId == image.id) cancelledId = null
         onScanStarted()
-        scope.launch {
+        val ticket = scanTickets.incrementAndGet()
+        running.ticket = ticket
+        running.job = scope.launch {
             val result = withContext(Dispatchers.Default) {
-                scanGalleryImage(context.contentResolver, image, exactMatchEnabled)
+                scanGalleryImage(context.contentResolver, image, exactMatchEnabled, ticket)
             }
             if (result != null) {
-                // Selection and badge stay up until the detail page replaces us.
+                // Selection and spinner stay up until the detail page replaces us.
+                phase = ScanPhase.FOUND
                 onCodeScanned(result.text, result.format, result.qrGrid)
             } else {
-                scanning = false
+                phase = ScanPhase.IDLE
                 selectedId = null
                 onNoCodeDetected()
             }
         }
+    }
+
+    /** Stops the scan in flight and leaves the cancelled mark on its photo. */
+    fun stopScan() {
+        // Rust first, so its workers stop; then the coroutine, so a result
+        // already on its way back is dropped instead of acted on.
+        RustBridge.cancelImageScans(running.ticket)
+        running.job?.cancel()
+        cancelledId = selectedId
+        cancelCount++
+    }
+
+    fun cancelScan() {
+        stopScan()
+        phase = ScanPhase.IDLE
+        selectedId = null
+        onScanCancelled()
+    }
+
+    fun switchScan(image: GalleryImage) {
+        stopScan()
+        scan(image)
+        onScanSwitched()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -257,13 +376,24 @@ private fun Gallery(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             for (image in row) {
+                                val selected = image.id == selectedId
+                                val tap = photoTap(phase, selected)
                                 ThumbnailCell(
                                     image = image,
                                     loader = loader,
-                                    selected = image.id == selectedId,
-                                    scanning = scanning && image.id == selectedId,
-                                    enabled = !scanning,
-                                    onClick = { scan(image) },
+                                    selected = selected,
+                                    mark = photoMark(phase, selected, image.id == cancelledId),
+                                    enabled = tap != PhotoTap.NOTHING,
+                                    onClickLabel = if (tap == PhotoTap.CANCEL_SCAN) stringResource(R.string.cancel) else null,
+                                    onClick = {
+                                        // Decided at the tap, from the state as it is then.
+                                        when (photoTap(phase, image.id == selectedId)) {
+                                            PhotoTap.SCAN -> scan(image)
+                                            PhotoTap.CANCEL_SCAN -> cancelScan()
+                                            PhotoTap.SWITCH_SCAN -> switchScan(image)
+                                            PhotoTap.NOTHING -> Unit
+                                        }
+                                    },
                                     modifier = Modifier
                                         .weight(1f)
                                         .aspectRatio(1f)
@@ -285,8 +415,9 @@ private fun ThumbnailCell(
     image: GalleryImage,
     loader: ThumbnailLoader,
     selected: Boolean,
-    scanning: Boolean,
+    mark: PhotoMark,
     enabled: Boolean,
+    onClickLabel: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -302,7 +433,7 @@ private fun ThumbnailCell(
     Box(
         modifier = modifier
             .border(width = if (selected) 4.dp else 1.dp, color = MaterialTheme.colorScheme.onBackground)
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(enabled = enabled, onClickLabel = onClickLabel, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         when (val t = thumb) {
@@ -326,20 +457,23 @@ private fun ThumbnailCell(
                 modifier = Modifier.size(28.dp)
             )
         }
-        if (scanning) {
-            // Processing: MMD's loader centred on the photo, on a white disc
-            // so it reads over any picture.
-            Box(
-                modifier = Modifier
-                    .size(PROCESSING_DISC)
-                    .background(MaterialTheme.colorScheme.background, CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
+        when (mark) {
+            // Processing: MMD's loader centred on the photo.
+            PhotoMark.SCANNING -> MarkDisc {
                 LoadingSpinner(description = stringResource(R.string.scanning_image))
             }
-        } else if (selected) {
-            Box(
+
+            // Cancelled by the user: an x where the loader was, in the same
+            // disc, so only the disc's inside changes.
+            PhotoMark.CANCELLED -> MarkDisc {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = stringResource(R.string.scan_cancelled),
+                    modifier = Modifier.size(CANCELLED_X)
+                )
+            }
+
+            PhotoMark.SELECTED -> Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
@@ -354,12 +488,41 @@ private fun ThumbnailCell(
                     modifier = Modifier.size(20.dp)
                 )
             }
+
+            PhotoMark.NONE -> Unit
         }
+    }
+}
+
+/**
+ * The white, ringed disc a photo's spinner or cancelled mark sits on, so it
+ * reads over any picture.
+ */
+@Composable
+private fun MarkDisc(content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(PROCESSING_DISC)
+            .background(MaterialTheme.colorScheme.background, CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
 
 /** White disc behind the processing loader: the 32dp loader plus 8dp all round. */
 private val PROCESSING_DISC = 48.dp
+
+/** The x on a cancelled photo, inside that disc. */
+private val CANCELLED_X = 36.dp
+
+/**
+ * How long a cancelled photo keeps its mark: brief, but long enough for the
+ * e-ink screen to draw it and for the eye to catch it. (1.5 s hung "a tad too
+ * long" on the Kompakt; the screen's own redraw adds to what is set here.)
+ */
+private const val CANCELLED_MARK_MILLIS = 1_000L
 
 /**
  * MMD's standard loading symbol: CircularProgressIndicatorMMD, eight spokes
@@ -449,9 +612,16 @@ private fun queryImages(resolver: ContentResolver): List<GalleryImage> {
 /**
  * Rust decodes JPEG/PNG to grayscale itself and scans at full strength;
  * anything else (HEIC, WebP, GIF...) is decoded by Android and handed over as
- * pixels. Blocks for the whole scan.
+ * pixels. Blocks for the whole scan. [ticket] is what
+ * [RustBridge.cancelImageScans] stops the Rust part by; between the steps
+ * here a cancelled coroutine ends the work.
  */
-private fun scanGalleryImage(resolver: ContentResolver, image: GalleryImage, exact: Boolean): DecodeResult? {
+private suspend fun scanGalleryImage(
+    resolver: ContentResolver,
+    image: GalleryImage,
+    exact: Boolean,
+    ticket: Long,
+): DecodeResult? {
     val size = try {
         resolver.openAssetFileDescriptor(image.uri, "r")?.use { it.length } ?: -1L
     } catch (e: Exception) {
@@ -463,17 +633,24 @@ private fun scanGalleryImage(resolver: ContentResolver, image: GalleryImage, exa
         } catch (e: Exception) {
             null
         } ?: return null
-        val out = RustBridge.scanImageFile(bytes, image.orientation, exact)
+        currentCoroutineContext().ensureActive()
+        val out = RustBridge.scanImageFile(bytes, image.orientation, exact, ticket)
         when (out?.status) {
             ImageScanResult.FOUND -> return out?.result
             ImageScanResult.NOT_FOUND, null -> return null
             else -> Unit // UNSUPPORTED: fall through to Android's decoder
         }
     }
-    return scanWithAndroidDecoder(resolver, image, exact)
+    currentCoroutineContext().ensureActive()
+    return scanWithAndroidDecoder(resolver, image, exact, ticket)
 }
 
-private fun scanWithAndroidDecoder(resolver: ContentResolver, image: GalleryImage, exact: Boolean): DecodeResult? {
+private suspend fun scanWithAndroidDecoder(
+    resolver: ContentResolver,
+    image: GalleryImage,
+    exact: Boolean,
+    ticket: Long,
+): DecodeResult? {
     val decoded = try {
         ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, image.uri)) { decoder, info, _ ->
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
@@ -489,12 +666,13 @@ private fun scanWithAndroidDecoder(resolver: ContentResolver, image: GalleryImag
     } catch (e: Exception) {
         return null
     }
+    currentCoroutineContext().ensureActive()
     val argb = if (decoded.config == Bitmap.Config.ARGB_8888) decoded
     else decoded.copy(Bitmap.Config.ARGB_8888, false) ?: return null
     val pixels = ByteBuffer.allocateDirect(argb.byteCount)
     argb.copyPixelsToBuffer(pixels)
     // ImageDecoder already applied the photo's orientation: rotation 0.
-    return RustBridge.scanImagePixels(pixels, argb.width, argb.height, argb.rowBytes, 0, exact)
+    return RustBridge.scanImagePixels(pixels, argb.width, argb.height, argb.rowBytes, 0, exact, ticket)
 }
 
 private fun isPhotoPermissionGranted(context: Context): Boolean =
