@@ -38,6 +38,7 @@ I found some open source QR scanning apps (it's a fairly rudimentary thing) but 
 - **Open links directly** — tap to launch URLs in the browser
 - **Save Wifi** — save wifi configs from QR codes directly to your device
 - **Save to Contacts** — save vCard QR codes to your phone contacts
+- **Scan for other apps** — apps that ask for a barcode scanner (the common ZXing scan request) can use Calm QR's scanner; the code goes back to the app that asked and is not saved
 - **E-ink optimized UI** — built with Mudita Mindful Design (MMD) components
 - **Fully offline** — no network permissions, no analytics, no trackers
 - **Multi-language support** — 23 languages included

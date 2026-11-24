@@ -27,6 +27,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Lends the scanner to other apps: they send the common ZXing scan
+             request and get the scanned text back. Nothing is saved, and the
+             asking app is not recorded. See ScanForAppActivity. -->
+        <activity
+            android:name=".ScanForAppActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Calm">
+            <intent-filter>
+                <action android:name="com.google.zxing.client.android.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

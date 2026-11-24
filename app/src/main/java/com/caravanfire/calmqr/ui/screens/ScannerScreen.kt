@@ -13,6 +13,7 @@ import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
+import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
@@ -595,6 +596,14 @@ private fun CameraPreview(
     val isCameraStreaming = streamState == PreviewView.StreamState.STREAMING
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    // The camera uses this preview bound, so it releases only its own. Calm QR
+    // can hold two scanners at once: its own, paused in the background, while
+    // another app borrows the scanner (ScanForAppActivity). unbindAll() here
+    // released the other one too, which then stayed on "Initializing camera".
+    val boundUseCases = remember { java.util.concurrent.atomic.AtomicReference<Array<UseCase>>(emptyArray()) }
+    // Set when this preview leaves composition; a camera provider that only
+    // answers after that must not bind (nothing would release it).
+    val disposed = remember { java.util.concurrent.atomic.AtomicBoolean(false) }
 
     LaunchedEffect(scannedCode) {
         scannedCode?.let { code ->
@@ -604,12 +613,16 @@ private fun CameraPreview(
 
     DisposableEffect(Unit) {
         onDispose {
+            disposed.set(true)
             executor.shutdown()
             // Leaving composition without leaving the screen (switching to
             // Image Upload) must release the camera: it is bound to the
-            // screen's lifecycle, which stays alive.
+            // screen's lifecycle, which stays alive. Only this preview's own
+            // use cases: another scanner may be bound in this process.
             if (cameraProviderFuture.isDone) {
-                runCatching { cameraProviderFuture.get().unbindAll() }
+                runCatching {
+                    cameraProviderFuture.get().unbind(*boundUseCases.getAndSet(emptyArray()))
+                }
             }
         }
     }
@@ -621,7 +634,9 @@ private fun CameraPreview(
                     // The screen can be left before the provider future resolves
                     // (fast back press on first open); binding to a destroyed
                     // lifecycle throws.
-                    if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                    if (disposed.get() ||
+                        lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED
+                    ) {
                         return@addListener
                     }
                     val cameraProvider = cameraProviderFuture.get()
@@ -690,13 +705,14 @@ private fun CameraPreview(
 
                     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-                    cameraProvider.unbindAll()
+                    cameraProvider.unbind(*boundUseCases.getAndSet(emptyArray()))
                     val cam = cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
                         preview,
                         imageAnalysis
                     )
+                    boundUseCases.set(arrayOf(preview, imageAnalysis))
                     localCamera = cam
                     onCameraBound(cam)
                 }, ContextCompat.getMainExecutor(ctx))
